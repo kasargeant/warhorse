@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`The Warhorse class should be able to load a file 1`] = `
+"// Imports
+const Square = require(\\"./Square\\");
+
+let sq = new Square(30);
+
+console.log(sq.area);
+"
+`;
+
+exports[`The Warhorse class should be able to parse a filepath 1`] = `
+Object {
+  "config": false,
+  "directory": "./test/shared/client_src",
+  "extension": ".js",
+  "name": "index.js",
+  "path": "./test/shared/client_src/index.js",
+  "stem": "./test/shared/client_src/index",
+}
+`;
