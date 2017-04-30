@@ -9,7 +9,8 @@
 // const Warhorse = require("./core/Warhorse");
 
 function tasks(warhorse) {
-    
+
+    // TASK: BUILD
     warhorse.task("build", function() {
         warhorse.load("./test/shared/client_src/js/*.js", function(file) {
             warhorse.bundle(file, function(file) {
@@ -20,6 +21,21 @@ function tasks(warhorse) {
         });
     });
 
+    // TASK: CREATE
+    warhorse.task("create", function() {
+        warhorse.create("./", function(file) {
+
+        });
+    });
+
+    // TASK: DOCUMENT
+    warhorse.task("document", function() {
+        warhorse.document("./", function(file) {
+
+        });
+    });
+
+    // TASK: PRECOMPILE
     warhorse.task("precompile", function() {
         warhorse.load("./test/shared/client_src/css/*.css", function(file) {
             warhorse.minifyCSS(file, function(file) {
@@ -28,7 +44,6 @@ function tasks(warhorse) {
             });
         });
     });
-
 }
 
 // Exports

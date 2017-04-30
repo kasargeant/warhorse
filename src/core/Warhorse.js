@@ -29,7 +29,7 @@ class Warhorse {
      */
     constructor(options = {}) {
         this.defaults = {
-            directory: "./",
+            directory: process.cwd(),
             bundle: {
                 minify: true
             },
@@ -73,29 +73,24 @@ class Warhorse {
                     console.log(`     Uglifyied length: ${file.content.length}`); // minified output
                 }
             }
-            next(file);//this.save(dstPath, result.code);
+            // Pass on to the next function.
+            next(file);
         }.bind(this));
     }
 
     /**
-     * Minify CSS function.
+     * Create project convention function.
      * @param file
      * @param next
      * @param options
      */
-    minifyCSS(file, next, options = {}) {
+    create(file, next, options = {}) {
+        let convention = "default";
+        console.log(` * Creating project from convention: ${convention}`);
+        console.log(`   - Working directory: ${process.cwd()}`);
 
-        console.log(` - Minifying CSS from: ${file.path}`);
-
-        let settings = Object.assign(this.settings.bundle, options);
-
-        var minifiedCss = csso.minify(file.content).css;
-
-        console.log(minifiedCss);
-
-        file.content = minifiedCss;
-
-        next(file);//this.save(dstPath, result.code);
+        // Pass on to the next function.
+        next(file);
     }
 
     /**
@@ -106,30 +101,11 @@ class Warhorse {
      */
     document(file, next, options = {}) {
 
-        console.log(` - Documenting file(s) from: ${file.path}`);
-
-        let settings = Object.assign(this.settings.bundle, options);
-
-        let buffer = "";
-        let b = browserify(file.path).bundle();
-        b.on("error", console.error);
-        b.on("data", function(data) {buffer += data;});
-        b.on("end", function() {
-            file.content = buffer;
-            console.log(`     Browserifyied length: ${file.content.length}`);
-            if(settings.minify) {
-                console.log(` - Minimising file from: ${file.path}`);
-                let result = uglify.minify({"file": buffer}, {
-                    fromString: true
-                });
-                if(result) {
-                    // We only care about the code itself - not the uglify object.
-                    file.content = result.code;
-                    console.log(`     Uglifyied length: ${file.content.length}`); // minified output
-                }
-            }
-            next(file);//this.save(dstPath, result.code);
-        }.bind(this));
+        console.log(` * Documenting file(s) from: ${file.path}`);
+        console.log(`   - TO BE IMPLEMENTED.`);
+        next(file);
+        return;
+        let config = Object.assign(this.settings.document, options);
     }
 
 
@@ -195,6 +171,32 @@ class Warhorse {
         }
     }
 
+    /**
+     * Minify CSS function.
+     * @param file
+     * @param next
+     * @param options
+     */
+    minifyCSS(file, next, options = {}) {
+
+        console.log(` - Minifying CSS from: ${file.path}`);
+
+        let settings = Object.assign(this.settings.bundle, options);
+
+        var minifiedCss = csso.minify(file.content).css;
+
+        console.log(minifiedCss);
+
+        file.content = minifiedCss;
+
+        next(file);//this.save(dstPath, result.code);
+    }
+
+    /**
+     * Splits a file path into its component parts.
+     * @param filePath
+     * @returns {*}
+     */
     splitPath(filePath) {
 
         // Sanity check
@@ -255,7 +257,7 @@ class Warhorse {
         console.log(`TASK ${name}`);
         let action = this.tasks[name];
         if(action !== null) {
-            console.log("TYPE: " + typeof action);
+            //console.log("Executing command: " + typeof action);
             action();
         }
     }

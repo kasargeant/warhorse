@@ -9,7 +9,10 @@ function run(command, options) {
 
     configureTasks(warhorse);
 
+    console.log();
+    console.log(`WARHORSE working...`);
     warhorse.execute(command);
+    console.log(`WARHORSE done.`);
 }
 
 // Exports
