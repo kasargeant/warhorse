@@ -1,12 +1,14 @@
 # Warhorse
 
-NOTE: THIS PROJECT IS STILL BEING PROTOTYPED.  AND IS BASICALLY UNUSABLE FOR ANY SERIOUS  PRODUCTION PROJECTS AT PRESENT.
+NOTE: THIS PROJECT IS STILL BEING PROTOTYPED.  AND IS BASICALLY UNUSABLE FOR ANY PRODUCTION PROJECTS AT PRESENT.
 
 YOU HAVE BEEN WARNED!!! ;)
 
 ## Installation
 
-    npm install warhorse
+    npm -g install warhorse
+
+After that one line, you're done.  
 
 ## What can Warhorse do?
 
@@ -23,11 +25,8 @@ Things it does :-
 
 In addition to the core functionality it offers developers.  It also offers a range of templates and layouts for project development called the 'Warhorse Convention'.  In essence a limited range of project setups where the emphasis is on minimalism, simplicity and productivity.
 
-So in short, it can setup your project, build and do all the grunge work of on-going development, pack and publish the final result... with absolutely no effort required beyond
+So in short, it can setup your project, build and do all the grunge work of on-going development, pack and publish the final result... with little, to no, effort required beyond installing Warhorse itself with the npm command.
  
-    npm -g install warhorse
-    
-After that one line, you're done.  
 Oh and you also get all API, test, coverage and linting documentation automatically too!
 
 ## Why is Warhorse special?

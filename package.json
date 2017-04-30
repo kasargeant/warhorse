@@ -1,11 +1,16 @@
 {
   "name": "Warhorse",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "A simple, friendly and reliable JavaScript Task Runner... able to crush your enemies!",
   "keywords": ["javascript", "task", "test", "runner", "build", "automate", "continuous", "development"],
   "author": "Kyle Alexis Sargeant",
   "license": "GPL-3.0",
-  "main": "./dist/server/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kasargeant/warhorse.git"
+  },
+  "homepage": "https://github.com/kasargeant/warhorse",
+  "main": "index.js",
   "directories": {
     "doc": "docs",
     "test": "test"
