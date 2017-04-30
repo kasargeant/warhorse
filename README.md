@@ -1,4 +1,4 @@
-# Warhorse
+# Warhorse v0.0.2
 
 NOTE: THIS PROJECT IS STILL BEING PROTOTYPED.  AND IS BASICALLY UNUSABLE FOR ANY PRODUCTION PROJECTS AT PRESENT.
 
@@ -16,44 +16,100 @@ Warhorse is a task runner designed specifically for JavaScript projects.  It is 
 
 Things it does :-
 
-* Bundle files
-* Compress assets
-* Document projects
-* Handle version control
-* Minimise scripts
-* Clean up codebases
+* Bundles files
+* Compresses assets
+* Documents projects (API, test, coverage and linting)
+* Handles version control
+* Minimises scripts
+* Cleans up codebases
 
-In addition to the core functionality it offers developers.  It also offers a range of templates and layouts for project development called the 'Warhorse Convention'.  In essence a limited range of project setups where the emphasis is on minimalism, simplicity and productivity.
+In addition to this core task runner functionality it offers developers, it also offers a range of "Conventions" (pre-defined structures, code templates, naming and configuration schemes) for rapid project development.  In essence a standardised collection of project setups with an emphasis is on minimalism, simplicity and readability.
 
-So in short, it can setup your project, build and do all the grunge work of on-going development, pack and publish the final result... with little, to no, effort required beyond installing Warhorse itself with the npm command.
- 
-Oh and you also get all API, test, coverage and linting documentation automatically too!
 
 ## Why is Warhorse special?
 
-Warhorse was written as a reaction to the approach taken by build tooling and task runners such as Maven, Gradle, Grunt and Gulp.  Warhorse aims to be everything that they are not.  In short, to be:-
+In short, because it's ludicrously simple to use - and almost as simple to configure.  
 
-* An extremely simple to use task-runner
-* That works "out-the-box" for 90% of projects,
-* Is based entirely on plain-old-JavaScript-functions!
-* Is reliable, predictable and simple to modify
-* Has "batteries-included" - no other installations are required
-* Follows only standards and the most commonly-used practises wherever possible 
-* Can crush your enemies.
+And if Warhorse's suggested project Conventions work for you - then your entire project can be automated in less than five minutes and with zero-configuration!
+
+Warhorse was written as a reaction to the approach taken by build tooling and task runners such as Maven, Gradle, Grunt and Gulp.  Warhorse aims to be everything that they are not:-
+
+* An extremely simple to use task-runner,
+* Handles all the typical tasks needed by 90% of JavaScript projects,
+* Works "out-the-box" and has "batteries-included".  No plug-in installations necessary,
+* Is reliable, predictable and simple to modify,
+* Follows industry standards and the best commonly-used patterns wherever possible,
+* Is lightweight, written in ES2015 style and is hopefully, well-tested and documented.
+* It can crush your enemies!
 
 ## Usage
 
+### Executing tasks
+
 Warhorse is designed to be used on the command-line, or triggered by file watcher or IDE.
 
-    warhorse dist
-    
-for example, tells Warhorse to test, build, document and bundle your project in the dist/ directory.
+    warhorse <command> <options>
 
-But if you want to run, for example, just the tests:-
+It offers a fixed, but configurable, set of available tasks to the developer:-
+
+* **build**: just pack assets and bundle code.
+* **distribute**: runs tests, runs linters, writes docs, packs assets and bundles code.
+* **document**: writes full documentation: API, test, coverage, lint reports.
+* **lint**: runs the various linters across the project source.
+* **lint-fix**: fixes 'auto-fixable' linting issues throughout the project source.,
+* **pack**: packs all assets and moves them into place in the final distribution.
+* **publish**: publishes the distribution, updating versions and tagging.
+* **run**: runs a custom user-defined task script.
+* **test**: runs the unit tests and tests unit coverage.
+* **test-build**: runs the unit tests, then packs assets and bundles code.
+* **test-quick**: runs the unit tests only. 
+* **watch**: actives a project watcher (and optionally, a linked development server). 
+
+For example, tells Warhorse to test, build, document and bundle your project with a custom config:-
+
+    warhorse distribute --config ./conf/.warhorserc
+    
+But if you want to run, for example, just the tests in a project that uses Warhorse Conventions, simply:-
 
     warhorse test
 
-## Warhorse Convention
+Additionally, there is option to add user-defined tasks.  Although, if Warhorse is doing it's job well - this functionality should rarely be required.
+
+    warhorse run my-task
+
+### Configuring tasks
+
+Warhorse has a single configuration script.  After a standard install, it can be found in the project's ./bin/ directory:
+
+    tasks.js
+
+In this file is the skeleton of Warhorse's configuration - which can be modified to suit your needs - or left, as is, if you require nothing special.
+
+For example, the build task looks like this:
+
+
+    warhorse.task("build", function() {
+        warhorse.load("./src/js/**/*.js", function(file) {
+            warhorse.bundle(file, function(file) {
+                warhorse.save(file, "./dist/js/");
+            });    
+        });
+    });
+
+If you wished to change Warhorse bundling default - and NOT use minification - then you can add a config to the bundle call like:-
+
+    warhorse.task("build", function() {
+        warhorse.load("./src/js/**/*.js", function(file) {
+            warhorse.bundle(file, function(file) {
+                warhorse.save(file, "./dist/js/");
+            },{
+                minify: false
+            });    
+        });
+    });
+
+
+## Warhorse Conventions
 
 Warhorse favours "convention over configuration".  Sticking to good conventions - saves a ton of configurational complexity and consequently too, a ton of developer and tester time that would be wasted having to update all the special paths, namings and project layouts throughout the life of a changing project.
 
@@ -130,3 +186,12 @@ And,
     export default MyOtherClass;
     
 Are treated - in every way - identically by Warhorse.
+
+
+## A note on the license
+
+Warhorse currently uses the GPLv3 license.  
+
+This may change in the future to the Apache License, Version 2.0.  
+
+Either way though, Warhorse **can be used freely and without restriction in any commercial or non-commercial** toolchain or project.
