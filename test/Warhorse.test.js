@@ -8,6 +8,7 @@ let warhorse = new Warhorse({
         "minify": true
     }
 });
+
 console.log("@@@@@@@" + warhorse.settings.directory);
 // beforeAll(function() {
 //
@@ -35,20 +36,16 @@ describe("The Warhorse class", function() {
 
     // ASYNCHRONOUS TESTS
     it("should be able to load a file", function(done) {
-
-
+        
         warhorse.load("./test/shared/client_src/index.js", function(file) {
+            
+            // If nothing loaded - fail!
             if(!file) {done.fail();}
-            // console.log(file.name);
-            // warhorse.bundle(file, function(file) {
-            //     // let dstPath = "../test/client_dist/" + file.name;
-            //     // warhorse.save(file, dstPath);
-            //     expect(tree).toMatchSnapshot();
-            // });
-            //console.log(JSON.stringify(file));
+
+            // Otherwise...
             expect(file.content).toMatchSnapshot();
 
-            //expect(file.name).toBe("index.js");
+            // Then exit async test.
             done();
         });
 
