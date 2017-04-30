@@ -9,7 +9,7 @@ function run(command, options) {
 
     configureTasks(warhorse);
 
-    warhorse.execute("build");
+    warhorse.execute(command);
 }
 
 // Exports

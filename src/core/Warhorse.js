@@ -3,9 +3,17 @@
 // Imports
 const fs = require("fs");
 const path = require("path");
+const zlib = require("zlib");
+
 const glob = require("glob");
+
 const browserify = require("browserify");
 const uglify = require("uglify-js");
+const csso = require("csso");
+
+// Constants
+const gzip = zlib.createGzip();
+
 
 
 /**
@@ -24,11 +32,15 @@ class Warhorse {
             directory: "./",
             bundle: {
                 minify: true
+            },
+            save: {
+                compress: false
             }
         };
         this.settings = Object.assign(this.defaults, options);
 
         this.tasks = {}; // Lookup for user-defined tasks.
+
     }
 
     /**
@@ -41,7 +53,7 @@ class Warhorse {
 
         console.log(` - Bundling file from: ${file.path}`);
 
-        let settings = Object.assign(this.settings.bundle, options);
+        let config = Object.assign(this.settings.bundle, options);
 
         let buffer = "";
         let b = browserify(file.path).bundle();
@@ -50,7 +62,7 @@ class Warhorse {
         b.on("end", function() {
             file.content = buffer;
             console.log(`     Browserifyied length: ${file.content.length}`);
-            if(settings.minify) {
+            if(config.minify) {
                 console.log(` - Minimising file from: ${file.path}`);
                 let result = uglify.minify({"file": buffer}, {
                     fromString: true
@@ -66,7 +78,28 @@ class Warhorse {
     }
 
     /**
-     * Bundle function.
+     * Minify CSS function.
+     * @param file
+     * @param next
+     * @param options
+     */
+    minifyCSS(file, next, options = {}) {
+
+        console.log(` - Minifying CSS from: ${file.path}`);
+
+        let settings = Object.assign(this.settings.bundle, options);
+
+        var minifiedCss = csso.minify(file.content).css;
+
+        console.log(minifiedCss);
+
+        file.content = minifiedCss;
+
+        next(file);//this.save(dstPath, result.code);
+    }
+
+    /**
+     * Document function.
      * @param file
      * @param next
      * @param options
@@ -195,8 +228,17 @@ class Warhorse {
      * @param options
      */
     save(file, dstPath, options = {}) {
+
+        let config = Object.assign(this.settings.save, options);
+
         console.log(` - Saving file to: ${dstPath}`);
-        fs.writeFileSync(dstPath, file.content, "utf8");
+
+        if(config.compress === true) {
+            let data = zlib.gzipSync(file.content);
+            fs.writeFileSync(dstPath + ".gz", data, "utf8");
+        } else {
+            fs.writeFileSync(dstPath, file.content, "utf8");
+        }
     }
 
     // task(...actions) {

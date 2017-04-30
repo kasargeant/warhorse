@@ -11,9 +11,9 @@
 function tasks(warhorse) {
     
     warhorse.task("build", function() {
-        warhorse.load("./test/shared/client_src/*.js", function(file) {
+        warhorse.load("./test/shared/client_src/js/*.js", function(file) {
             warhorse.bundle(file, function(file) {
-                let dstPath = "./test/shared/client_dist/" + file.name;
+                let dstPath = "./test/shared/client_dist/js/" + file.name;
                 warhorse.save(file, dstPath);
             });
 
@@ -21,12 +21,11 @@ function tasks(warhorse) {
     });
 
     warhorse.task("precompile", function() {
-        warhorse.load("./test/shared/client_src/*.js", function(file) {
-            warhorse.bundle(file, function(file) {
-                let dstPath = "./test/shared/client_dist/" + file.name;
+        warhorse.load("./test/shared/client_src/css/*.css", function(file) {
+            warhorse.minifyCSS(file, function(file) {
+                let dstPath = "./test/shared/client_dist/css/" + file.name;
                 warhorse.save(file, dstPath);
             });
-
         });
     });
 
