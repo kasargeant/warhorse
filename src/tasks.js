@@ -21,16 +21,16 @@ function tasks(warhorse) {
         });
     });
 
-    // TASK: CREATE
-    warhorse.task("create", function() {
-        warhorse.create("./", function(file) {
+    // TASK: DOCUMENT
+    warhorse.task("document", function() {
+        warhorse.document("./", function(file) {
 
         });
     });
 
-    // TASK: DOCUMENT
-    warhorse.task("document", function() {
-        warhorse.document("./", function(file) {
+    // TASK: INIT
+    warhorse.task("init", function() {
+        warhorse.init("./", function(file) {
 
         });
     });

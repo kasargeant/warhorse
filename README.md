@@ -1,4 +1,4 @@
-# Warhorse
+# Warhorse v0.0.2
 
 NOTE: THIS PROJECT IS STILL BEING PROTOTYPED.  AND IS BASICALLY UNUSABLE FOR ANY PRODUCTION PROJECTS AT PRESENT.
 
@@ -31,15 +31,19 @@ Oh and you also get all API, test, coverage and linting documentation automatica
 
 ## Why is Warhorse special?
 
-Warhorse was written as a reaction to the approach taken by build tooling and task runners such as Maven, Gradle, Grunt and Gulp.  Warhorse aims to be everything that they are not.  In short, to be:-
+In short, because it's ludicrously simple to use - and almost as simple to configure.  
 
-* An extremely simple to use task-runner
-* That works "out-the-box" for 90% of projects,
-* Is based entirely on plain-old-JavaScript-functions!
-* Is reliable, predictable and simple to modify
-* Has "batteries-included" - no other installations are required
-* Follows only standards and the most commonly-used practises wherever possible 
-* Can crush your enemies.
+And if Warhorse's suggested project conventions work for you - then your entire project can be automated in less than five minutes and with zero-configuration!
+
+Warhorse was written as a reaction to the approach taken by build tooling and task runners such as Maven, Gradle, Grunt and Gulp.  Warhorse aims to be everything that they are not:-
+
+* An extremely simple to use task-runner,
+* Handles all the typical tasks needed by 90% of JavaScript projects,
+* Works "out-the-box" and has "batteries-included".  No plug-in installations necessary,
+* Is reliable, predictable and simple to modify,
+* Follows industry standards and the best commonly-used patterns wherever possible,
+* Is lightweight, written in ES2015 style and is hopefully, well-tested and documented.
+* It can crush your enemies!
 
 ## Usage
 
@@ -185,3 +189,12 @@ And,
     export default MyOtherClass;
     
 Are treated - in every way - identically by Warhorse.
+
+
+## A note on the license
+
+Warhorse currently uses the GPLv3 license.  
+
+This may change in the future to the Apache License, Version 2.0.  
+
+Either way though, Warhorse **can be used freely and without restriction in any commercial or non-commercial** toolchain or project.

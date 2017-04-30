@@ -9,7 +9,11 @@
 # TYPICAL MODULE HANDLERS
 node_modules/
 
+# TEMPORARY FOLDERS AND FILES
+scratch/
+temp/
+
 # FIXME - KEEP OUT OF DISTRO UNTIL A MORE STABLE VERSION...
-bin/
-conf/
-docs/
+/bin/
+/conf/
+/docs/
