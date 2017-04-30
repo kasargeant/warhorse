@@ -36,8 +36,10 @@ class Warhorse {
                 license: "GPL-3.0"
             },
             bundle: {
-                minify: true
+                minify: true,
+                transpile: false
             },
+            minify: {},
             save: {
                 compress: false
             }
@@ -57,30 +59,40 @@ class Warhorse {
      */
     bundle(file, next, options = {}) {
 
-        console.log(` - Bundling file from: ${file.path}`);
-
+        // Handle task configuration.
         let config = Object.assign(this.settings.bundle, options);
 
+        console.log(` - Bundling file from: ${file.path}`);
+
+        // Locals
         let buffer = "";
-        let b = browserify(file.path).bundle();
+        let b = null;
+
+        // Determine if we're transpiling as well as bundling... or just bundling?
+        if(config.transpile === true) {
+            // Transpile then bundle
+            b = browserify(file.path).transform("babelify", {presets: ["es2015"]}).bundle();
+        } else {
+            // Just bundle
+            b = browserify(file.path).bundle();
+        }
         b.on("error", console.error);
         b.on("data", function(data) {buffer += data;});
         b.on("end", function() {
             file.content = buffer;
             console.log(`     Browserifyied length: ${file.content.length}`);
+
             if(config.minify) {
                 console.log(` - Minimising file from: ${file.path}`);
-                let result = uglify.minify({"file": buffer}, {
-                    fromString: true
+
+                this.minifyJS(file, next, function() {
+                    // Pass on to the next function.
+                    next(file);
                 });
-                if(result) {
-                    // We only care about the code itself - not the uglify object.
-                    file.content = result.code;
-                    console.log(`     Uglifyied length: ${file.content.length}`); // minified output
-                }
+            } else {
+                next(file);
             }
-            // Pass on to the next function.
-            next(file);
+
         }.bind(this));
     }
 
@@ -161,7 +173,7 @@ class Warhorse {
             fs.writeFileSync("./temp/conf/.jshintrc", JSON.stringify(configJSHINT, null, 4));
         }
 
-        // Pass on to the next function.
+        // Pass file result onto the next function.
         next(file);
     }
 
@@ -222,22 +234,22 @@ class Warhorse {
 
     /**
      * Load function
-     * @param {Object} file - File to be processed by this action.
+     * @param {string} filePath - File path (globs/wildcards allowed) to be processed by this action.
      * @param {Function} next - The next callback action to be executed after this one.
      * @param {Object} options - Options to further configure this action.
      * @returns {void}
      */
-    load(filePath, action, options = {}) {
+    load(filePath, next, options = {}) {
 
         // If it is a batch of filePaths...
         if(filePath.constructor === Array) {
             filePath.map(function(filePathItem) {
-                this._loadFilePath(filePathItem, action);}.bind(this)
+                this._loadFilePath(filePathItem, next);}.bind(this)
             );
         }
         // Else if it is single filePath.
         else if(typeof filePath === "string") {
-            this._loadFilePath(filePath, action);
+            this._loadFilePath(filePath, next);
         }
         // Otherwise...
         else {
@@ -250,21 +262,60 @@ class Warhorse {
      * @param {Object} file - File to be processed by this action.
      * @param {Function} next - The next callback action to be executed after this one.
      * @param {Object} options - Options to further configure this action.
-     * @returns {void}
+     * @returns {Object} - If the next parameter is given a null or no value - function behaves synchronously and returns result directly.
      */
     minifyCSS(file, next, options = {}) {
 
         console.log(` - Minifying CSS from: ${file.path}`);
 
+        let config = Object.assign(this.settings.minify, options);
+
+        file.content = csso.minify(file.content).css;
+
+        // Is there a chained callback function?
+        if(typeof next === "function") {
+            // Yes - Pass file result onto the next function.
+            next(file);
+            return null; // XXX: Pointless, required by jsdoc.
+        } else {
+            // No - Then return file result directly.
+            return file;
+        }
+    }
+
+
+    /**
+     * Minify JS function.
+     * @param {Object} file - File to be processed by this action.
+     * @param {Function} next - The next callback action to be executed after this one.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {Object} - If the next parameter is given a null or no value - function behaves synchronously and returns result directly.
+     */
+    minifyJS(file, next, options = {}) {
+
+        console.log(` - Minifying JS from: ${file.path}`);
+
         let settings = Object.assign(this.settings.bundle, options);
 
-        var minifiedCss = csso.minify(file.content).css;
+        let result = uglify.minify({"file": file.content}, {
+            fromString: true
+        });
 
-        console.log(minifiedCss);
+        if(result) {
+            // We only care about the code itself - not the uglify object.
+            file.content = result.code;
+            console.log(`     Uglifyied length: ${file.content.length}`); // minified output
+        }
 
-        file.content = minifiedCss;
-
-        next(file);//this.save(dstPath, result.code);
+        // Is there a chained callback function?
+        if(typeof next === "function") {
+            // Yes - Pass file result onto the next function.
+            next(file);
+            return null; // XXX: Pointless, required by jsdoc.
+        } else {
+            // No - Then return file result directly.
+            return file;
+        }
     }
 
     /**
