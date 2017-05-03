@@ -14,7 +14,7 @@
         "checkRedundantReturns": true,
         "requireReturnTypes": true,
         "checkTypes": "strictNativeCase",
-        "enforceExistence": "exceptExports",
+        "enforceExistence": false,
         "checkRedundantAccess": true
     },
     "requireSemicolons": true,

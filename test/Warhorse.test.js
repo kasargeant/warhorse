@@ -29,7 +29,7 @@ describe("The Warhorse class", function() {
     });
 
     it("should be able to parse a filepath", function() {
-        let path = warhorse.splitPath("./test/shared/client_src/index.js");
+        let path = warhorse._splitPath("./test/shared/client_src/index.js");
         expect(path.name).toBe("index.js"); // Sanity test - don't rely just on snapshots!!!
         expect(path).toMatchSnapshot();
     });

@@ -9,6 +9,7 @@ const glob = require("glob");
 
 const browserify = require("browserify");
 const uglify = require("uglify-js");
+const sass = require("node-sass");
 const csso = require("csso");
 
 
@@ -21,7 +22,7 @@ const csso = require("csso");
 class Warhorse {
     /**
      * Constructor
-     * @param options
+     * @param {Object} options - Configuration options to override Warhorse's own defaults.
      */
     constructor(options = {}) {
         this.defaults = {
@@ -39,6 +40,7 @@ class Warhorse {
                 minify: true,
                 transpile: false
             },
+            compile: {},
             minify: {},
             save: {
                 compress: false
@@ -92,8 +94,42 @@ class Warhorse {
             } else {
                 next(file);
             }
-
         }.bind(this));
+    }
+
+
+    /**
+     * Compile SCSS(SASS) function.
+     * @param {Object} file - File to be processed by this action.
+     * @param {Function} next - The next callback action to be executed after this one.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {Object} - If the next parameter is given a null or no value - function behaves synchronously and returns result directly.
+     */
+    compileSCSS(file, next, options = {}) {
+
+        console.log(` - Compiling SCSS from: ${file.path}`);
+
+        let config = Object.assign(this.settings.compile, options);
+
+        file.content = sass.renderSync({
+            //data: file.content
+            file: file.path
+        }).css;
+
+        // Update file name in accordance with sass->css norms.
+        file.name = file.stem + ".css";
+        file.ext = ".css";
+        console.log(` - Filename: ${file.name}`);
+
+        // Is there a chained callback function?
+        if(typeof next === "function") {
+            // Yes - Pass file result onto the next function.
+            next(file);
+            return null; // XXX: Pointless, required by jsdoc.
+        } else {
+            // No - Then return file result directly.
+            return file;
+        }
     }
 
     /**
@@ -121,7 +157,7 @@ class Warhorse {
             try {
                 fs.mkdirSync(dirPath);
             } catch(err) {
-                if(err.code !== "EEXIST") {throw err};
+                if(err.code !== "EEXIST") {throw err;};
             }
         };
 
@@ -193,7 +229,12 @@ class Warhorse {
         let config = Object.assign(this.settings.document, options);
     }
 
-
+    /**
+     * Private helper for load().
+     * @param {string} globPath
+     * @param {Function} next
+     * @private
+     */
     _loadFilePath(globPath, next) {
         console.log(` - Have glob: ${globPath}`);
         // Async filesystem check
@@ -206,7 +247,7 @@ class Warhorse {
         //         console.log(err);
         //     } else if(filePaths.constructor === Array && filePaths.length > 0) {
         //         for(let filePath of filePaths) {
-        //             let file = this.splitPath(filePath);
+        //             let file = this._splitPath(filePath);
         //             console.log(` - Loading file from: ${file.name}`);
         //             file.content = fs.readFileSync(filePath, "utf8");
         //             next(file);
@@ -221,7 +262,7 @@ class Warhorse {
         let filePaths = glob.sync(globPath);
         if(filePaths.constructor === Array && filePaths.length > 0) {
             for(let filePath of filePaths) {
-                let file = this.splitPath(filePath);
+                let file = this._splitPath(filePath);
                 console.log(` - Loading file from: ${file.name}`);
                 file.content = fs.readFileSync(filePath, "utf8");
                 next(file);
@@ -322,18 +363,20 @@ class Warhorse {
      * Splits a file path into its component parts.
      * @param {string} filePath - A standard system filepath.
      * @returns {Object} - An object containing a destructured hash of the path's parts.
+     * @private
      */
-    splitPath(filePath) {
+    _splitPath(filePath) {
 
         // Sanity check
         if(!filePath) {return null;}
 
-        console.log(` - Splitting file path: ${filePath}`);
+        console.log(` - Splitting file path: ${filePath}`); // e.g. /docs/index.html
 
-        let name = path.posix.basename(filePath);
-        let directory = path.dirname(filePath);
-        let extension = path.extname(filePath);
-        let stem = filePath.slice(0, filePath.lastIndexOf("."));
+        let name = path.posix.basename(filePath);           // e.g. index.html
+        let directory = path.dirname(filePath);             // e.g. /docs/
+        let extension = path.extname(filePath);             // e.g. .html
+        let stem = name.slice(0, name.lastIndexOf("."));    // e.g. index
+
         // Is it a config file e.g. .jshintrc
         let config = false;
         if(extension === "" && name.length > 0 && name[0] === "." && name.slice(-2) === "rc") {

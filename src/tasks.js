@@ -11,15 +11,26 @@
 function tasks(warhorse) {
 
     // TASK: BUILD
+    // warhorse.task("build", function() {
+    //     warhorse.load("./test/shared/client_src/js/*.js", function(file) {
+    //         warhorse.bundle(file, function(file) {
+    //             let dstPath = "./test/shared/client_dist/js/" + file.name;
+    //             warhorse.save(file, dstPath);
+    //         });
+    //
+    //     });
+    // });
     warhorse.task("build", function() {
         warhorse.load("./test/shared/client_src/js/*.js", function(file) {
             warhorse.bundle(file, function(file) {
-                let dstPath = "./test/shared/client_dist/js/" + file.name;
-                warhorse.save(file, dstPath);
+                warhorse.minifyJS(file, function(file) {
+                    let dstPath = "./test/shared/client_dist/js/" + file.name;
+                    warhorse.save(file, dstPath);
+                });
             });
-
         });
     });
+
 
     // TASK: DOCUMENT
     warhorse.task("document", function() {
@@ -37,10 +48,12 @@ function tasks(warhorse) {
 
     // TASK: PRECOMPILE
     warhorse.task("precompile", function() {
-        warhorse.load("./test/shared/client_src/css/*.css", function(file) {
-            warhorse.minifyCSS(file, function(file) {
-                let dstPath = "./test/shared/client_dist/css/" + file.name;
-                warhorse.save(file, dstPath);
+        warhorse.load("./test/shared/client_src/sass/index.scss", function(file) {
+            warhorse.compileSCSS(file, function(file) {
+                warhorse.minifyCSS(file, function(file) {
+                    let dstPath = "./test/shared/client_dist/css/" + file.name;
+                    warhorse.save(file, dstPath);
+                });
             });
         });
     });
