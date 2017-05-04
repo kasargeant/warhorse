@@ -75,6 +75,7 @@
     "jsdoc": "^3.4.3",
     "jshint": "^2.9.4",
     "less": "^2.7.2",
+    "minami": "^1.2.3",
     "minimist": "^1.2.0",
     "node-sass": "^4.5.2",
     "shelljs": "^0.7.7",

@@ -1,4 +1,4 @@
-# Warhorse v0.0.2
+# Warhorse v0.0.3
 
 NOTE: THIS PROJECT IS STILL BEING PROTOTYPED.  AND IS BASICALLY UNUSABLE FOR ANY PRODUCTION PROJECTS AT PRESENT.
 
@@ -61,8 +61,6 @@ It offers a fixed, but configurable, set of available tasks to the developer:-
 * **publish**: publishes the distribution, updating versions and tagging.
 * **run**: runs a custom user-defined task script.
 * **test**: runs the unit tests and tests unit coverage.
-* **test-build**: runs the unit tests, then packs assets and bundles code.
-* **test-quick**: runs the unit tests only. 
 * **watch**: actives a project watcher (and optionally, a linked development server). 
 
 For example, tells Warhorse to test, build, document and bundle your project with a custom config:-
@@ -87,27 +85,29 @@ In this file is the skeleton of Warhorse's configuration - which can be modified
 
 For example, the build task looks like this:
 
-
-    warhorse.task("build", function() {
-        warhorse.load("./src/js/**/*.js", function(file) {
-            warhorse.bundle(file, function(file) {
-                warhorse.save(file, "./dist/js/");
-            });    
-        });
+```javascript
+warhorse.task("build", function() {
+    warhorse.load("./src/js/**/*.js", function(file) {
+        warhorse.bundle(file, function(file) {
+            warhorse.save(file, "./dist/js/");
+        });    
     });
+});
+```
 
 If you wished to change Warhorse bundling default - and NOT use minification - then you can add a config to the bundle call like:-
 
-    warhorse.task("build", function() {
-        warhorse.load("./src/js/**/*.js", function(file) {
-            warhorse.bundle(file, function(file) {
-                warhorse.save(file, "./dist/js/");
-            },{
-                minify: false
-            });    
-        });
+```javascript
+warhorse.task("build", function() {
+    warhorse.load("./src/js/**/*.js", function(file) {
+        warhorse.bundle(file, function(file) {
+            warhorse.save(file, "./dist/js/");
+        },{
+            minify: false
+        });    
     });
-
+});
+```
 
 ## Warhorse Conventions
 
@@ -174,17 +174,17 @@ Warhorse supports both the CommonJS an the newer ES2015 syntactical forms of mod
 You can 'require' or 'import' interchangably and export any way you wish too.  The only constraint is that each code file is self-consistent. i.e. does not mix module handling styles in the same file.
 
 Thus,
-
+```javascript
     const MyClass = require("./MyClass");
     ...
     module.exports = MyOtherClass;
-    
+```
 And,
-
+```javascript
     import MyClass from "./MyClass";
     ...
     export default MyOtherClass;
-    
+```
 Are treated - in every way - identically by Warhorse.
 
 

@@ -1,6 +1,7 @@
 "use strict";
 
 // Imports
+const child = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
@@ -27,6 +28,10 @@ class Warhorse {
     constructor(options = {}) {
         this.defaults = {
             directory: process.cwd(),
+            document: {
+                src: "./src",
+                dst: "./docs/api"
+            },
             init: {
                 name: "Untitled",
                 version: "0.0.0",
@@ -105,7 +110,7 @@ class Warhorse {
      * @param {Object} options - Options to further configure this action.
      * @returns {Object} - If the next parameter is given a null or no value - function behaves synchronously and returns result directly.
      */
-    compileSCSS(file, next, options = {}) {
+    compileSASS(file, next, options = {}) {
 
         console.log(` - Compiling SCSS from: ${file.path}`);
 
@@ -121,11 +126,11 @@ class Warhorse {
         file.ext = ".css";
         console.log(` - Filename: ${file.name}`);
 
-        // Is there a chained callback function?
-        if(typeof next === "function") {
+        // Is there a callback function or shall we just return the value?
+        if(next !== undefined && typeof next === "function") {
             // Yes - Pass file result onto the next function.
             next(file);
-            return null; // XXX: Pointless, required by jsdoc.
+            return null; // XXX: Pointless null, required by jsdoc.
         } else {
             // No - Then return file result directly.
             return file;
@@ -209,8 +214,15 @@ class Warhorse {
             fs.writeFileSync("./temp/conf/.jshintrc", JSON.stringify(configJSHINT, null, 4));
         }
 
-        // Pass file result onto the next function.
-        next(file);
+        // Is there a callback function or shall we just return the value?
+        if(next !== undefined && typeof next === "function") {
+            // Yes - Pass file result onto the next function.
+            next(file);
+            return null; // XXX: Pointless null, required by jsdoc.
+        } else {
+            // No - Then return file result directly.
+            return file;
+        }
     }
 
     /**
@@ -218,15 +230,25 @@ class Warhorse {
      * @param {Object} file - File to be processed by this action.
      * @param {Function} next - The next callback action to be executed after this one.
      * @param {Object} options - Options to further configure this action.
-     * @returns {void}
+     * @returns {Object}
      */
     document(file, next, options = {}) {
 
         console.log(` * Documenting file(s) from: ${file.path}`);
-        console.log(`   - TO BE IMPLEMENTED.`);
-        next(file);
-        return;
+
         let config = Object.assign(this.settings.document, options);
+
+        child.execSync(`jsdoc ${config.src} -r -c ./conf/.jsdocrc -d ${config.dst}`);
+
+        // Is there a callback function or shall we just return the value?
+        if(next !== undefined && typeof next === "function") {
+            // Yes - Pass file result onto the next function.
+            next(file);
+            return null; // XXX: Pointless null, required by jsdoc.
+        } else {
+            // No - Then return file result directly.
+            return file;
+        }
     }
 
     /**
@@ -313,11 +335,11 @@ class Warhorse {
 
         file.content = csso.minify(file.content).css;
 
-        // Is there a chained callback function?
-        if(typeof next === "function") {
+        // Is there a callback function or shall we just return the value?
+        if(next !== undefined && typeof next === "function") {
             // Yes - Pass file result onto the next function.
             next(file);
-            return null; // XXX: Pointless, required by jsdoc.
+            return null; // XXX: Pointless null, required by jsdoc.
         } else {
             // No - Then return file result directly.
             return file;
@@ -348,11 +370,38 @@ class Warhorse {
             console.log(`     Uglifyied length: ${file.content.length}`); // minified output
         }
 
-        // Is there a chained callback function?
-        if(typeof next === "function") {
+        // Is there a callback function or shall we just return the value?
+        if(next !== undefined && typeof next === "function") {
             // Yes - Pass file result onto the next function.
             next(file);
-            return null; // XXX: Pointless, required by jsdoc.
+            return null; // XXX: Pointless null, required by jsdoc.
+        } else {
+            // No - Then return file result directly.
+            return file;
+        }
+    }
+
+    /**
+     * Save function.
+     * @param {Object} file - File to be processed by this action.
+     * @param {string} dstPath - The file path that this file will be saved to.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {void}
+     */
+    rename(file, next, options = {}) {
+
+        let config = Object.assign(this.settings.save, options);
+
+        console.log(` - Renaming file: ${file.path}`);
+
+        // Rename (i.e. overwrite) any values in the file object with the user-defined options object
+        file = Object.assign(file, options);
+
+        // Is there a callback function or shall we just return the value?
+        if(next !== undefined && typeof next === "function") {
+            // Yes - Pass file result onto the next function.
+            next(file);
+            return null; // XXX: Pointless null, required by jsdoc.
         } else {
             // No - Then return file result directly.
             return file;
@@ -383,8 +432,8 @@ class Warhorse {
             config = true;
         }
         return {
-            path: filePath,
-            directory: directory,
+            original: filePath,
+            path: directory, // Note: We use 'directory' to avoid nameclash with the module of the same name.
             name: name,
             stem: stem,
             extension: extension,
