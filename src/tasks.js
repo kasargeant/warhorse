@@ -1,29 +1,25 @@
 "use strict";
 
-// Imports
-// const fs = require("fs");
-// const path = require("path");
-// const glob = require("glob");
-// const browserify = require("browserify");
-// const uglify = require("uglify-js");
-// const Warhorse = require("./core/Warhorse");
-
+// Warhorse task definitions
 function tasks(warhorse) {
 
     // TASK: BUILD
     warhorse.task("build", function() {
         warhorse.load("./test/shared/client_src/js/*.js", function(file) {
             warhorse.bundle(file, function(file) {
-                let dstPath = "./test/shared/client_dist/js/" + file.name;
-                warhorse.save(file, dstPath);
+                warhorse.minifyJS(file, function(file) {
+                    let dstPath = "./test/shared/client_dist/js/" + file.name;
+                    warhorse.save(file, dstPath);
+                });
             });
-
         });
     });
 
+
+
     // TASK: DOCUMENT
     warhorse.task("document", function() {
-        warhorse.document("./", function(file) {
+        warhorse.document("", function(file) {
 
         });
     });
@@ -37,13 +33,24 @@ function tasks(warhorse) {
 
     // TASK: PRECOMPILE
     warhorse.task("precompile", function() {
-        warhorse.load("./test/shared/client_src/css/*.css", function(file) {
-            warhorse.minifyCSS(file, function(file) {
-                let dstPath = "./test/shared/client_dist/css/" + file.name;
-                warhorse.save(file, dstPath);
+        warhorse.load("./test/shared/client_src/sass/index.scss", function(file) {
+            warhorse.compileSASS(file, function(file) {
+                warhorse.minifyCSS(file, function(file) {
+                    let dstPath = "./test/shared/client_dist/css/" + file.name;
+                    warhorse.save(file, dstPath);
+                });
             });
         });
     });
+
+    // TODO - Potential alternative for simple builds???
+    // warhorse.task("precompile")
+    //     .load("./test/shared/client_src/sass/index.scss")
+    //     .compileSASS(file)
+    //     .minifyCSS(file)
+    //     .rename({directory: "./test/shared/client_dist/css/"})
+    //     .save(file, dstPath);
+
 }
 
 // Exports

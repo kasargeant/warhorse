@@ -1,6 +1,7 @@
 "use strict";
 
 // Imports
+const child = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
@@ -9,6 +10,7 @@ const glob = require("glob");
 
 const browserify = require("browserify");
 const uglify = require("uglify-js");
+const sass = require("node-sass");
 const csso = require("csso");
 
 
@@ -21,11 +23,15 @@ const csso = require("csso");
 class Warhorse {
     /**
      * Constructor
-     * @param options
+     * @param {Object} options - Configuration options to override Warhorse's own defaults.
      */
     constructor(options = {}) {
         this.defaults = {
             directory: process.cwd(),
+            document: {
+                src: "./src",
+                dst: "./docs/api"
+            },
             init: {
                 name: "Untitled",
                 version: "0.0.0",
@@ -36,8 +42,11 @@ class Warhorse {
                 license: "GPL-3.0"
             },
             bundle: {
-                minify: true
+                minify: true,
+                transpile: false
             },
+            compile: {},
+            minify: {},
             save: {
                 compress: false
             }
@@ -57,31 +66,75 @@ class Warhorse {
      */
     bundle(file, next, options = {}) {
 
-        console.log(` - Bundling file from: ${file.path}`);
-
+        // Handle task configuration.
         let config = Object.assign(this.settings.bundle, options);
 
+        console.log(` - Bundling file from: ${file.path}`);
+
+        // Locals
         let buffer = "";
-        let b = browserify(file.path).bundle();
+        let b = null;
+
+        // Determine if we're transpiling as well as bundling... or just bundling?
+        if(config.transpile === true) {
+            // Transpile then bundle
+            b = browserify(file.path).transform("babelify", {presets: ["es2015"]}).bundle();
+        } else {
+            // Just bundle
+            b = browserify(file.path).bundle();
+        }
         b.on("error", console.error);
         b.on("data", function(data) {buffer += data;});
         b.on("end", function() {
             file.content = buffer;
             console.log(`     Browserifyied length: ${file.content.length}`);
+
             if(config.minify) {
                 console.log(` - Minimising file from: ${file.path}`);
-                let result = uglify.minify({"file": buffer}, {
-                    fromString: true
+
+                this.minifyJS(file, next, function() {
+                    // Pass on to the next function.
+                    next(file);
                 });
-                if(result) {
-                    // We only care about the code itself - not the uglify object.
-                    file.content = result.code;
-                    console.log(`     Uglifyied length: ${file.content.length}`); // minified output
-                }
+            } else {
+                next(file);
             }
-            // Pass on to the next function.
-            next(file);
         }.bind(this));
+    }
+
+
+    /**
+     * Compile SCSS(SASS) function.
+     * @param {Object} file - File to be processed by this action.
+     * @param {Function} next - The next callback action to be executed after this one.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {Object} - If the next parameter is given a null or no value - function behaves synchronously and returns result directly.
+     */
+    compileSASS(file, next, options = {}) {
+
+        console.log(` - Compiling SCSS from: ${file.path}`);
+
+        let config = Object.assign(this.settings.compile, options);
+
+        file.content = sass.renderSync({
+            //data: file.content
+            file: file.path
+        }).css;
+
+        // Update file name in accordance with sass->css norms.
+        file.name = file.stem + ".css";
+        file.ext = ".css";
+        console.log(` - Filename: ${file.name}`);
+
+        // Is there a callback function or shall we just return the value?
+        if(next !== undefined && typeof next === "function") {
+            // Yes - Pass file result onto the next function.
+            next(file);
+            return null; // XXX: Pointless null, required by jsdoc.
+        } else {
+            // No - Then return file result directly.
+            return file;
+        }
     }
 
     /**
@@ -109,7 +162,7 @@ class Warhorse {
             try {
                 fs.mkdirSync(dirPath);
             } catch(err) {
-                if(err.code !== "EEXIST") {throw err};
+                if(err.code !== "EEXIST") {throw err;};
             }
         };
 
@@ -161,8 +214,15 @@ class Warhorse {
             fs.writeFileSync("./temp/conf/.jshintrc", JSON.stringify(configJSHINT, null, 4));
         }
 
-        // Pass on to the next function.
-        next(file);
+        // Is there a callback function or shall we just return the value?
+        if(next !== undefined && typeof next === "function") {
+            // Yes - Pass file result onto the next function.
+            next(file);
+            return null; // XXX: Pointless null, required by jsdoc.
+        } else {
+            // No - Then return file result directly.
+            return file;
+        }
     }
 
     /**
@@ -170,18 +230,33 @@ class Warhorse {
      * @param {Object} file - File to be processed by this action.
      * @param {Function} next - The next callback action to be executed after this one.
      * @param {Object} options - Options to further configure this action.
-     * @returns {void}
+     * @returns {Object}
      */
     document(file, next, options = {}) {
 
         console.log(` * Documenting file(s) from: ${file.path}`);
-        console.log(`   - TO BE IMPLEMENTED.`);
-        next(file);
-        return;
+
         let config = Object.assign(this.settings.document, options);
+
+        child.execSync(`jsdoc ${config.src} -r -c ./conf/.jsdocrc -d ${config.dst}`);
+
+        // Is there a callback function or shall we just return the value?
+        if(next !== undefined && typeof next === "function") {
+            // Yes - Pass file result onto the next function.
+            next(file);
+            return null; // XXX: Pointless null, required by jsdoc.
+        } else {
+            // No - Then return file result directly.
+            return file;
+        }
     }
 
-
+    /**
+     * Private helper for load().
+     * @param {string} globPath
+     * @param {Function} next
+     * @private
+     */
     _loadFilePath(globPath, next) {
         console.log(` - Have glob: ${globPath}`);
         // Async filesystem check
@@ -194,7 +269,7 @@ class Warhorse {
         //         console.log(err);
         //     } else if(filePaths.constructor === Array && filePaths.length > 0) {
         //         for(let filePath of filePaths) {
-        //             let file = this.splitPath(filePath);
+        //             let file = this._splitPath(filePath);
         //             console.log(` - Loading file from: ${file.name}`);
         //             file.content = fs.readFileSync(filePath, "utf8");
         //             next(file);
@@ -209,7 +284,7 @@ class Warhorse {
         let filePaths = glob.sync(globPath);
         if(filePaths.constructor === Array && filePaths.length > 0) {
             for(let filePath of filePaths) {
-                let file = this.splitPath(filePath);
+                let file = this._splitPath(filePath);
                 console.log(` - Loading file from: ${file.name}`);
                 file.content = fs.readFileSync(filePath, "utf8");
                 next(file);
@@ -222,22 +297,22 @@ class Warhorse {
 
     /**
      * Load function
-     * @param {Object} file - File to be processed by this action.
+     * @param {string} filePath - File path (globs/wildcards allowed) to be processed by this action.
      * @param {Function} next - The next callback action to be executed after this one.
      * @param {Object} options - Options to further configure this action.
      * @returns {void}
      */
-    load(filePath, action, options = {}) {
+    load(filePath, next, options = {}) {
 
         // If it is a batch of filePaths...
         if(filePath.constructor === Array) {
             filePath.map(function(filePathItem) {
-                this._loadFilePath(filePathItem, action);}.bind(this)
+                this._loadFilePath(filePathItem, next);}.bind(this)
             );
         }
         // Else if it is single filePath.
         else if(typeof filePath === "string") {
-            this._loadFilePath(filePath, action);
+            this._loadFilePath(filePath, next);
         }
         // Otherwise...
         else {
@@ -250,47 +325,115 @@ class Warhorse {
      * @param {Object} file - File to be processed by this action.
      * @param {Function} next - The next callback action to be executed after this one.
      * @param {Object} options - Options to further configure this action.
-     * @returns {void}
+     * @returns {Object} - If the next parameter is given a null or no value - function behaves synchronously and returns result directly.
      */
     minifyCSS(file, next, options = {}) {
 
         console.log(` - Minifying CSS from: ${file.path}`);
 
+        let config = Object.assign(this.settings.minify, options);
+
+        file.content = csso.minify(file.content).css;
+
+        // Is there a callback function or shall we just return the value?
+        if(next !== undefined && typeof next === "function") {
+            // Yes - Pass file result onto the next function.
+            next(file);
+            return null; // XXX: Pointless null, required by jsdoc.
+        } else {
+            // No - Then return file result directly.
+            return file;
+        }
+    }
+
+
+    /**
+     * Minify JS function.
+     * @param {Object} file - File to be processed by this action.
+     * @param {Function} next - The next callback action to be executed after this one.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {Object} - If the next parameter is given a null or no value - function behaves synchronously and returns result directly.
+     */
+    minifyJS(file, next, options = {}) {
+
+        console.log(` - Minifying JS from: ${file.path}`);
+
         let settings = Object.assign(this.settings.bundle, options);
 
-        var minifiedCss = csso.minify(file.content).css;
+        let result = uglify.minify({"file": file.content}, {
+            fromString: true
+        });
 
-        console.log(minifiedCss);
+        if(result) {
+            // We only care about the code itself - not the uglify object.
+            file.content = result.code;
+            console.log(`     Uglifyied length: ${file.content.length}`); // minified output
+        }
 
-        file.content = minifiedCss;
+        // Is there a callback function or shall we just return the value?
+        if(next !== undefined && typeof next === "function") {
+            // Yes - Pass file result onto the next function.
+            next(file);
+            return null; // XXX: Pointless null, required by jsdoc.
+        } else {
+            // No - Then return file result directly.
+            return file;
+        }
+    }
 
-        next(file);//this.save(dstPath, result.code);
+    /**
+     * Save function.
+     * @param {Object} file - File to be processed by this action.
+     * @param {string} dstPath - The file path that this file will be saved to.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {void}
+     */
+    rename(file, next, options = {}) {
+
+        let config = Object.assign(this.settings.save, options);
+
+        console.log(` - Renaming file: ${file.path}`);
+
+        // Rename (i.e. overwrite) any values in the file object with the user-defined options object
+        file = Object.assign(file, options);
+
+        // Is there a callback function or shall we just return the value?
+        if(next !== undefined && typeof next === "function") {
+            // Yes - Pass file result onto the next function.
+            next(file);
+            return null; // XXX: Pointless null, required by jsdoc.
+        } else {
+            // No - Then return file result directly.
+            return file;
+        }
     }
 
     /**
      * Splits a file path into its component parts.
      * @param {string} filePath - A standard system filepath.
      * @returns {Object} - An object containing a destructured hash of the path's parts.
+     * @private
      */
-    splitPath(filePath) {
+    _splitPath(filePath) {
 
         // Sanity check
         if(!filePath) {return null;}
 
-        console.log(` - Splitting file path: ${filePath}`);
+        console.log(` - Splitting file path: ${filePath}`); // e.g. /docs/index.html
 
-        let name = path.posix.basename(filePath);
-        let directory = path.dirname(filePath);
-        let extension = path.extname(filePath);
-        let stem = filePath.slice(0, filePath.lastIndexOf("."));
+        let name = path.posix.basename(filePath);           // e.g. index.html
+        let directory = path.dirname(filePath);             // e.g. /docs/
+        let extension = path.extname(filePath);             // e.g. .html
+        let stem = name.slice(0, name.lastIndexOf("."));    // e.g. index
+
         // Is it a config file e.g. .jshintrc
         let config = false;
         if(extension === "" && name.length > 0 && name[0] === "." && name.slice(-2) === "rc") {
             config = true;
         }
         return {
-            path: filePath,
-            directory: directory,
+            original: filePath,
+            path: directory, // Note: We use 'directory' to avoid nameclash with the module of the same name.
             name: name,
             stem: stem,
             extension: extension,
