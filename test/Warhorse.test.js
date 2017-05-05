@@ -1,3 +1,8 @@
+/**
+ * @file Warhorse Class unit tests
+ * @author Kyle Alexis Sargeant
+ */
+
 "use strict";
 
 // Imports
@@ -19,7 +24,6 @@ console.log("@@@@@@@" + warhorse.settings.directory);
 //         expect(false).toBe(true);
 //     });
 // });
-
 
 describe("The Warhorse class", function() {
 

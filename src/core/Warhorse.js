@@ -13,16 +13,26 @@ const uglify = require("uglify-js");
 const sass = require("node-sass");
 const csso = require("csso");
 
+// Setup console
+const chalk = require("chalk");
+const log = console.log;
+const logTask = function(value)    {console.log(chalk.bgBlue(" " + value));};
+const logAction = function(value)    {console.log(chalk.blue(" - " + value));};
+const logStage = function(value)   {console.log(chalk.yellow("   -> " + value));};
+const logWarning = function(value) {console.warn(chalk.orange(value));};
+const logError = function(value)   {console.error(chalk.red(value));};
+
 
 /**
- * The Warhorse constructor takes an options object.  In these options are contained the user requested
- * configuration defaults for the project.  If there are no options - then Warhorse's own default
- * configuration settings will be used instead.
  * @class
+ * @classdesc The main Warhorse class, containing all actions available to automate tasks and builds.
  */
 class Warhorse {
     /**
-     * Constructor
+     * The Warhorse constructor takes an options object.  In these options are contained the user requested
+     * configuration defaults for the project.  If there are no options - then Warhorse's own default
+     * configuration settings will be used instead.
+     * @constructor
      * @param {Object} options - Configuration options to override Warhorse's own defaults.
      */
     constructor(options = {}) {
@@ -45,8 +55,11 @@ class Warhorse {
                 minify: true,
                 transpile: false
             },
-            compile: {},
+            precompile: {
+                includePaths: ["./src/sass"]
+            },
             minify: {},
+            rename: {},
             save: {
                 compress: false
             }
@@ -69,7 +82,7 @@ class Warhorse {
         // Handle task configuration.
         let config = Object.assign(this.settings.bundle, options);
 
-        console.log(` - Bundling file from: ${file.path}`);
+        logAction(`Bundling file from: ${file.path}`);
 
         // Locals
         let buffer = "";
@@ -102,6 +115,16 @@ class Warhorse {
         }.bind(this));
     }
 
+    /**
+     * Compile LESS function.
+     * @param {Object} file - File to be processed by this action.
+     * @param {Function} next - The next callback action to be executed after this one.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {Object} - If the next parameter is given a null or no value - function behaves synchronously and returns result directly.
+     */
+    compileLESS(file, next, options = {}) {
+        // TODO - LESS task.
+    }
 
     /**
      * Compile SCSS(SASS) function.
@@ -112,19 +135,21 @@ class Warhorse {
      */
     compileSASS(file, next, options = {}) {
 
-        console.log(` - Compiling SCSS from: ${file.path}`);
+        logAction(`Compiling SCSS from: ${file.path}`);
 
-        let config = Object.assign(this.settings.compile, options);
+        let config = Object.assign(this.settings.precompile, options);
 
-        file.content = sass.renderSync({
-            //data: file.content
-            file: file.path
-        }).css;
+        config.data = file.content;         // e.g. index.scss
+        config.includePaths = [file.path];  // e.g. ./src/sass
+        // ALTERNATIVE config.file = file.path + "/" + file.name;
+
+        // Process the data
+        file.content = sass.renderSync(config).css;
 
         // Update file name in accordance with sass->css norms.
         file.name = file.stem + ".css";
         file.ext = ".css";
-        console.log(` - Filename: ${file.name}`);
+        logStage(`Filename: ${file.name}`);
 
         // Is there a callback function or shall we just return the value?
         if(next !== undefined && typeof next === "function") {
@@ -234,7 +259,7 @@ class Warhorse {
      */
     document(file, next, options = {}) {
 
-        console.log(` * Documenting file(s) from: ${file.path}`);
+        logAction(`Documenting file(s) from: ${file.path}`);
 
         let config = Object.assign(this.settings.document, options);
 
@@ -258,7 +283,7 @@ class Warhorse {
      * @private
      */
     _loadFilePath(globPath, next) {
-        console.log(` - Have glob: ${globPath}`);
+        logAction(`Loading: ${globPath}`);
         // Async filesystem check
         // glob(globPath, function(err, filePaths) {
         //     // files is an array of filenames.
@@ -285,12 +310,12 @@ class Warhorse {
         if(filePaths.constructor === Array && filePaths.length > 0) {
             for(let filePath of filePaths) {
                 let file = this._splitPath(filePath);
-                console.log(` - Loading file from: ${file.name}`);
+                logStage(`Loading file from: ${file.name}`);
                 file.content = fs.readFileSync(filePath, "utf8");
                 next(file);
             }
         } else {
-            console.log("No files matched.");
+            logWarning("No files matched.");
             next(null);
         }
     }
@@ -329,7 +354,7 @@ class Warhorse {
      */
     minifyCSS(file, next, options = {}) {
 
-        console.log(` - Minifying CSS from: ${file.path}`);
+        logAction(`Minifying CSS from: ${file.path}`);
 
         let config = Object.assign(this.settings.minify, options);
 
@@ -356,7 +381,7 @@ class Warhorse {
      */
     minifyJS(file, next, options = {}) {
 
-        console.log(` - Minifying JS from: ${file.path}`);
+        logAction(`Minifying JS from: ${file.path}`);
 
         let settings = Object.assign(this.settings.bundle, options);
 
@@ -392,7 +417,7 @@ class Warhorse {
 
         let config = Object.assign(this.settings.save, options);
 
-        console.log(` - Renaming file: ${file.path}`);
+        logAction(`Renaming file: ${file.path}`);
 
         // Rename (i.e. overwrite) any values in the file object with the user-defined options object
         file = Object.assign(file, options);
@@ -419,7 +444,7 @@ class Warhorse {
         // Sanity check
         if(!filePath) {return null;}
 
-        console.log(` - Splitting file path: ${filePath}`); // e.g. /docs/index.html
+        logStage(`Splitting file path: ${filePath}`); // e.g. /docs/index.html
 
         let name = path.posix.basename(filePath);           // e.g. index.html
         let directory = path.dirname(filePath);             // e.g. /docs/
@@ -452,7 +477,7 @@ class Warhorse {
 
         let config = Object.assign(this.settings.save, options);
 
-        console.log(` - Saving file to: ${dstPath}`);
+        logAction(`Saving file to: ${dstPath}`);
 
         if(config.compress === true) {
             let data = zlib.gzipSync(file.content);
@@ -478,7 +503,7 @@ class Warhorse {
      * @returns {void}
      */
     execute(name) {
-        console.log(`TASK ${name}`);
+        logTask(`TASK ${name}`);
         let action = this.tasks[name];
         if(action !== null) {
             //console.log("Executing command: " + typeof action);
