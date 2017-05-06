@@ -1,3 +1,11 @@
+/**
+ * @file Warhorse.js
+ * @description The main Warhorse daemon.
+ * @author Kyle Alexis Sargeant <kasargeant@gmail.com> {@link https://github.com/kasargeant https://github.com/kasargeant}.
+ * @copyright Kyle Alexis Sargeant 2017
+ * @license See LICENSE file included in this distribution.
+ */
+
 "use strict";
 
 // Imports
@@ -25,7 +33,6 @@ const logError = function(value)   {console.error(chalk.red(value));};
 
 
 /**
- * @class
  * @classdesc The main Warhorse class, containing all actions available to automate tasks and builds.
  */
 class Warhorse {
@@ -67,7 +74,7 @@ class Warhorse {
 
         this.settings = Object.assign(this.defaults, options);
 
-        this.commands = {}; // Lookup for built-in commands.
+        this.cmds = {}; // Lookup for built-in commands.
         this.tasks = {}; // Lookup for user-defined tasks.
 
         this.file = null; // Main arg passed from function to function - requires sync operation of course!
@@ -75,7 +82,7 @@ class Warhorse {
     }
 
     /**
-     * Bundle function.
+     * Bundle action.
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
@@ -107,7 +114,7 @@ class Warhorse {
     }
 
     /**
-     * Compile LESS function.
+     * Compile LESS action.
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
@@ -143,7 +150,7 @@ class Warhorse {
         //     functions: {},
         //     dumpLineNumbers: "comments",
         //     relativeUrls: true,
-        //     includePaths: ["./test/shared/client_src/less/"],
+        //     includePaths: ["./test/data/client_src/less/"],
         //     globalVars: {
         //         var1: '"string value"',
         //         var2: 'regular value'
@@ -153,7 +160,7 @@ class Warhorse {
     }
 
     /**
-     * Compile SCSS(SASS) function.
+     * Compile SCSS(SASS) action.
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
@@ -180,94 +187,89 @@ class Warhorse {
     }
 
     /**
-     * Create project convention function.
+     * Create project convention action.
      * @param {Object} file - File to be processed by this action.
      * @param {Function} next - The next callback action to be executed after this one.
      * @param {Object} options - Options to further configure this action.
      * @returns {void}
+     * @private - until implemented!
      */
     init(file, next, options = {}) {
+        //
+        // // Resolve configuration
+        // let config = Object.assign(this.settings.init, options);
+        //
+        // // Create NPM package configuration
+        // const packageDefault = require("../default/package.json");
+        // let packageProject = Object.assign(packageDefault, config);
+        //
+        // let convention = "default";
+        // console.log(` * Creating project from convention: ${convention}`);
+        // console.log(`   - Working directory: ${process.cwd()}`);
+        //
+        // // Fault-tolerant version of fs.mkdirSync(dirPath) - won't overwrite existing dirs!!!
+        // const mkdirSync = function(dirPath) {
+        //     try {
+        //         fs.mkdirSync(dirPath);
+        //     } catch(err) {
+        //         if(err.code !== "EEXIST") {throw err;};
+        //     }
+        // };
+        //
+        // // Fault-tolerant version of fs.unlinkSync(filePath) - won't crash if no file already exists!!!
+        // const unlinkSync = function(filePath) {
+        //     try {
+        //         fs.unlinkSync(filePath);
+        //     } catch(err) {
+        //         console.error(err.code);
+        //         // if(err.code !== "EEXIST") {throw err};
+        //     }
+        // };
+        //
+        // // Create project directory structure
+        // //FIXME - Guard can be removed once function is fully implemented.
+        // let workingDirectory = this.settings.directory;
+        // if(workingDirectory === "/Users/kasargeant/dev/projects/warhorse") {
+        //     mkdirSync("./temp");
+        //
+        //     mkdirSync("./temp/conf");
+        //
+        //     mkdirSync("./temp/dist");
+        //
+        //     mkdirSync("./temp/docs");
+        //     mkdirSync("./temp/docs/api");
+        //     mkdirSync("./temp/docs/coverage");
+        //     mkdirSync("./temp/docs/tests");
+        //     mkdirSync("./temp/docs/linters");
+        //
+        //     mkdirSync("./temp/src");
+        //     mkdirSync("./temp/src/css");
+        //     mkdirSync("./temp/src/img");
+        //     mkdirSync("./temp/src/js");
+        //
+        //     mkdirSync("./temp/test");
+        //
+        //     // Write NPM package definition
+        //     let packageJson = JSON.stringify(packageProject, null, 4);
+        //     unlinkSync("./temp/package.json");
+        //     fs.writeFileSync("./temp/package.json", packageJson, "utf8");
+        //     console.log(packageJson);
+        //
+        //     // Create configuration files
+        //     const configJSCS = require("../default/conf/jscsrc.json");
+        //     fs.writeFileSync("./temp/conf/.jscsrc", JSON.stringify(configJSCS, null, 4));
+        //
+        //     const configJSHINT = require("../default/conf/jshintrc.json");
+        //     fs.writeFileSync("./temp/conf/.jshintrc", JSON.stringify(configJSHINT, null, 4));
+        // }
 
-        // Resolve configuration
-        let config = Object.assign(this.settings.init, options);
 
-        // Create NPM package configuration
-        const packageDefault = require("../default/package.json");
-        let packageProject = Object.assign(packageDefault, config);
-
-        let convention = "default";
-        console.log(` * Creating project from convention: ${convention}`);
-        console.log(`   - Working directory: ${process.cwd()}`);
-
-        // Fault-tolerant version of fs.mkdirSync(dirPath) - won't overwrite existing dirs!!!
-        const mkdirSync = function(dirPath) {
-            try {
-                fs.mkdirSync(dirPath);
-            } catch(err) {
-                if(err.code !== "EEXIST") {throw err;};
-            }
-        };
-
-        // Fault-tolerant version of fs.unlinkSync(filePath) - won't crash if no file already exists!!!
-        const unlinkSync = function(filePath) {
-            try {
-                fs.unlinkSync(filePath);
-            } catch(err) {
-                console.error(err.code);
-                // if(err.code !== "EEXIST") {throw err};
-            }
-        };
-
-        // Create project directory structure
-        //FIXME - Guard can be removed once function is fully implemented.
-        let workingDirectory = this.settings.directory;
-        if(workingDirectory === "/Users/kasargeant/dev/projects/warhorse") {
-            mkdirSync("./temp");
-
-            mkdirSync("./temp/conf");
-
-            mkdirSync("./temp/dist");
-
-            mkdirSync("./temp/docs");
-            mkdirSync("./temp/docs/api");
-            mkdirSync("./temp/docs/coverage");
-            mkdirSync("./temp/docs/tests");
-            mkdirSync("./temp/docs/linters");
-
-            mkdirSync("./temp/src");
-            mkdirSync("./temp/src/css");
-            mkdirSync("./temp/src/img");
-            mkdirSync("./temp/src/js");
-
-            mkdirSync("./temp/test");
-
-            // Write NPM package definition
-            let packageJson = JSON.stringify(packageProject, null, 4);
-            unlinkSync("./temp/package.json");
-            fs.writeFileSync("./temp/package.json", packageJson, "utf8");
-            console.log(packageJson);
-            
-            // Create configuration files
-            const configJSCS = require("../default/conf/jscsrc.json");
-            fs.writeFileSync("./temp/conf/.jscsrc", JSON.stringify(configJSCS, null, 4));
-
-            const configJSHINT = require("../default/conf/jshintrc.json");
-            fs.writeFileSync("./temp/conf/.jshintrc", JSON.stringify(configJSHINT, null, 4));
-        }
-
-        // Is there a callback function or shall we just return the value?
-        if(next !== undefined && typeof next === "function") {
-            // Yes - Pass file result onto the next function.
-            next(file);
-            return null; // XXX: Pointless null, required by jsdoc.
-        } else {
-            // No - Then return file result directly.
-            return file;
-        }
+        // Return self for chaining.
+        return this;
     }
 
     /**
-     * Document JS API function.  Documents JavaScript from src/ folder(s).
+     * Document JS API action.  Documents JavaScript from src/ folder(s).
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
@@ -286,7 +288,7 @@ class Warhorse {
     }
 
     /**
-     * Load function.  Loads files being used for processing by the action that follows.
+     * Load action.  Loads files being used for processing by the action that follows.
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
@@ -305,7 +307,7 @@ class Warhorse {
     }
 
     /**
-     * Minify CSS function.  Minimisation for standard CSS.
+     * Minify CSS action.  Minimisation for standard CSS.
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
@@ -322,7 +324,7 @@ class Warhorse {
     }
 
     /**
-     * Minify JS function.  Minimisation for ES51/ES2015 JavaScript.
+     * Minify JS action.  Minimisation for ES51/ES2015 JavaScript.
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
@@ -343,7 +345,7 @@ class Warhorse {
     }
 
     /**
-     * Rename function.  Allows modification/replacement/injection of file details into the sequence of actions.
+     * Rename action.  Allows modification/replacement/injection of file details into the sequence of actions.
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
@@ -399,7 +401,7 @@ class Warhorse {
     }
 
     /**
-     * Save function.
+     * Save action.
      * @param {string} dstPath - The file path that this file will be saved to.
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
@@ -424,11 +426,11 @@ class Warhorse {
     /**
      * Command 'wrapper' function.  Wraps a task, or list of tasks, to be executed by the named command.
      * @param {string} name - Name of the task.
-     * @param {string} commandFn - A function containing the tasks executed for this command.
+     * @param {string} cmdFn - A function containing the tasks executed for this command.
      * @returns {void}
      */
-    command(name, commandFn) {
-        this.commands[name] = commandFn;
+    cmd(name, cmdFn) {
+        this.cmds[name] = cmdFn;
     }
 
     /**
@@ -511,16 +513,17 @@ class Warhorse {
     // }
 
     /**
-     * Execute task function.
-     * @param {string} commandName - Name of the task.
+     * Execute command function.
+     * @param {string} cmdName - Name of the task.
      * @returns {void}
+     * @private
      */
-    execute(commandName) {
-        logTask(`COMMAND ${commandName}`);
-        let command = this.commands[commandName];
-        if(command !== null) {
-            //console.log("Executing command type: " + typeof command);
-            command();
+    execute(cmdName) {
+        logTask(`COMMAND ${cmdName}`);
+        let cmd = this.cmds[cmdName];
+        if(cmd !== null) {
+            //console.log("Executing command type: " + typeof cmd);
+            cmd();
         }
     }
 }

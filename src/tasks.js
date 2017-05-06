@@ -1,3 +1,11 @@
+/**
+ * @file tasks.js
+ * @description The Warhorse tasks default configuration.
+ * @author Kyle Alexis Sargeant <kasargeant@gmail.com> {@link https://github.com/kasargeant https://github.com/kasargeant}.
+ * @copyright Kyle Alexis Sargeant 2017
+ * @license See LICENSE file included in this distribution.
+ */
+
 "use strict";
 
 // Warhorse task definitions
@@ -10,7 +18,7 @@ function tasks(warhorse) {
         // warhorse.load({})
         warhorse.bundle({})
             .minifyJS({})
-            .save("./test/shared/client_dist/js/" + warhorse.file.name);
+            .save("./test/data/client_dist/js/" + warhorse.file.name);
     });
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -18,42 +26,43 @@ function tasks(warhorse) {
         warhorse.load({})
             .compileLESS({})
             // .minifyCSS({})
-            .save("./test/shared/client_dist/css/" + warhorse.file.name);
+            .save("./test/data/client_dist/css/" + warhorse.file.name);
     });
 
     warhorse.task("precompile-sass", function() {
         warhorse.load({})
             .compileSASS({})
             .minifyCSS({})
-            .save("./test/shared/client_dist/css/" + warhorse.file.name);
+            .save("./test/data/client_dist/css/" + warhorse.file.name);
     });
 
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // COMMANDS
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    warhorse.command("build", function() {
-        warhorse.use("build-js", "./test/shared/client_src/js/*.js", {});
+    warhorse.cmd("build", function() {
+        warhorse.use("build-js", "./test/data/client_src/js/*.js", {});
     });
 
-    warhorse.command("distribute", function() {
-        warhorse.use("precompile-less", "./test/shared/client_src/less/index.less", {})
-            .use("precompile-sass", "./test/shared/client_src/sass/index.scss", {})
-            .use("build-js", "./test/shared/client_src/js/*.js", {})
+    warhorse.cmd("distribute", function() {
+        warhorse.use("precompile-less", "./test/data/client_src/less/index.less", {})
+            .use("precompile-sass", "./test/data/client_src/sass/index.scss", {})
+            .use("build-js", "./test/data/client_src/js/*.js", {})
             .documentJS({});
     });
 
-    warhorse.command("document", function() {
+    warhorse.cmd("document", function() {
         warhorse.documentJS({});
     });
 
-    warhorse.command("init", function() {
-        warhorse.init({});
+    warhorse.cmd("init", function() {
+        //warhorse.init({});
+        // TODO - Implement command 'init'
     });
 
-    warhorse.command("precompile", function() {
-        warhorse.use("precompile-less", "./test/shared/client_src/less/index.less", {});
-        // warhorse.use("precompile-sass", "./test/shared/client_src/sass/index.scss", {});
+    warhorse.cmd("precompile", function() {
+        warhorse.use("precompile-less", "./test/data/client_src/less/index.less", {});
+        // warhorse.use("precompile-sass", "./test/data/client_src/sass/index.scss", {});
     });
 
 }

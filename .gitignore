@@ -12,7 +12,7 @@ node_modules/
 # TEMPORARY FOLDERS AND FILES
 scratch/
 temp/
-/test/shared/client_dist/
+/test/data/client_dist/
 
 # FIXME - KEEP OUT OF DISTRO UNTIL A MORE STABLE VERSION...
 /bin/

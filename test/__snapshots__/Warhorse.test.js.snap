@@ -13,10 +13,10 @@ console.log(sq.area);
 exports[`The Warhorse class should be able to parse a filepath 1`] = `
 Object {
   "config": false,
-  "directory": "./test/shared/client_src",
   "extension": ".js",
   "name": "index.js",
-  "path": "./test/shared/client_src/index.js",
-  "stem": "./test/shared/client_src/index",
+  "original": "./test/data/client_src/index.js",
+  "path": "./test/data/client_src/",
+  "stem": "index",
 }
 `;
