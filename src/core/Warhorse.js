@@ -73,6 +73,60 @@ class Warhorse {
 
     }
 
+
+
+    /**
+     * Private helper for load().
+     * @param {string} globPath
+     * @param {string} task - The task to be executed.
+     * @private
+     */
+    _batch(globPath, task) {
+        logAction(`Parsing: ${globPath}`);
+
+        // Sync filesystem check
+        let filePaths = glob.sync(globPath);
+        if(filePaths.constructor === Array && filePaths.length > 0) {
+            for(let filePath of filePaths) {
+                this.file = this._splitPath(filePath);
+                logStage(`Handling file from: ${this.file.name}`);
+                task();
+            }
+        } else {
+            logWarning("No files matched.");
+        }
+    }
+
+    /**
+     * Load function
+     * @param {string} filePath - File path (globs/wildcards allowed) to be processed by this action.
+     * @param {string} task - The task to be executed for every batch item.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {this} - Returns self for chaining.
+     */
+    batch(filePath, task, options = {}) {
+
+        // If it is a batch of filePaths...
+        if(filePath.constructor === Array) {
+            filePath.map(function(filePathItem) {
+                this._batch(filePathItem, task);}.bind(this)
+            );
+        }
+        
+        // Else if it is single filePath.
+        else if(typeof filePath === "string") {
+            this._batch(filePath, task);
+        }
+        // Otherwise...
+        else {
+            console.error(`Error: Unrecognisable or null filepath: ${filePath}`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+
     /**
      * Bundle function.
      * @param {Object} options - Options to further configure this action.
@@ -89,11 +143,12 @@ class Warhorse {
         if(config.transpile === true) {
             // Transpile then bundle
             this.file.content = child.execSync(`browserify --debug ${this.file.path} -t [babelify]`);
-            console.log(`stdout: ${this.file.content}`);
+            //console.log(`stdout: ${this.file.content}`);
         } else {
             // Just bundle
-            this.file.content = child.execSync(`browserify --debug ${this.file.path}`);
-            console.log(`stdout: ${this.file.content}`);
+            let processed = child.execSync(`browserify --debug ${this.file.path}`);
+            this.file.content = processed.toString();
+            //console.log(`stdout: ${this.file.content}`);
         }
 
         // Return self for chaining.
@@ -113,38 +168,29 @@ class Warhorse {
 
     /**
      * Compile SCSS(SASS) function.
-     * @param {Object} file - File to be processed by this action.
-     * @param {Function} next - The next callback action to be executed after this one.
      * @param {Object} options - Options to further configure this action.
-     * @returns {Object} - If the next parameter is given a null or no value - function behaves synchronously and returns result directly.
+     * @returns {this} - Returns self for chaining.
      */
-    compileSASS(file, next, options = {}) {
+    compileSASS(options = {}) {
 
-        logAction(`Compiling SCSS from: ${file.path}`);
+        logAction(`Compiling SCSS from: ${this.file.path}`);
 
         let config = Object.assign(this.settings.precompile, options);
 
-        config.data = file.content;         // e.g. index.scss
-        config.includePaths = [file.path];  // e.g. ./src/sass
+        config.data = this.file.content;         // e.g. index.scss
+        config.includePaths = [this.file.path];  // e.g. ./src/sass
         // ALTERNATIVE config.file = file.path + "/" + file.name;
 
         // Process the data
-        file.content = sass.renderSync(config).css;
+        this.file.content = sass.renderSync(config).css;
 
         // Update file name in accordance with sass->css norms.
-        file.name = file.stem + ".css";
-        file.ext = ".css";
-        logStage(`Filename: ${file.name}`);
+        this.file.name = this.file.stem + ".css";
+        this.file.ext = ".css";
+        logStage(`Filename: ${this.file.name}`);
 
-        // Is there a callback function or shall we just return the value?
-        if(next !== undefined && typeof next === "function") {
-            // Yes - Pass file result onto the next function.
-            next(file);
-            return null; // XXX: Pointless null, required by jsdoc.
-        } else {
-            // No - Then return file result directly.
-            return file;
-        }
+        // Return self for chaining.
+        return this;
     }
 
     /**
@@ -185,8 +231,7 @@ class Warhorse {
                 // if(err.code !== "EEXIST") {throw err};
             }
         };
-
-
+        
         // Create project directory structure
         //FIXME - Guard can be removed once function is fully implemented.
         let workingDirectory = this.settings.directory;
@@ -237,12 +282,10 @@ class Warhorse {
 
     /**
      * Document function.
-     * @param {Object} file - File to be processed by this action.
-     * @param {Function} next - The next callback action to be executed after this one.
      * @param {Object} options - Options to further configure this action.
-     * @returns {Object}
+     * @returns {this} - Returns self for chaining.
      */
-    document(file, next, options = {}) {
+    document(options = {}) {
 
         logAction(`Documenting file(s) from: ${file.path}`);
 
@@ -250,80 +293,23 @@ class Warhorse {
 
         child.execSync(`jsdoc ${config.src} -r -c ./conf/.jsdocrc -d ${config.dst}`);
 
-        // Is there a callback function or shall we just return the value?
-        if(next !== undefined && typeof next === "function") {
-            // Yes - Pass file result onto the next function.
-            next(file);
-            return null; // XXX: Pointless null, required by jsdoc.
-        } else {
-            // No - Then return file result directly.
-            return file;
-        }
+        // Return self for chaining.
+        return this;
     }
-    //
-    // /**
-    //  * Private helper for load().
-    //  * @param {string} globPath
-    //  * @param {Function} next
-    //  * @private
-    //  */
-    // BATCH(globPath, next) {
-    //     logAction(`Loading: ${globPath}`);
-    //     // Async filesystem check
-    //     // glob(globPath, function(err, filePaths) {
-    //     //     // files is an array of filenames.
-    //     //     // If the `nonull` option is set, and nothing
-    //     //     // was found, then files is ["**/*.js"]
-    //     //     // er is an error object or null.
-    //     //     if(err) {
-    //     //         console.log(err);
-    //     //     } else if(filePaths.constructor === Array && filePaths.length > 0) {
-    //     //         for(let filePath of filePaths) {
-    //     //             let file = this._splitPath(filePath);
-    //     //             console.log(` - Loading file from: ${file.name}`);
-    //     //             file.content = fs.readFileSync(filePath, "utf8");
-    //     //             next(file);
-    //     //         }
-    //     //     } else {
-    //     //         console.log("No files matched.");
-    //     //         next(null);
-    //     //     }
-    //     // }.bind(this));
-    //
-    //     // Async filesystem check
-    //     let filePaths = glob.sync(globPath);
-    //     if(filePaths.constructor === Array && filePaths.length > 0) {
-    //         for(let filePath of filePaths) {
-    //             let file = this._splitPath(filePath);
-    //             logStage(`Loading file from: ${file.name}`);
-    //             file.content = fs.readFileSync(filePath, "utf8");
-    //             next(file);
-    //         }
-    //     } else {
-    //         logWarning("No files matched.");
-    //         next(null);
-    //     }
-    // }
-
 
     /**
      * Load function
-     * @param {string} filePath - File path (globs/wildcards allowed) to be processed by this action.
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
-    load(filePath, options = {}) {
+    load(options = {}) {
 
         // Accepts a single filepath only.
-        if(typeof filePath === "string") {
-            this.file = this._splitPath(filePath);
-            logStage(`Loading file from: ${this.file.name}`);
-            this.file.content = fs.readFileSync(filePath, "utf8");
-        }
-        // Otherwise...
-        else {
-            console.error(`Error: Unrecognisable or null filepath: ${filePath}`);
-        }
+
+        let srcPath = this.file.path + this.file.name;
+
+        logStage(`Loading file from: ${this.file.name}`);
+        this.file.content = fs.readFileSync(srcPath, "utf8");
 
         // Return self for chaining.
         return this;
@@ -331,90 +317,63 @@ class Warhorse {
 
     /**
      * Minify CSS function.
-     * @param {Object} file - File to be processed by this action.
-     * @param {Function} next - The next callback action to be executed after this one.
      * @param {Object} options - Options to further configure this action.
-     * @returns {Object} - If the next parameter is given a null or no value - function behaves synchronously and returns result directly.
+     * @returns {this} - Returns self for chaining.
      */
-    minifyCSS(file, next, options = {}) {
+    minifyCSS(options = {}) {
 
-        logAction(`Minifying CSS from: ${file.path}`);
+        logAction(`Minifying CSS from: ${this.file.path}`);
 
         let config = Object.assign(this.settings.minify, options);
 
-        file.content = csso.minify(file.content).css;
+        this.file.content = csso.minify(this.file.content).css;
 
-        // Is there a callback function or shall we just return the value?
-        if(next !== undefined && typeof next === "function") {
-            // Yes - Pass file result onto the next function.
-            next(file);
-            return null; // XXX: Pointless null, required by jsdoc.
-        } else {
-            // No - Then return file result directly.
-            return file;
-        }
+        // Return self for chaining.
+        return this;
     }
-
 
     /**
      * Minify JS function.
-     * @param {Object} file - File to be processed by this action.
-     * @param {Function} next - The next callback action to be executed after this one.
      * @param {Object} options - Options to further configure this action.
-     * @returns {Object} - If the next parameter is given a null or no value - function behaves synchronously and returns result directly.
+     * @returns {this} - Returns self for chaining.
      */
-    minifyJS(file, next, options = {}) {
+    minifyJS(options = {}) {
 
-        logAction(`Minifying JS from: ${file.path}`);
+        logAction(`Minifying JS from: ${this.file.path}`);
 
         let settings = Object.assign(this.settings.bundle, options);
-
-        let result = uglify.minify({"file": file.content}, {
+        console.log("@@@@@");
+        console.log(this.file.content);
+        this.file.content = uglify.minify({"file": this.file.content}, {
             fromString: true
-        });
+        }).code;
 
-        if(result) {
-            // We only care about the code itself - not the uglify object.
-            file.content = result.code;
-            console.log(`     Uglifyied length: ${file.content.length}`); // minified output
-        }
+        // if(result) {
+        //     // We only care about the code itself - not the uglify object.
+        //     this.file.content = result.code;
+        //     console.log(`     Uglifyied length: ${this.file.content.length}`); // minified output
+        // }
 
-        // Is there a callback function or shall we just return the value?
-        if(next !== undefined && typeof next === "function") {
-            // Yes - Pass file result onto the next function.
-            next(file);
-            return null; // XXX: Pointless null, required by jsdoc.
-        } else {
-            // No - Then return file result directly.
-            return file;
-        }
+        // Return self for chaining.
+        return this;
     }
 
     /**
-     * Save function.
-     * @param {Object} file - File to be processed by this action.
-     * @param {string} dstPath - The file path that this file will be saved to.
+     * Rename function.
      * @param {Object} options - Options to further configure this action.
-     * @returns {void}
+     * @returns {this} - Returns self for chaining.
      */
-    rename(file, next, options = {}) {
+    rename(options = {}) {
 
         let config = Object.assign(this.settings.save, options);
 
-        logAction(`Renaming file: ${file.path}`);
+        logAction(`Renaming file: ${this.file.path}`);
 
         // Rename (i.e. overwrite) any values in the file object with the user-defined options object
-        file = Object.assign(file, options);
+        this.file = Object.assign(this.file, options);
 
-        // Is there a callback function or shall we just return the value?
-        if(next !== undefined && typeof next === "function") {
-            // Yes - Pass file result onto the next function.
-            next(file);
-            return null; // XXX: Pointless null, required by jsdoc.
-        } else {
-            // No - Then return file result directly.
-            return file;
-        }
+        // Return self for chaining.
+        return this;
     }
 
     /**
@@ -431,9 +390,14 @@ class Warhorse {
         logStage(`Splitting file path: ${filePath}`); // e.g. /docs/index.html
 
         let name = path.posix.basename(filePath);           // e.g. index.html
-        let directory = path.dirname(filePath);             // e.g. /docs/
-        let extension = path.extname(filePath);             // e.g. .html
+        let directory = path.dirname(filePath) + "/";       // e.g. /docs/
         let stem = name.slice(0, name.lastIndexOf("."));    // e.g. index
+        let extension = path.extname(filePath);             // e.g. .html
+
+        // console.log(`name: ${name}`);
+        // console.log(`directory: ${directory}`);
+        // console.log(`stem: ${stem}`);
+        // console.log(`extension: ${extension}`);
 
         // Is it a config file e.g. .jshintrc
         let config = false;

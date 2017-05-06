@@ -3,25 +3,20 @@
 // Warhorse task definitions
 function tasks(warhorse) {
 
-    // // TASK: BUILD
-    // warhorse.task("build", function() {
-    //     warhorse.load("./test/shared/client_src/js/*.js", function(file) {
-    //         warhorse.bundle(file, function(file) {
-    //             warhorse.minifyJS(file, function(file) {
-    //                 let dstPath = "./test/shared/client_dist/js/" + file.name;
-    //                 warhorse.save(file, dstPath);
-    //             });
-    //         });
-    //     });
-    // });
-
     // TASK: BUILD
-    warhorse.task("build", function() {
-        warhorse.load("./test/shared/client_src/js/index.js", {})
+    warhorse.task("build-js", function() {
+        warhorse.load({})
             .bundle({})
+            .minifyJS({})
             .save("./test/shared/client_dist/js/" + warhorse.file.name);
+
     });
 
+    warhorse.task("build", function() {
+        warhorse.batch("./test/shared/client_src/js/*.js", warhorse.tasks["build-js"], {});
+    });
+
+    
     // TASK: DOCUMENT
     warhorse.task("document", function() {
         warhorse.document("", function(file) {
@@ -37,24 +32,18 @@ function tasks(warhorse) {
     });
 
     // TASK: PRECOMPILE
-    warhorse.task("precompile", function() {
-        warhorse.load("./test/shared/client_src/sass/index.scss", function(file) {
-            warhorse.compileSASS(file, function(file) {
-                warhorse.minifyCSS(file, function(file) {
-                    let dstPath = "./test/shared/client_dist/css/" + file.name;
-                    warhorse.save(file, dstPath);
-                });
-            });
-        });
+    warhorse.task("precompile-css", function() {
+        warhorse.load({})
+            .compileSASS({})
+            .minifyCSS({})
+            .save("./test/shared/client_dist/css/" + warhorse.file.name);
+
     });
 
-    // TODO - Potential alternative for simple builds???
-    // warhorse.task("precompile")
-    //     .load("./test/shared/client_src/sass/index.scss")
-    //     .compileSASS(file)
-    //     .minifyCSS(file)
-    //     .rename({directory: "./test/shared/client_dist/css/"})
-    //     .save(file, dstPath);
+    warhorse.task("precompile", function() {
+        warhorse.batch("./test/shared/client_src/sass/index.scss", warhorse.tasks["precompile-css"], {});
+    });
+
 
 }
 
