@@ -73,60 +73,6 @@ class Warhorse {
 
     }
 
-
-
-    /**
-     * Private helper for load().
-     * @param {string} globPath
-     * @param {string} task - The task to be executed.
-     * @private
-     */
-    _batch(globPath, task) {
-        logAction(`Parsing: ${globPath}`);
-
-        // Sync filesystem check
-        let filePaths = glob.sync(globPath);
-        if(filePaths.constructor === Array && filePaths.length > 0) {
-            for(let filePath of filePaths) {
-                this.file = this._splitPath(filePath);
-                logStage(`Handling file from: ${this.file.name}`);
-                task();
-            }
-        } else {
-            logWarning("No files matched.");
-        }
-    }
-
-    /**
-     * Load function
-     * @param {string} filePath - File path (globs/wildcards allowed) to be processed by this action.
-     * @param {string} task - The task to be executed for every batch item.
-     * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
-     */
-    batch(filePath, task, options = {}) {
-
-        // If it is a batch of filePaths...
-        if(filePath.constructor === Array) {
-            filePath.map(function(filePathItem) {
-                this._batch(filePathItem, task);}.bind(this)
-            );
-        }
-        
-        // Else if it is single filePath.
-        else if(typeof filePath === "string") {
-            this._batch(filePath, task);
-        }
-        // Otherwise...
-        else {
-            console.error(`Error: Unrecognisable or null filepath: ${filePath}`);
-        }
-
-        // Return self for chaining.
-        return this;
-    }
-
-
     /**
      * Bundle function.
      * @param {Object} options - Options to further configure this action.
@@ -325,11 +271,13 @@ class Warhorse {
      */
     document(options = {}) {
 
-        logAction(`Documenting file(s) from: ${this.file.path}`);
-
         let config = Object.assign(this.settings.document, options);
 
-        child.execSync(`jsdoc ${config.src} -r -c ./conf/.jsdocrc -d ${config.dst}`);
+        logAction(`Documenting file(s) from: ${config.src}`);
+        logStage(`to path: ${config.dst}`);
+
+        child.execSync(`jsdoc -r -c ./conf/.jsdocrc`);
+        // child.execSync(`jsdoc ${config.src} -r -c ./conf/.jsdocrc -d ${config.dst}`);
 
         // Return self for chaining.
         return this;
@@ -342,11 +290,12 @@ class Warhorse {
      */
     load(options = {}) {
 
+        logAction(`Loading file: ${this.file.name}`);
+
         // Accepts a single filepath only.
-
         let srcPath = this.file.path + this.file.name;
+        logStage(`from path: ${srcPath}`);
 
-        logStage(`Loading file from: ${this.file.name}`);
         this.file.content = fs.readFileSync(srcPath, "utf8");
 
         // Return self for chaining.
@@ -379,18 +328,13 @@ class Warhorse {
 
         logAction(`Minifying JS from: ${this.file.path}`);
 
-        let settings = Object.assign(this.settings.bundle, options);
-        console.log("@@@@@");
-        console.log(this.file.content);
-        this.file.content = uglify.minify({"file": this.file.content}, {
+        let config = Object.assign(this.settings.bundle, options);
+
+        // Process the data
+        let processed = uglify.minify({"file": this.file.content}, {
             fromString: true
         }).code;
-
-        // if(result) {
-        //     // We only care about the code itself - not the uglify object.
-        //     this.file.content = result.code;
-        //     console.log(`     Uglifyied length: ${this.file.content.length}`); // minified output
-        // }
+        this.file.content = processed.toString();
 
         // Return self for chaining.
         return this;
@@ -403,9 +347,9 @@ class Warhorse {
      */
     rename(options = {}) {
 
-        let config = Object.assign(this.settings.save, options);
-
         logAction(`Renaming file: ${this.file.path}`);
+
+        let config = Object.assign(this.settings.save, options);
 
         // Rename (i.e. overwrite) any values in the file object with the user-defined options object
         this.file = Object.assign(this.file, options);
@@ -416,7 +360,7 @@ class Warhorse {
 
     /**
      * Splits a file path into its component parts.
-     * @param {string} filePath - A standard system filepath.
+     * @param {string} filePath - A standard system file or path name.
      * @returns {Object} - An object containing a destructured hash of the path's parts.
      * @private
      */
@@ -485,17 +429,74 @@ class Warhorse {
         this.tasks[name] = taskFunction;
     }
 
+
+
+
+    /**
+     * Private helper for load().
+     * @param {string} globPath
+     * @param {string} task - The task to be executed.
+     * @private
+     */
+    _use(globPath, task) {
+        logAction(`Parsing: ${globPath}`);
+
+        // Sync filesystem check
+        let filePaths = glob.sync(globPath);
+        if(filePaths.constructor === Array && filePaths.length > 0) {
+            for(let filePath of filePaths) {
+                this.file = this._splitPath(filePath);
+                logStage(`Handling file from: ${this.file.name}`);
+                task();
+            }
+        } else {
+            logWarning("No files matched.");
+        }
+    }
+
+    /**
+     * Use function identfies which files are to be used with which task
+     * @param {string} filePath - File path (globs/wildcards allowed) to be processed by this action.
+     * @param {string} taskName - The name of the task to be executed for every batch item.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {this} - Returns self for chaining.
+     */
+    use(taskName, filePath, options = {}) {
+
+        // Retrieve task from the taskName
+        let task = this.tasks[taskName];
+
+        // If it is a batch of filePaths...
+        if(filePath.constructor === Array) {
+            filePath.map(function(filePathItem) {
+                this._use(filePathItem, task);}.bind(this)
+            );
+        }
+
+        // Else if it is single filePath.
+        else if(typeof filePath === "string") {
+            this._use(filePath, task);
+        }
+        // Otherwise...
+        else {
+            console.error(`Error: Unrecognisable or null filepath: ${filePath}`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
     /**
      * Execute task function.
      * @param {string} name - Name of the task.
      * @returns {void}
      */
-    execute(name) {
-        logTask(`TASK ${name}`);
-        let action = this.tasks[name];
-        if(action !== null) {
-            //console.log("Executing command: " + typeof action);
-            action();
+    execute(taskName) {
+        logTask(`TASK ${taskName}`);
+        let task = this.tasks[taskName];
+        if(task !== null) {
+            //console.log("Executing command: " + typeof task);
+            task();
         }
     }
 }

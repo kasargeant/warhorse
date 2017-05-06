@@ -14,9 +14,17 @@ function tasks(warhorse) {
     });
 
     warhorse.task("build", function() {
-        warhorse.batch("./test/shared/client_src/js/*.js", warhorse.tasks["build-js"], {});
+        warhorse.use("build-js", "./test/shared/client_src/js/*.js", {});
     });
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TASK: DISTRIBUTE
+    warhorse.task("distribute", function() {
+        warhorse.use("precompile-less", "./test/shared/client_src/less/index.less", {})
+            .use("precompile-sass", "./test/shared/client_src/sass/index.scss", {})
+            .use("build-js", "./test/shared/client_src/js/*.js", {})
+            .document({});
+    });
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TASK: DOCUMENT
@@ -52,8 +60,8 @@ function tasks(warhorse) {
     });
 
     warhorse.task("precompile", function() {
-        warhorse.batch("./test/shared/client_src/less/index.less", warhorse.tasks["precompile-less"], {});
-        // warhorse.batch("./test/shared/client_src/sass/index.scss", warhorse.tasks["precompile-sass"], {});
+        warhorse.use("precompile-less", "./test/shared/client_src/less/index.less", {});
+        // warhorse.use("precompile-sass", "./test/shared/client_src/sass/index.scss", {});
     });
 
 
