@@ -3,10 +3,11 @@
 // Warhorse task definitions
 function tasks(warhorse) {
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TASK: BUILD
     warhorse.task("build-js", function() {
-        warhorse.load({})
-            .bundle({})
+        // warhorse.load({})
+        warhorse.bundle({})
             .minifyJS({})
             .save("./test/shared/client_dist/js/" + warhorse.file.name);
 
@@ -16,14 +17,14 @@ function tasks(warhorse) {
         warhorse.batch("./test/shared/client_src/js/*.js", warhorse.tasks["build-js"], {});
     });
 
-    
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TASK: DOCUMENT
     warhorse.task("document", function() {
-        warhorse.document("", function(file) {
-
-        });
+        warhorse.document({});
     });
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TASK: INIT
     warhorse.task("init", function() {
         warhorse.init("./", function(file) {
@@ -31,8 +32,18 @@ function tasks(warhorse) {
         });
     });
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TASK: PRECOMPILE
-    warhorse.task("precompile-css", function() {
+
+    warhorse.task("precompile-less", function() {
+        warhorse.load({})
+            .compileLESS({})
+            // .minifyCSS({})
+            .save("./test/shared/client_dist/css/" + warhorse.file.name);
+
+    });
+
+    warhorse.task("precompile-sass", function() {
         warhorse.load({})
             .compileSASS({})
             .minifyCSS({})
@@ -41,7 +52,8 @@ function tasks(warhorse) {
     });
 
     warhorse.task("precompile", function() {
-        warhorse.batch("./test/shared/client_src/sass/index.scss", warhorse.tasks["precompile-css"], {});
+        warhorse.batch("./test/shared/client_src/less/index.less", warhorse.tasks["precompile-less"], {});
+        // warhorse.batch("./test/shared/client_src/sass/index.scss", warhorse.tasks["precompile-sass"], {});
     });
 
 

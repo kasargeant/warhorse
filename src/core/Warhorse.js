@@ -9,9 +9,10 @@ const zlib = require("zlib");
 const glob = require("glob");
 
 const browserify = require("browserify");
-const uglify = require("uglify-js");
-const sass = require("node-sass");
 const csso = require("csso");
+const less = require("less");
+const sass = require("node-sass");
+const uglify = require("uglify-js");
 
 // Setup console
 const chalk = require("chalk");
@@ -52,8 +53,7 @@ class Warhorse {
                 license: "GPL-3.0"
             },
             bundle: {
-                minify: true,
-                transpile: false
+                transpile: true
             },
             precompile: {
                 includePaths: ["./src/sass"]
@@ -142,7 +142,11 @@ class Warhorse {
         // Determine if we're transpiling as well as bundling... or just bundling?
         if(config.transpile === true) {
             // Transpile then bundle
-            this.file.content = child.execSync(`browserify --debug ${this.file.path} -t [babelify]`);
+            let processed = child.execSync(`browserify --debug ${this.file.path} -t [babelify]`);
+            //#1 let processed = child.execSync(`browserify --debug -t [babelify]`, {input: this.file.path});
+            ////let processed = child.execSync(`| browserify --debug -t [babelify]`, {input: this.file.content});
+            this.file.content = processed.toString();
+
             //console.log(`stdout: ${this.file.content}`);
         } else {
             // Just bundle
@@ -157,13 +161,47 @@ class Warhorse {
 
     /**
      * Compile LESS function.
-     * @param {Object} file - File to be processed by this action.
-     * @param {Function} next - The next callback action to be executed after this one.
      * @param {Object} options - Options to further configure this action.
-     * @returns {Object} - If the next parameter is given a null or no value - function behaves synchronously and returns result directly.
+     * @returns {this} - Returns self for chaining.
      */
-    compileLESS(file, next, options = {}) {
-        // TODO - LESS task.
+    compileLESS(options = {}) {
+
+        logAction(`Compiling LESS from: ${this.file.path}`);
+
+        let config = Object.assign(this.settings.precompile, options);
+
+        config.data = this.file.content;         // e.g. index.scss
+        config.includePaths = [this.file.path];  // e.g. ./src/sass
+        // ALTERNATIVE config.file = file.path + "/" + file.name;
+
+        // Process the data
+        let processed = child.execSync(`lessc --relative-urls --include-path=${this.file.path} ${this.file.path + this.file.name}`);
+        this.file.content = processed.toString();
+
+        // Transform the extension
+        this.file.extension = ".css";
+        this.file.name = this.file.stem + this.file.extension;
+
+        // Return self for chaining.
+        return this;
+
+        //config example
+        // let lessrc = {
+        //     env: "development",
+        //     logLevel: 2,
+        //     async: false,
+        //     fileAsync: false,
+        //     poll: 1000,
+        //     functions: {},
+        //     dumpLineNumbers: "comments",
+        //     relativeUrls: true,
+        //     includePaths: ["./test/shared/client_src/less/"],
+        //     globalVars: {
+        //         var1: '"string value"',
+        //         var2: 'regular value'
+        //     },
+        //     rootpath: ":/a.com/"
+        // };
     }
 
     /**
@@ -182,12 +220,12 @@ class Warhorse {
         // ALTERNATIVE config.file = file.path + "/" + file.name;
 
         // Process the data
-        this.file.content = sass.renderSync(config).css;
+        let processed = sass.renderSync(config).css;
+        this.file.content = processed.toString();
 
-        // Update file name in accordance with sass->css norms.
-        this.file.name = this.file.stem + ".css";
-        this.file.ext = ".css";
-        logStage(`Filename: ${this.file.name}`);
+        // Transform the extension
+        this.file.extension = ".css";
+        this.file.name = this.file.stem + this.file.extension;
 
         // Return self for chaining.
         return this;
@@ -231,7 +269,7 @@ class Warhorse {
                 // if(err.code !== "EEXIST") {throw err};
             }
         };
-        
+
         // Create project directory structure
         //FIXME - Guard can be removed once function is fully implemented.
         let workingDirectory = this.settings.directory;
@@ -287,7 +325,7 @@ class Warhorse {
      */
     document(options = {}) {
 
-        logAction(`Documenting file(s) from: ${file.path}`);
+        logAction(`Documenting file(s) from: ${this.file.path}`);
 
         let config = Object.assign(this.settings.document, options);
 
