@@ -64,40 +64,55 @@ class Warhorse {
                 compress: false
             }
         };
-
         this.settings = Object.assign(this.defaults, options);
 
         this.tasks = {}; // Lookup for user-defined tasks.
-
-        this.file = null; // Main arg passed from function to function - requires sync operation of course!
 
     }
 
     /**
      * Bundle function.
+     * @param {Object} file - File to be processed by this action.
+     * @param {Function} next - The next callback action to be executed after this one.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {void}
      */
-    bundle(options = {}) {
+    bundle(file, next, options = {}) {
 
         // Handle task configuration.
         let config = Object.assign(this.settings.bundle, options);
 
-        logAction(`Bundling file from: ${this.file.path}`);
+        logAction(`Bundling file from: ${file.path}`);
+
+        // Locals
+        let buffer = "";
+        let b = null;
 
         // Determine if we're transpiling as well as bundling... or just bundling?
         if(config.transpile === true) {
             // Transpile then bundle
-            this.file.content = child.execSync(`browserify --debug ${this.file.path} -t [babelify]`);
-            console.log(`stdout: ${this.file.content}`);
+            b = browserify(file.path).transform("babelify", {presets: ["es2015"]}).bundle();
         } else {
             // Just bundle
-            this.file.content = child.execSync(`browserify --debug ${this.file.path}`);
-            console.log(`stdout: ${this.file.content}`);
+            b = browserify(file.path).bundle();
         }
+        b.on("error", console.error);
+        b.on("data", function(data) {buffer += data;});
+        b.on("end", function() {
+            file.content = buffer;
+            console.log(`     Browserifyied length: ${file.content.length}`);
 
-        // Return self for chaining.
-        return this;
+            if(config.minify) {
+                console.log(` - Minimising file from: ${file.path}`);
+
+                this.minifyJS(file, next, function() {
+                    // Pass on to the next function.
+                    next(file);
+                });
+            } else {
+                next(file);
+            }
+        }.bind(this));
     }
 
     /**
@@ -260,73 +275,74 @@ class Warhorse {
             return file;
         }
     }
-    //
-    // /**
-    //  * Private helper for load().
-    //  * @param {string} globPath
-    //  * @param {Function} next
-    //  * @private
-    //  */
-    // BATCH(globPath, next) {
-    //     logAction(`Loading: ${globPath}`);
-    //     // Async filesystem check
-    //     // glob(globPath, function(err, filePaths) {
-    //     //     // files is an array of filenames.
-    //     //     // If the `nonull` option is set, and nothing
-    //     //     // was found, then files is ["**/*.js"]
-    //     //     // er is an error object or null.
-    //     //     if(err) {
-    //     //         console.log(err);
-    //     //     } else if(filePaths.constructor === Array && filePaths.length > 0) {
-    //     //         for(let filePath of filePaths) {
-    //     //             let file = this._splitPath(filePath);
-    //     //             console.log(` - Loading file from: ${file.name}`);
-    //     //             file.content = fs.readFileSync(filePath, "utf8");
-    //     //             next(file);
-    //     //         }
-    //     //     } else {
-    //     //         console.log("No files matched.");
-    //     //         next(null);
-    //     //     }
-    //     // }.bind(this));
-    //
-    //     // Async filesystem check
-    //     let filePaths = glob.sync(globPath);
-    //     if(filePaths.constructor === Array && filePaths.length > 0) {
-    //         for(let filePath of filePaths) {
-    //             let file = this._splitPath(filePath);
-    //             logStage(`Loading file from: ${file.name}`);
-    //             file.content = fs.readFileSync(filePath, "utf8");
-    //             next(file);
-    //         }
-    //     } else {
-    //         logWarning("No files matched.");
-    //         next(null);
-    //     }
-    // }
 
+    /**
+     * Private helper for load().
+     * @param {string} globPath
+     * @param {Function} next
+     * @private
+     */
+    _loadFilePath(globPath, next) {
+        logAction(`Loading: ${globPath}`);
+        // Async filesystem check
+        // glob(globPath, function(err, filePaths) {
+        //     // files is an array of filenames.
+        //     // If the `nonull` option is set, and nothing
+        //     // was found, then files is ["**/*.js"]
+        //     // er is an error object or null.
+        //     if(err) {
+        //         console.log(err);
+        //     } else if(filePaths.constructor === Array && filePaths.length > 0) {
+        //         for(let filePath of filePaths) {
+        //             let file = this._splitPath(filePath);
+        //             console.log(` - Loading file from: ${file.name}`);
+        //             file.content = fs.readFileSync(filePath, "utf8");
+        //             next(file);
+        //         }
+        //     } else {
+        //         console.log("No files matched.");
+        //         next(null);
+        //     }
+        // }.bind(this));
+
+        // Async filesystem check
+        let filePaths = glob.sync(globPath);
+        if(filePaths.constructor === Array && filePaths.length > 0) {
+            for(let filePath of filePaths) {
+                let file = this._splitPath(filePath);
+                logStage(`Loading file from: ${file.name}`);
+                file.content = fs.readFileSync(filePath, "utf8");
+                next(file);
+            }
+        } else {
+            logWarning("No files matched.");
+            next(null);
+        }
+    }
 
     /**
      * Load function
      * @param {string} filePath - File path (globs/wildcards allowed) to be processed by this action.
+     * @param {Function} next - The next callback action to be executed after this one.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {void}
      */
-    load(filePath, options = {}) {
+    load(filePath, next, options = {}) {
 
-        // Accepts a single filepath only.
-        if(typeof filePath === "string") {
-            this.file = this._splitPath(filePath);
-            logStage(`Loading file from: ${this.file.name}`);
-            this.file.content = fs.readFileSync(filePath, "utf8");
+        // If it is a batch of filePaths...
+        if(filePath.constructor === Array) {
+            filePath.map(function(filePathItem) {
+                this._loadFilePath(filePathItem, next);}.bind(this)
+            );
+        }
+        // Else if it is single filePath.
+        else if(typeof filePath === "string") {
+            this._loadFilePath(filePath, next);
         }
         // Otherwise...
         else {
-            console.error(`Error: Unrecognisable or null filepath: ${filePath}`);
+            console.error(`Error: Unrecognisable or null filepath: ${filepath}`);
         }
-
-        // Return self for chaining.
-        return this;
     }
 
     /**
@@ -452,25 +468,23 @@ class Warhorse {
 
     /**
      * Save function.
+     * @param {Object} file - File to be processed by this action.
      * @param {string} dstPath - The file path that this file will be saved to.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {void}
      */
-    save(dstPath, options = {}) {
+    save(file, dstPath, options = {}) {
 
         let config = Object.assign(this.settings.save, options);
 
         logAction(`Saving file to: ${dstPath}`);
 
         if(config.compress === true) {
-            let data = zlib.gzipSync(this.file.content);
+            let data = zlib.gzipSync(file.content);
             fs.writeFileSync(dstPath + ".gz", data, "utf8");
         } else {
-            fs.writeFileSync(dstPath, this.file.content, "utf8");
+            fs.writeFileSync(dstPath, file.content, "utf8");
         }
-
-        // Return self for chaining.
-        return this;
     }
 
     /**

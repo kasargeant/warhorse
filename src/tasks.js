@@ -3,19 +3,24 @@
 // Warhorse task definitions
 function tasks(warhorse) {
 
+    // // TASK: BUILD
+    // warhorse.task("build", function() {
+    //     warhorse.load("./test/shared/client_src/js/*.js", function(file) {
+    //         warhorse.bundle(file, function(file) {
+    //             warhorse.minifyJS(file, function(file) {
+    //                 let dstPath = "./test/shared/client_dist/js/" + file.name;
+    //                 warhorse.save(file, dstPath);
+    //             });
+    //         });
+    //     });
+    // });
+
     // TASK: BUILD
     warhorse.task("build", function() {
-        warhorse.load("./test/shared/client_src/js/*.js", function(file) {
-            warhorse.bundle(file, function(file) {
-                warhorse.minifyJS(file, function(file) {
-                    let dstPath = "./test/shared/client_dist/js/" + file.name;
-                    warhorse.save(file, dstPath);
-                });
-            });
-        });
+        warhorse.load("./test/shared/client_src/js/index.js", {})
+            .bundle({})
+            .save("./test/shared/client_dist/js/" + warhorse.file.name);
     });
-
-
 
     // TASK: DOCUMENT
     warhorse.task("document", function() {
