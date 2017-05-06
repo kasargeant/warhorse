@@ -1,0 +1,2233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Warhorse - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Warhorse.html">Warhorse</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#bundle">bundle</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#cmd">cmd</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#compileLESS">compileLESS</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#compileSASS">compileSASS</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#documentJS">documentJS</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#load">load</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#minifyCSS">minifyCSS</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#minifyJS">minifyJS</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#rename">rename</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#save">save</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#task">task</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#use">use</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Warhorse</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+        Warhorse
+        </h2>
+        
+            <div class="class-description"><p>The main Warhorse class, containing all actions available to automate tasks and builds.</p></div>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+<div class="section-method">
+
+    
+    <h2>Constructor</h2>
+    
+
+    <h4 class="name" id="Warhorse"><span class="type-signature"></span>new Warhorse<span class="signature">(options)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>The Warhorse constructor takes an options object.  In these options are contained the user requested
+configuration defaults for the project.  If there are no options - then Warhorse's own default
+configuration settings will be used instead.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>Object</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Configuration options to override Warhorse's own defaults.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="bundle"><span class="type-signature"></span>bundle<span class="signature">(options)</span><span class="type-signature"> &rarr; {this}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Bundle action.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>Object</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Options to further configure this action.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>this</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <ul>
+<li>Returns self for chaining.</li>
+</ul>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="cmd"><span class="type-signature"></span>cmd<span class="signature">(name, cmdFn)</span><span class="type-signature"> &rarr; {void}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Command 'wrapper' function.  Wraps a task, or list of tasks, to be executed by the named command.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Name of the task.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>cmdFn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>A function containing the tasks executed for this command.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>void</code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="compileLESS"><span class="type-signature"></span>compileLESS<span class="signature">(options)</span><span class="type-signature"> &rarr; {this}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Compile LESS action.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>Object</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Options to further configure this action.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>this</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <ul>
+<li>Returns self for chaining.</li>
+</ul>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="compileSASS"><span class="type-signature"></span>compileSASS<span class="signature">(options)</span><span class="type-signature"> &rarr; {this}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Compile SCSS(SASS) action.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>Object</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Options to further configure this action.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>this</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <ul>
+<li>Returns self for chaining.</li>
+</ul>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="documentJS"><span class="type-signature"></span>documentJS<span class="signature">(options)</span><span class="type-signature"> &rarr; {this}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Document JS API action.  Documents JavaScript from src/ folder(s).</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>Object</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Options to further configure this action.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>this</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <ul>
+<li>Returns self for chaining.</li>
+</ul>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="load"><span class="type-signature"></span>load<span class="signature">(options)</span><span class="type-signature"> &rarr; {this}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Load action.  Loads files being used for processing by the action that follows.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>Object</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Options to further configure this action.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>this</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <ul>
+<li>Returns self for chaining.</li>
+</ul>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="minifyCSS"><span class="type-signature"></span>minifyCSS<span class="signature">(options)</span><span class="type-signature"> &rarr; {this}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Minify CSS action.  Minimisation for standard CSS.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>Object</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Options to further configure this action.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>this</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <ul>
+<li>Returns self for chaining.</li>
+</ul>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="minifyJS"><span class="type-signature"></span>minifyJS<span class="signature">(options)</span><span class="type-signature"> &rarr; {this}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Minify JS action.  Minimisation for ES51/ES2015 JavaScript.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>Object</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Options to further configure this action.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>this</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <ul>
+<li>Returns self for chaining.</li>
+</ul>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="rename"><span class="type-signature"></span>rename<span class="signature">(options)</span><span class="type-signature"> &rarr; {this}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Rename action.  Allows modification/replacement/injection of file details into the sequence of actions.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>Object</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Options to further configure this action.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>this</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <ul>
+<li>Returns self for chaining.</li>
+</ul>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="save"><span class="type-signature"></span>save<span class="signature">(dstPath, options)</span><span class="type-signature"> &rarr; {this}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Save action.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dstPath</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>The file path that this file will be saved to.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>Object</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Options to further configure this action.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>this</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <ul>
+<li>Returns self for chaining.</li>
+</ul>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="task"><span class="type-signature"></span>task<span class="signature">(name, taskFn)</span><span class="type-signature"> &rarr; {void}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Task 'wrapper' function.  Wraps an action, or list of actions, to be followed by the named task.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Name of the task.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>taskFn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>A function containing the actions followed for the task.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>void</code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="use"><span class="type-signature"></span>use<span class="signature">(taskName, filePath, options)</span><span class="type-signature"> &rarr; {this}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Use function identfies which files are to be used with which task</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>taskName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>The name of the task to be executed for every batch item.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>filePath</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>File path (globs/wildcards allowed) to be processed by this action.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>Object</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Options to further configure this action.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>this</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <ul>
+<li>Returns self for chaining.</li>
+</ul>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Sun May 07 2017 01:40:11 GMT+0200 (CEST) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

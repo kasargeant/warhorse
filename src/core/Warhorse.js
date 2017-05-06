@@ -1,3 +1,11 @@
+/**
+ * @file Warhorse.js
+ * @description The main Warhorse daemon.
+ * @author Kyle Alexis Sargeant <kasargeant@gmail.com> {@link https://github.com/kasargeant https://github.com/kasargeant}.
+ * @copyright Kyle Alexis Sargeant 2017
+ * @license See LICENSE file included in this distribution.
+ */
+
 "use strict";
 
 // Imports
@@ -9,20 +17,30 @@ const zlib = require("zlib");
 const glob = require("glob");
 
 const browserify = require("browserify");
-const uglify = require("uglify-js");
-const sass = require("node-sass");
 const csso = require("csso");
+//const less = require("less");
+const sass = require("node-sass");
+const uglify = require("uglify-js");
+
+// Setup console
+const chalk = require("chalk");
+const log = console.log;
+const logTask = function(value)    {console.log(chalk.bgBlue(" " + value));};
+const logAction = function(value)    {console.log(chalk.blue(" - " + value));};
+const logStage = function(value)   {console.log(chalk.yellow("   -> " + value));};
+const logWarning = function(value) {console.warn(chalk.orange(value));};
+const logError = function(value)   {console.error(chalk.red(value));};
 
 
 /**
- * The Warhorse constructor takes an options object.  In these options are contained the user requested
- * configuration defaults for the project.  If there are no options - then Warhorse's own default
- * configuration settings will be used instead.
- * @class
+ * @classdesc The main Warhorse class, containing all actions available to automate tasks and builds.
  */
 class Warhorse {
     /**
-     * Constructor
+     * The Warhorse constructor takes an options object.  In these options are contained the user requested
+     * configuration defaults for the project.  If there are no options - then Warhorse's own default
+     * configuration settings will be used instead.
+     * @constructor
      * @param {Object} options - Configuration options to override Warhorse's own defaults.
      */
     constructor(options = {}) {
@@ -42,375 +60,311 @@ class Warhorse {
                 license: "GPL-3.0"
             },
             bundle: {
-                minify: true,
-                transpile: false
+                transpile: true
             },
-            compile: {},
+            precompile: {
+                includePaths: ["./src/sass"]
+            },
             minify: {},
+            rename: {},
             save: {
                 compress: false
             }
         };
+
         this.settings = Object.assign(this.defaults, options);
 
+        this.cmds = {}; // Lookup for built-in commands.
         this.tasks = {}; // Lookup for user-defined tasks.
+
+        this.file = null; // Main arg passed from function to function - requires sync operation of course!
 
     }
 
     /**
-     * Bundle function.
-     * @param {Object} file - File to be processed by this action.
-     * @param {Function} next - The next callback action to be executed after this one.
+     * Bundle action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {void}
+     * @returns {this} - Returns self for chaining.
      */
-    bundle(file, next, options = {}) {
+    bundle(options = {}) {
 
         // Handle task configuration.
         let config = Object.assign(this.settings.bundle, options);
 
-        console.log(` - Bundling file from: ${file.path}`);
+        logAction(`Bundling file from: ${this.file.path}`);
 
-        // Locals
-        let buffer = "";
-        let b = null;
-
+        // Process the data.
+        // NOTE: Shell process used in order to force sync behaviour.
         // Determine if we're transpiling as well as bundling... or just bundling?
         if(config.transpile === true) {
             // Transpile then bundle
-            b = browserify(file.path).transform("babelify", {presets: ["es2015"]}).bundle();
+            //let processed = child.execSync(`browserify --debug -t [babelify]`, {input: this.file.path});
+            let processed = child.execSync(`browserify --debug ${this.file.path} -t [babelify]`);
+            this.file.content = processed.toString();
+            //console.log(`stdout: ${this.file.content}`);
         } else {
             // Just bundle
-            b = browserify(file.path).bundle();
+            let processed = child.execSync(`browserify --debug ${this.file.path}`);
+            this.file.content = processed.toString();
+            //console.log(`stdout: ${this.file.content}`);
         }
-        b.on("error", console.error);
-        b.on("data", function(data) {buffer += data;});
-        b.on("end", function() {
-            file.content = buffer;
-            console.log(`     Browserifyied length: ${file.content.length}`);
 
-            if(config.minify) {
-                console.log(` - Minimising file from: ${file.path}`);
-
-                this.minifyJS(file, next, function() {
-                    // Pass on to the next function.
-                    next(file);
-                });
-            } else {
-                next(file);
-            }
-        }.bind(this));
+        // Return self for chaining.
+        return this;
     }
 
-
     /**
-     * Compile SCSS(SASS) function.
-     * @param {Object} file - File to be processed by this action.
-     * @param {Function} next - The next callback action to be executed after this one.
+     * Compile LESS action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {Object} - If the next parameter is given a null or no value - function behaves synchronously and returns result directly.
+     * @returns {this} - Returns self for chaining.
      */
-    compileSASS(file, next, options = {}) {
+    compileLESS(options = {}) {
 
-        console.log(` - Compiling SCSS from: ${file.path}`);
+        logAction(`Compiling LESS from: ${this.file.path}`);
 
-        let config = Object.assign(this.settings.compile, options);
+        let config = Object.assign(this.settings.precompile, options);
 
-        file.content = sass.renderSync({
-            //data: file.content
-            file: file.path
-        }).css;
+        config.data = this.file.content;         // e.g. index.scss
+        config.includePaths = [this.file.path];  // e.g. ./src/sass
+        // ALTERNATIVE config.file = file.path + "/" + file.name;
 
-        // Update file name in accordance with sass->css norms.
-        file.name = file.stem + ".css";
-        file.ext = ".css";
-        console.log(` - Filename: ${file.name}`);
+        // Process the data
+        // NOTE: Shell process used in order to force sync behaviour.
+        let processed = child.execSync(`lessc --relative-urls --include-path=${this.file.path} ${this.file.path + this.file.name}`);
+        this.file.content = processed.toString();
 
-        // Is there a callback function or shall we just return the value?
-        if(next !== undefined && typeof next === "function") {
-            // Yes - Pass file result onto the next function.
-            next(file);
-            return null; // XXX: Pointless null, required by jsdoc.
-        } else {
-            // No - Then return file result directly.
-            return file;
-        }
+        // Transform the extension
+        this.file.extension = ".css";
+        this.file.name = this.file.stem + this.file.extension;
+
+        // Return self for chaining.
+        return this;
+
+        //config example
+        // let lessrc = {
+        //     env: "development",
+        //     logLevel: 2,
+        //     async: false,
+        //     fileAsync: false,
+        //     poll: 1000,
+        //     functions: {},
+        //     dumpLineNumbers: "comments",
+        //     relativeUrls: true,
+        //     includePaths: ["./test/data/client_src/less/"],
+        //     globalVars: {
+        //         var1: '"string value"',
+        //         var2: 'regular value'
+        //     },
+        //     rootpath: ":/a.com/"
+        // };
     }
 
     /**
-     * Create project convention function.
+     * Compile SCSS(SASS) action.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {this} - Returns self for chaining.
+     */
+    compileSASS(options = {}) {
+
+        logAction(`Compiling SCSS from: ${this.file.path}`);
+
+        let config = Object.assign(this.settings.precompile, options);
+
+        config.data = this.file.content;         // e.g. index.scss
+        config.includePaths = [this.file.path];  // e.g. ./src/sass
+        // ALTERNATIVE config.file = file.path + "/" + file.name;
+
+        // Process the data
+        let processed = sass.renderSync(config).css;
+        this.file.content = processed.toString();
+
+        // Transform the extension
+        this.file.extension = ".css";
+        this.file.name = this.file.stem + this.file.extension;
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Create project convention action.
      * @param {Object} file - File to be processed by this action.
      * @param {Function} next - The next callback action to be executed after this one.
      * @param {Object} options - Options to further configure this action.
      * @returns {void}
+     * @private - until implemented!
      */
     init(file, next, options = {}) {
+        //
+        // // Resolve configuration
+        // let config = Object.assign(this.settings.init, options);
+        //
+        // // Create NPM package configuration
+        // const packageDefault = require("../default/package.json");
+        // let packageProject = Object.assign(packageDefault, config);
+        //
+        // let convention = "default";
+        // console.log(` * Creating project from convention: ${convention}`);
+        // console.log(`   - Working directory: ${process.cwd()}`);
+        //
+        // // Fault-tolerant version of fs.mkdirSync(dirPath) - won't overwrite existing dirs!!!
+        // const mkdirSync = function(dirPath) {
+        //     try {
+        //         fs.mkdirSync(dirPath);
+        //     } catch(err) {
+        //         if(err.code !== "EEXIST") {throw err;};
+        //     }
+        // };
+        //
+        // // Fault-tolerant version of fs.unlinkSync(filePath) - won't crash if no file already exists!!!
+        // const unlinkSync = function(filePath) {
+        //     try {
+        //         fs.unlinkSync(filePath);
+        //     } catch(err) {
+        //         console.error(err.code);
+        //         // if(err.code !== "EEXIST") {throw err};
+        //     }
+        // };
+        //
+        // // Create project directory structure
+        // //FIXME - Guard can be removed once function is fully implemented.
+        // let workingDirectory = this.settings.directory;
+        // if(workingDirectory === "/Users/kasargeant/dev/projects/warhorse") {
+        //     mkdirSync("./temp");
+        //
+        //     mkdirSync("./temp/conf");
+        //
+        //     mkdirSync("./temp/dist");
+        //
+        //     mkdirSync("./temp/docs");
+        //     mkdirSync("./temp/docs/api");
+        //     mkdirSync("./temp/docs/coverage");
+        //     mkdirSync("./temp/docs/tests");
+        //     mkdirSync("./temp/docs/linters");
+        //
+        //     mkdirSync("./temp/src");
+        //     mkdirSync("./temp/src/css");
+        //     mkdirSync("./temp/src/img");
+        //     mkdirSync("./temp/src/js");
+        //
+        //     mkdirSync("./temp/test");
+        //
+        //     // Write NPM package definition
+        //     let packageJson = JSON.stringify(packageProject, null, 4);
+        //     unlinkSync("./temp/package.json");
+        //     fs.writeFileSync("./temp/package.json", packageJson, "utf8");
+        //     console.log(packageJson);
+        //
+        //     // Create configuration files
+        //     const configJSCS = require("../default/conf/jscsrc.json");
+        //     fs.writeFileSync("./temp/conf/.jscsrc", JSON.stringify(configJSCS, null, 4));
+        //
+        //     const configJSHINT = require("../default/conf/jshintrc.json");
+        //     fs.writeFileSync("./temp/conf/.jshintrc", JSON.stringify(configJSHINT, null, 4));
+        // }
 
-        // Resolve configuration
-        let config = Object.assign(this.settings.init, options);
 
-        // Create NPM package configuration
-        const packageDefault = require("../default/package.json");
-        let packageProject = Object.assign(packageDefault, config);
-
-        let convention = "default";
-        console.log(` * Creating project from convention: ${convention}`);
-        console.log(`   - Working directory: ${process.cwd()}`);
-
-        // Fault-tolerant version of fs.mkdirSync(dirPath) - won't overwrite existing dirs!!!
-        const mkdirSync = function(dirPath) {
-            try {
-                fs.mkdirSync(dirPath);
-            } catch(err) {
-                if(err.code !== "EEXIST") {throw err;};
-            }
-        };
-
-        // Fault-tolerant version of fs.unlinkSync(filePath) - won't crash if no file already exists!!!
-        const unlinkSync = function(filePath) {
-            try {
-                fs.unlinkSync(filePath);
-            } catch(err) {
-                console.error(err.code);
-                // if(err.code !== "EEXIST") {throw err};
-            }
-        };
-
-
-        // Create project directory structure
-        //FIXME - Guard can be removed once function is fully implemented.
-        let workingDirectory = this.settings.directory;
-        if(workingDirectory === "/Users/kasargeant/dev/projects/warhorse") {
-            mkdirSync("./temp");
-
-            mkdirSync("./temp/conf");
-
-            mkdirSync("./temp/dist");
-
-            mkdirSync("./temp/docs");
-            mkdirSync("./temp/docs/api");
-            mkdirSync("./temp/docs/coverage");
-            mkdirSync("./temp/docs/tests");
-            mkdirSync("./temp/docs/linters");
-
-            mkdirSync("./temp/src");
-            mkdirSync("./temp/src/css");
-            mkdirSync("./temp/src/img");
-            mkdirSync("./temp/src/js");
-
-            mkdirSync("./temp/test");
-
-            // Write NPM package definition
-            let packageJson = JSON.stringify(packageProject, null, 4);
-            unlinkSync("./temp/package.json");
-            fs.writeFileSync("./temp/package.json", packageJson, "utf8");
-            console.log(packageJson);
-            
-            // Create configuration files
-            const configJSCS = require("../default/conf/jscsrc.json");
-            fs.writeFileSync("./temp/conf/.jscsrc", JSON.stringify(configJSCS, null, 4));
-
-            const configJSHINT = require("../default/conf/jshintrc.json");
-            fs.writeFileSync("./temp/conf/.jshintrc", JSON.stringify(configJSHINT, null, 4));
-        }
-
-        // Is there a callback function or shall we just return the value?
-        if(next !== undefined && typeof next === "function") {
-            // Yes - Pass file result onto the next function.
-            next(file);
-            return null; // XXX: Pointless null, required by jsdoc.
-        } else {
-            // No - Then return file result directly.
-            return file;
-        }
+        // Return self for chaining.
+        return this;
     }
 
     /**
-     * Document function.
-     * @param {Object} file - File to be processed by this action.
-     * @param {Function} next - The next callback action to be executed after this one.
+     * Document JS API action.  Documents JavaScript from src/ folder(s).
      * @param {Object} options - Options to further configure this action.
-     * @returns {Object}
+     * @returns {this} - Returns self for chaining.
      */
-    document(file, next, options = {}) {
-
-        console.log(` * Documenting file(s) from: ${file.path}`);
+    documentJS(options = {}) {
 
         let config = Object.assign(this.settings.document, options);
 
-        child.execSync(`jsdoc ${config.src} -r -c ./conf/.jsdocrc -d ${config.dst}`);
+        logAction(`Documenting file(s) from: ${config.src}`);
+        logStage(`to path: ${config.dst}`);
 
-        // Is there a callback function or shall we just return the value?
-        if(next !== undefined && typeof next === "function") {
-            // Yes - Pass file result onto the next function.
-            next(file);
-            return null; // XXX: Pointless null, required by jsdoc.
-        } else {
-            // No - Then return file result directly.
-            return file;
-        }
+        child.execSync(`jsdoc -r -c ./conf/.jsdocrc`);
+        // child.execSync(`jsdoc ${config.src} -r -c ./conf/.jsdocrc -d ${config.dst}`);
+
+        // Return self for chaining.
+        return this;
     }
 
     /**
-     * Private helper for load().
-     * @param {string} globPath
-     * @param {Function} next
-     * @private
-     */
-    _loadFilePath(globPath, next) {
-        console.log(` - Have glob: ${globPath}`);
-        // Async filesystem check
-        // glob(globPath, function(err, filePaths) {
-        //     // files is an array of filenames.
-        //     // If the `nonull` option is set, and nothing
-        //     // was found, then files is ["**/*.js"]
-        //     // er is an error object or null.
-        //     if(err) {
-        //         console.log(err);
-        //     } else if(filePaths.constructor === Array && filePaths.length > 0) {
-        //         for(let filePath of filePaths) {
-        //             let file = this._splitPath(filePath);
-        //             console.log(` - Loading file from: ${file.name}`);
-        //             file.content = fs.readFileSync(filePath, "utf8");
-        //             next(file);
-        //         }
-        //     } else {
-        //         console.log("No files matched.");
-        //         next(null);
-        //     }
-        // }.bind(this));
-
-        // Async filesystem check
-        let filePaths = glob.sync(globPath);
-        if(filePaths.constructor === Array && filePaths.length > 0) {
-            for(let filePath of filePaths) {
-                let file = this._splitPath(filePath);
-                console.log(` - Loading file from: ${file.name}`);
-                file.content = fs.readFileSync(filePath, "utf8");
-                next(file);
-            }
-        } else {
-            console.log("No files matched.");
-            next(null);
-        }
-    }
-
-    /**
-     * Load function
-     * @param {string} filePath - File path (globs/wildcards allowed) to be processed by this action.
-     * @param {Function} next - The next callback action to be executed after this one.
+     * Load action.  Loads files being used for processing by the action that follows.
      * @param {Object} options - Options to further configure this action.
-     * @returns {void}
+     * @returns {this} - Returns self for chaining.
      */
-    load(filePath, next, options = {}) {
+    load(options = {}) {
 
-        // If it is a batch of filePaths...
-        if(filePath.constructor === Array) {
-            filePath.map(function(filePathItem) {
-                this._loadFilePath(filePathItem, next);}.bind(this)
-            );
-        }
-        // Else if it is single filePath.
-        else if(typeof filePath === "string") {
-            this._loadFilePath(filePath, next);
-        }
-        // Otherwise...
-        else {
-            console.error(`Error: Unrecognisable or null filepath: ${filepath}`);
-        }
+        logAction(`Loading file: ${this.file.name}`);
+
+        // Accepts a single filepath only.
+        let srcPath = this.file.path + this.file.name;
+        logStage(`from path: ${srcPath}`);
+
+        this.file.content = fs.readFileSync(srcPath, "utf8");
+
+        // Return self for chaining.
+        return this;
     }
 
     /**
-     * Minify CSS function.
-     * @param {Object} file - File to be processed by this action.
-     * @param {Function} next - The next callback action to be executed after this one.
+     * Minify CSS action.  Minimisation for standard CSS.
      * @param {Object} options - Options to further configure this action.
-     * @returns {Object} - If the next parameter is given a null or no value - function behaves synchronously and returns result directly.
+     * @returns {this} - Returns self for chaining.
      */
-    minifyCSS(file, next, options = {}) {
+    minifyCSS(options = {}) {
 
-        console.log(` - Minifying CSS from: ${file.path}`);
+        logAction(`Minifying CSS from: ${this.file.path}`);
 
         let config = Object.assign(this.settings.minify, options);
 
-        file.content = csso.minify(file.content).css;
+        this.file.content = csso.minify(this.file.content).css;
 
-        // Is there a callback function or shall we just return the value?
-        if(next !== undefined && typeof next === "function") {
-            // Yes - Pass file result onto the next function.
-            next(file);
-            return null; // XXX: Pointless null, required by jsdoc.
-        } else {
-            // No - Then return file result directly.
-            return file;
-        }
+        // Return self for chaining.
+        return this;
     }
 
-
     /**
-     * Minify JS function.
-     * @param {Object} file - File to be processed by this action.
-     * @param {Function} next - The next callback action to be executed after this one.
+     * Minify JS action.  Minimisation for ES51/ES2015 JavaScript.
      * @param {Object} options - Options to further configure this action.
-     * @returns {Object} - If the next parameter is given a null or no value - function behaves synchronously and returns result directly.
+     * @returns {this} - Returns self for chaining.
      */
-    minifyJS(file, next, options = {}) {
+    minifyJS(options = {}) {
 
-        console.log(` - Minifying JS from: ${file.path}`);
+        logAction(`Minifying JS from: ${this.file.path}`);
 
-        let settings = Object.assign(this.settings.bundle, options);
+        let config = Object.assign(this.settings.bundle, options);
 
-        let result = uglify.minify({"file": file.content}, {
+        // Process the data
+        let processed = uglify.minify({"file": this.file.content}, {
             fromString: true
-        });
+        }).code;
+        this.file.content = processed.toString();
 
-        if(result) {
-            // We only care about the code itself - not the uglify object.
-            file.content = result.code;
-            console.log(`     Uglifyied length: ${file.content.length}`); // minified output
-        }
-
-        // Is there a callback function or shall we just return the value?
-        if(next !== undefined && typeof next === "function") {
-            // Yes - Pass file result onto the next function.
-            next(file);
-            return null; // XXX: Pointless null, required by jsdoc.
-        } else {
-            // No - Then return file result directly.
-            return file;
-        }
+        // Return self for chaining.
+        return this;
     }
 
     /**
-     * Save function.
-     * @param {Object} file - File to be processed by this action.
-     * @param {string} dstPath - The file path that this file will be saved to.
+     * Rename action.  Allows modification/replacement/injection of file details into the sequence of actions.
      * @param {Object} options - Options to further configure this action.
-     * @returns {void}
+     * @returns {this} - Returns self for chaining.
      */
-    rename(file, next, options = {}) {
+    rename(options = {}) {
+
+        logAction(`Renaming file: ${this.file.path}`);
 
         let config = Object.assign(this.settings.save, options);
 
-        console.log(` - Renaming file: ${file.path}`);
-
         // Rename (i.e. overwrite) any values in the file object with the user-defined options object
-        file = Object.assign(file, options);
+        this.file = Object.assign(this.file, options);
 
-        // Is there a callback function or shall we just return the value?
-        if(next !== undefined && typeof next === "function") {
-            // Yes - Pass file result onto the next function.
-            next(file);
-            return null; // XXX: Pointless null, required by jsdoc.
-        } else {
-            // No - Then return file result directly.
-            return file;
-        }
+        // Return self for chaining.
+        return this;
     }
 
     /**
      * Splits a file path into its component parts.
-     * @param {string} filePath - A standard system filepath.
+     * @param {string} filePath - A standard system file or path name.
      * @returns {Object} - An object containing a destructured hash of the path's parts.
      * @private
      */
@@ -419,12 +373,17 @@ class Warhorse {
         // Sanity check
         if(!filePath) {return null;}
 
-        console.log(` - Splitting file path: ${filePath}`); // e.g. /docs/index.html
+        logStage(`Splitting file path: ${filePath}`); // e.g. /docs/index.html
 
         let name = path.posix.basename(filePath);           // e.g. index.html
-        let directory = path.dirname(filePath);             // e.g. /docs/
-        let extension = path.extname(filePath);             // e.g. .html
+        let directory = path.dirname(filePath) + "/";       // e.g. /docs/
         let stem = name.slice(0, name.lastIndexOf("."));    // e.g. index
+        let extension = path.extname(filePath);             // e.g. .html
+
+        // console.log(`name: ${name}`);
+        // console.log(`directory: ${directory}`);
+        // console.log(`stem: ${stem}`);
+        // console.log(`extension: ${extension}`);
 
         // Is it a config file e.g. .jshintrc
         let config = false;
@@ -442,47 +401,129 @@ class Warhorse {
     }
 
     /**
-     * Save function.
-     * @param {Object} file - File to be processed by this action.
+     * Save action.
      * @param {string} dstPath - The file path that this file will be saved to.
      * @param {Object} options - Options to further configure this action.
-     * @returns {void}
+     * @returns {this} - Returns self for chaining.
      */
-    save(file, dstPath, options = {}) {
+    save(dstPath, options = {}) {
 
         let config = Object.assign(this.settings.save, options);
 
-        console.log(` - Saving file to: ${dstPath}`);
+        logAction(`Saving file to: ${dstPath}`);
 
         if(config.compress === true) {
-            let data = zlib.gzipSync(file.content);
+            let data = zlib.gzipSync(this.file.content);
             fs.writeFileSync(dstPath + ".gz", data, "utf8");
         } else {
-            fs.writeFileSync(dstPath, file.content, "utf8");
+            fs.writeFileSync(dstPath, this.file.content, "utf8");
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Command 'wrapper' function.  Wraps a task, or list of tasks, to be executed by the named command.
+     * @param {string} name - Name of the task.
+     * @param {string} cmdFn - A function containing the tasks executed for this command.
+     * @returns {void}
+     */
+    cmd(name, cmdFn) {
+        this.cmds[name] = cmdFn;
+    }
+
+    /**
+     * Task 'wrapper' function.  Wraps an action, or list of actions, to be followed by the named task.
+     * @param {string} name - Name of the task.
+     * @param {string} taskFn - A function containing the actions followed for the task.
+     * @returns {void}
+     */
+    task(name, taskFn) {
+        this.tasks[name] = taskFn;
+    }
+
+    /**
+     * Private helper for load().
+     * @param {string} globPath - A filename, filepath or globpath.
+     * @param {string} task - The task to be executed.
+     * @returns {void}
+     * @private
+     */
+    _use(globPath, task) {
+        logAction(`Parsing: ${globPath}`);
+
+        // Sync filesystem check
+        let filePaths = glob.sync(globPath);
+        if(filePaths.constructor === Array && filePaths.length > 0) {
+            for(let filePath of filePaths) {
+                this.file = this._splitPath(filePath);
+                logStage(`Handling file from: ${this.file.name}`);
+                task();
+            }
+        } else {
+            logWarning("No files matched.");
         }
     }
 
     /**
-     * Task 'wrapper' function.
-     * @param {string} name - Name of the task.
-     * @param {string} taskFunction - An anonymous function containing the actions involved in the task.
-     * @returns {void}
+     * Use function identfies which files are to be used with which task
+     * @param {string} taskName - The name of the task to be executed for every batch item.
+     * @param {string} filePath - File path (globs/wildcards allowed) to be processed by this action.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {this} - Returns self for chaining.
      */
-    task(name, taskFunction) {
-        this.tasks[name] = taskFunction;
+    use(taskName, filePath, options = {}) {
+
+        // Retrieve task from the taskName
+        let task = this.tasks[taskName];
+
+        // If it is a batch of filePaths...
+        if(filePath.constructor === Array) {
+            filePath.map(function(filePathItem) {
+                this._use(filePathItem, task);}.bind(this)
+            );
+        }
+
+        // Else if it is single filePath.
+        else if(typeof filePath === "string") {
+            this._use(filePath, task);
+        }
+        // Otherwise...
+        else {
+            console.error(`Error: Unrecognisable or null filepath: ${filePath}`);
+        }
+
+        // Return self for chaining.
+        return this;
     }
 
+    // /**
+    //  * Execute task function.
+    //  * @param {string} name - Name of the task.
+    //  * @returns {void}
+    //  */
+    // execute(taskName) {
+    //     logTask(`TASK ${taskName}`);
+    //     let task = this.tasks[taskName];
+    //     if(task !== null) {
+    //         //console.log("Executing command: " + typeof task);
+    //         task();
+    //     }
+    // }
+
     /**
-     * Execute task function.
-     * @param {string} name - Name of the task.
+     * Execute command function.
+     * @param {string} cmdName - Name of the task.
      * @returns {void}
+     * @private
      */
-    execute(name) {
-        console.log(`TASK ${name}`);
-        let action = this.tasks[name];
-        if(action !== null) {
-            //console.log("Executing command: " + typeof action);
-            action();
+    execute(cmdName) {
+        logTask(`COMMAND ${cmdName}`);
+        let cmd = this.cmds[cmdName];
+        if(cmd !== null) {
+            //console.log("Executing command type: " + typeof cmd);
+            cmd();
         }
     }
 }

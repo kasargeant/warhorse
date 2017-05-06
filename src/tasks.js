@@ -1,59 +1,71 @@
+/**
+ * @file tasks.js
+ * @description The Warhorse tasks default configuration.
+ * @author Kyle Alexis Sargeant <kasargeant@gmail.com> {@link https://github.com/kasargeant https://github.com/kasargeant}.
+ * @copyright Kyle Alexis Sargeant 2017
+ * @license See LICENSE file included in this distribution.
+ */
+
 "use strict";
 
 // Warhorse task definitions
 function tasks(warhorse) {
 
-    // TASK: BUILD
-    warhorse.task("build", function() {
-        warhorse.load("./test/shared/client_src/js/*.js", function(file) {
-            warhorse.bundle(file, function(file) {
-                warhorse.minifyJS(file, function(file) {
-                    let dstPath = "./test/shared/client_dist/js/" + file.name;
-                    warhorse.save(file, dstPath);
-                });
-            });
-        });
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TASKS
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    warhorse.task("build-js", function() {
+        // warhorse.load({})
+        warhorse.bundle({})
+            .minifyJS({})
+            .save("./test/data/client_dist/js/" + warhorse.file.name);
+    });
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    warhorse.task("precompile-less", function() {
+        warhorse.load({})
+            .compileLESS({})
+            // .minifyCSS({})
+            .save("./test/data/client_dist/css/" + warhorse.file.name);
+    });
+
+    warhorse.task("precompile-sass", function() {
+        warhorse.load({})
+            .compileSASS({})
+            .minifyCSS({})
+            .save("./test/data/client_dist/css/" + warhorse.file.name);
     });
 
 
-
-    // TASK: DOCUMENT
-    warhorse.task("document", function() {
-        warhorse.document("", function(file) {
-
-        });
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // COMMANDS
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    warhorse.cmd("build", function() {
+        warhorse.use("build-js", "./test/data/client_src/js/*.js", {});
     });
 
-    // TASK: INIT
-    warhorse.task("init", function() {
-        warhorse.init("./", function(file) {
-
-        });
+    warhorse.cmd("distribute", function() {
+        warhorse.use("precompile-less", "./test/data/client_src/less/index.less", {})
+            .use("precompile-sass", "./test/data/client_src/sass/index.scss", {})
+            .use("build-js", "./test/data/client_src/js/*.js", {})
+            .documentJS({});
     });
 
-    // TASK: PRECOMPILE
-    warhorse.task("precompile", function() {
-        warhorse.load("./test/shared/client_src/sass/index.scss", function(file) {
-            warhorse.compileSASS(file, function(file) {
-                warhorse.minifyCSS(file, function(file) {
-                    let dstPath = "./test/shared/client_dist/css/" + file.name;
-                    warhorse.save(file, dstPath);
-                });
-            });
-        });
+    warhorse.cmd("document", function() {
+        warhorse.documentJS({});
     });
 
-    // TODO - Potential alternative for simple builds???
-    // warhorse.task("precompile")
-    //     .load("./test/shared/client_src/sass/index.scss")
-    //     .compileSASS(file)
-    //     .minifyCSS(file)
-    //     .rename({directory: "./test/shared/client_dist/css/"})
-    //     .save(file, dstPath);
+    warhorse.cmd("init", function() {
+        //warhorse.init({});
+        // TODO - Implement command 'init'
+    });
+
+    warhorse.cmd("precompile", function() {
+        warhorse.use("precompile-less", "./test/data/client_src/less/index.less", {});
+        // warhorse.use("precompile-sass", "./test/data/client_src/sass/index.scss", {});
+    });
 
 }
 
 // Exports
 module.exports = tasks;
-
-// warhorse.execute("build");
