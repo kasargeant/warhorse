@@ -10,7 +10,7 @@ const glob = require("glob");
 
 const browserify = require("browserify");
 const csso = require("csso");
-const less = require("less");
+//const less = require("less");
 const sass = require("node-sass");
 const uglify = require("uglify-js");
 
@@ -67,6 +67,7 @@ class Warhorse {
 
         this.settings = Object.assign(this.defaults, options);
 
+        this.commands = {}; // Lookup for built-in commands.
         this.tasks = {}; // Lookup for user-defined tasks.
 
         this.file = null; // Main arg passed from function to function - requires sync operation of course!
@@ -85,14 +86,14 @@ class Warhorse {
 
         logAction(`Bundling file from: ${this.file.path}`);
 
+        // Process the data.
+        // NOTE: Shell process used in order to force sync behaviour.
         // Determine if we're transpiling as well as bundling... or just bundling?
         if(config.transpile === true) {
             // Transpile then bundle
+            //let processed = child.execSync(`browserify --debug -t [babelify]`, {input: this.file.path});
             let processed = child.execSync(`browserify --debug ${this.file.path} -t [babelify]`);
-            //#1 let processed = child.execSync(`browserify --debug -t [babelify]`, {input: this.file.path});
-            ////let processed = child.execSync(`| browserify --debug -t [babelify]`, {input: this.file.content});
             this.file.content = processed.toString();
-
             //console.log(`stdout: ${this.file.content}`);
         } else {
             // Just bundle
@@ -121,6 +122,7 @@ class Warhorse {
         // ALTERNATIVE config.file = file.path + "/" + file.name;
 
         // Process the data
+        // NOTE: Shell process used in order to force sync behaviour.
         let processed = child.execSync(`lessc --relative-urls --include-path=${this.file.path} ${this.file.path + this.file.name}`);
         this.file.content = processed.toString();
 
@@ -265,11 +267,11 @@ class Warhorse {
     }
 
     /**
-     * Document function.
+     * Document JS API function.  Documents JavaScript from src/ folder(s).
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
-    document(options = {}) {
+    documentJS(options = {}) {
 
         let config = Object.assign(this.settings.document, options);
 
@@ -284,7 +286,7 @@ class Warhorse {
     }
 
     /**
-     * Load function
+     * Load function.  Loads files being used for processing by the action that follows.
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
@@ -303,7 +305,7 @@ class Warhorse {
     }
 
     /**
-     * Minify CSS function.
+     * Minify CSS function.  Minimisation for standard CSS.
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
@@ -320,7 +322,7 @@ class Warhorse {
     }
 
     /**
-     * Minify JS function.
+     * Minify JS function.  Minimisation for ES51/ES2015 JavaScript.
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
@@ -341,7 +343,7 @@ class Warhorse {
     }
 
     /**
-     * Rename function.
+     * Rename function.  Allows modification/replacement/injection of file details into the sequence of actions.
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
@@ -420,22 +422,30 @@ class Warhorse {
     }
 
     /**
-     * Task 'wrapper' function.
+     * Command 'wrapper' function.  Wraps a task, or list of tasks, to be executed by the named command.
      * @param {string} name - Name of the task.
-     * @param {string} taskFunction - An anonymous function containing the actions involved in the task.
+     * @param {string} commandFn - A function containing the tasks executed for this command.
      * @returns {void}
      */
-    task(name, taskFunction) {
-        this.tasks[name] = taskFunction;
+    command(name, commandFn) {
+        this.commands[name] = commandFn;
     }
 
-
-
+    /**
+     * Task 'wrapper' function.  Wraps an action, or list of actions, to be followed by the named task.
+     * @param {string} name - Name of the task.
+     * @param {string} taskFn - A function containing the actions followed for the task.
+     * @returns {void}
+     */
+    task(name, taskFn) {
+        this.tasks[name] = taskFn;
+    }
 
     /**
      * Private helper for load().
-     * @param {string} globPath
+     * @param {string} globPath - A filename, filepath or globpath.
      * @param {string} task - The task to be executed.
+     * @returns {void}
      * @private
      */
     _use(globPath, task) {
@@ -456,8 +466,8 @@ class Warhorse {
 
     /**
      * Use function identfies which files are to be used with which task
-     * @param {string} filePath - File path (globs/wildcards allowed) to be processed by this action.
      * @param {string} taskName - The name of the task to be executed for every batch item.
+     * @param {string} filePath - File path (globs/wildcards allowed) to be processed by this action.
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
@@ -486,17 +496,31 @@ class Warhorse {
         return this;
     }
 
+    // /**
+    //  * Execute task function.
+    //  * @param {string} name - Name of the task.
+    //  * @returns {void}
+    //  */
+    // execute(taskName) {
+    //     logTask(`TASK ${taskName}`);
+    //     let task = this.tasks[taskName];
+    //     if(task !== null) {
+    //         //console.log("Executing command: " + typeof task);
+    //         task();
+    //     }
+    // }
+
     /**
      * Execute task function.
-     * @param {string} name - Name of the task.
+     * @param {string} commandName - Name of the task.
      * @returns {void}
      */
-    execute(taskName) {
-        logTask(`TASK ${taskName}`);
-        let task = this.tasks[taskName];
-        if(task !== null) {
-            //console.log("Executing command: " + typeof task);
-            task();
+    execute(commandName) {
+        logTask(`COMMAND ${commandName}`);
+        let command = this.commands[commandName];
+        if(command !== null) {
+            //console.log("Executing command type: " + typeof command);
+            command();
         }
     }
 }
