@@ -27,12 +27,13 @@ const chalk = require("chalk");
 const log = console.log;
 const logTask = function(value)    {console.log(chalk.bgBlue(" " + value));};
 const logAction = function(value)    {console.log(chalk.blue(" - " + value));};
-const logStage = function(value)   {console.log(chalk.yellow("   -> " + value));};
-const logWarning = function(value) {console.warn(chalk.orange(value));};
+const logStage = function(value)   {console.log(chalk.cyan("   -> " + value));};
+const logWarning = function(value) {console.warn(chalk.yellow(value));};
 const logError = function(value)   {console.error(chalk.red(value));};
 
 
 /**
+ * @class
  * @classdesc The main Warhorse class, containing all actions available to automate tasks and builds.
  */
 class Warhorse {
@@ -67,8 +68,12 @@ class Warhorse {
             },
             minify: {},
             rename: {},
+            load: {
+                encoding: "utf8"
+            },
             save: {
-                compress: false
+                compress: false,
+                encoding: "utf8"
             }
         };
 
@@ -296,11 +301,13 @@ class Warhorse {
 
         logAction(`Loading file: ${this.file.name}`);
 
+        let config = Object.assign(this.settings.load, options);
+
         // Accepts a single filepath only.
         let srcPath = this.file.path + this.file.name;
         logStage(`from path: ${srcPath}`);
 
-        this.file.content = fs.readFileSync(srcPath, "utf8");
+        this.file.content = fs.readFileSync(srcPath, config.encoding);
 
         // Return self for chaining.
         return this;
@@ -344,6 +351,129 @@ class Warhorse {
         return this;
     }
 
+    /**
+     * Pack GIF asset action.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {this} - Returns self for chaining.
+     */
+    packGIF(options = {}) {
+
+        logAction(`Packing GIF from: ${this.file.path}`);
+
+        let config = Object.assign(this.settings.precompile, options);
+
+        config.data = this.file.content;         // e.g. index.scss
+        config.includePaths = [this.file.path];  // e.g. ./src/sass
+        // ALTERNATIVE config.file = file.path + "/" + file.name;
+
+        // Process the data
+        // NOTE: Shell process used in order to force sync behaviour.
+        let processed = child.execSync(`imagemin --plugin=gifsicle --optimizationLevel=2`, {
+            input: this.file.content,
+            encoding: "binary"
+        });
+        this.file.content = processed;
+
+        // Transform the extension
+        // this.file.extension = ".css";
+        // this.file.name = this.file.stem + this.file.extension;
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Pack JPG asset action.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {this} - Returns self for chaining.
+     */
+    packJPG(options = {}) {
+
+        logAction(`Packing JPG from: ${this.file.path}`);
+
+        let config = Object.assign(this.settings.precompile, options);
+
+        config.data = this.file.content;         // e.g. index.scss
+        config.includePaths = [this.file.path];  // e.g. ./src/sass
+        // ALTERNATIVE config.file = file.path + "/" + file.name;
+
+        // Process the data
+        // NOTE: Shell process used in order to force sync behaviour.
+        let processed = child.execSync(`imagemin --plugin=jpegtran`, {
+            input: this.file.content,
+            encoding: "binary"
+        });
+        this.file.content = processed;
+
+        // Transform the extension
+        // this.file.extension = ".css";
+        // this.file.name = this.file.stem + this.file.extension;
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Pack PNG asset action.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {this} - Returns self for chaining.
+     */
+    packPNG(options = {}) {
+
+        logAction(`Packing PNG from: ${this.file.path}`);
+
+        let config = Object.assign(this.settings.precompile, options);
+
+        config.data = this.file.content;         // e.g. index.scss
+        config.includePaths = [this.file.path];  // e.g. ./src/sass
+        // ALTERNATIVE config.file = file.path + "/" + file.name;
+
+        // Process the data
+        // NOTE: Shell process used in order to force sync behaviour.
+        let processed = child.execSync(`imagemin --plugin=pngquant --quality=75`, {
+            input: this.file.content,
+            encoding: "binary"
+        });
+        this.file.content = processed;
+
+        // Transform the extension
+        // this.file.extension = ".css";
+        // this.file.name = this.file.stem + this.file.extension;
+
+        // Return self for chaining.
+        return this;
+    }
+    
+    /**
+     * Pack SVG asset action.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {this} - Returns self for chaining.
+     */
+    packSVG(options = {}) {
+
+        logAction(`Packing SVG from: ${this.file.path}`);
+
+        let config = Object.assign(this.settings.precompile, options);
+
+        config.data = this.file.content;         // e.g. index.scss
+        config.includePaths = [this.file.path];  // e.g. ./src/sass
+        // ALTERNATIVE config.file = file.path + "/" + file.name;
+
+        // Process the data
+        // NOTE: Shell process used in order to force sync behaviour.
+        let processed = child.execSync(`imagemin --plugin=svgo`, {
+            input: this.file.content
+        });
+        this.file.content = processed;
+
+        // Transform the extension
+        // this.file.extension = ".css";
+        // this.file.name = this.file.stem + this.file.extension;
+
+        // Return self for chaining.
+        return this;
+    }
+    
     /**
      * Rename action.  Allows modification/replacement/injection of file details into the sequence of actions.
      * @param {Object} options - Options to further configure this action.
@@ -414,9 +544,9 @@ class Warhorse {
 
         if(config.compress === true) {
             let data = zlib.gzipSync(this.file.content);
-            fs.writeFileSync(dstPath + ".gz", data, "utf8");
+            fs.writeFileSync(dstPath + ".gz", data, config.encoding);
         } else {
-            fs.writeFileSync(dstPath, this.file.content, "utf8");
+            fs.writeFileSync(dstPath, this.file.content, config.encoding);
         }
 
         // Return self for chaining.
