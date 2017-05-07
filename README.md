@@ -1,14 +1,8 @@
-# Warhorse v0.0.3
+# Warhorse
 
 NOTE: THIS PROJECT IS STILL BEING PROTOTYPED.  AND IS BASICALLY UNUSABLE FOR ANY PRODUCTION PROJECTS AT PRESENT.
 
 YOU HAVE BEEN WARNED!!! ;)
-
-## Installation
-
-    npm -g install warhorse
-
-After that one line, you're done.  
 
 ## What can Warhorse do?
 
@@ -42,15 +36,58 @@ Warhorse was written as a reaction to the approach taken by build tooling and ta
 * Is lightweight, written in ES2015 style and is hopefully, well-tested and documented.
 * It can crush your enemies!
 
-## Usage
+## Installation
 
-### Executing tasks
+    npm -g install warhorse
+
+
+## Quick Start
+
+### Making a New Project
+
+After installation, change directory to where you would like your new JavaScript project set up.  And enter:
+
+    warhorse init your-project
+
+Warhorse will setup up a project structure, together will all boilerplate and scripting, in a directory immediately below your current location.
+
+    /currentDir/
+    /currentDir/your-project
+
+[Note: 'init' conforms to NPM naming standards - so, for example, capital letters cannot be used.]
+
+
+the two key files used by Warhorse are:-
+
+* ./conf/.warhorserc
+* ./warhorseTasks.js
+
+Both can be found in the ./conf/ directory of your new project.
+
+### Use in an Existing Project
+
+To let Warhorse know that you want it to automate your project, two files are required to be added at the top-level of your project directory or in a sub-folder immediately below called conf/ .
+
+The two key files are:-
+
+* ./conf/warhorserc - A configuration file for the Warhorse application.
+* ./warhorse.js - A configuration file for Warhorse's commands and tasks.
+
+And you'll need to edit these to tell Warhorse:-
+
+* Where your source files are found. (Default: ./src/)
+* Where your distribution files are put. (Default: ./dist/)
+* Where your documentation files are put. (Default: ./docs/)
+
+That's all that's required for setup.
+
+### Executing comands
 
 Warhorse is designed to be used on the command-line, or triggered by file watcher or IDE.
 
     warhorse <command> <options>
 
-It offers a fixed, but configurable, set of available tasks to the developer:-
+It offers a fixed, but configurable, set of available commands to the developer or CI system:-
 
 * **build**: just pack assets and bundle code.
 * **distribute**: runs tests, runs linters, writes docs, packs assets and bundles code.
@@ -63,49 +100,41 @@ It offers a fixed, but configurable, set of available tasks to the developer:-
 * **test**: runs the unit tests and tests unit coverage.
 * **watch**: actives a project watcher (and optionally, a linked development server). 
 
-For example, tells Warhorse to test, build, document and bundle your project with a custom config:-
+Start perhaps by asking Warhorse to build and test absolutely everything!  
+Use:-
 
-    warhorse distribute --config ./conf/.warhorserc
+    warhorse distribute
     
-But if you want to run, for example, just the tests in a project that uses Warhorse Conventions, simply:-
+Then, when you're developing, more likely you'll often just want:-
 
-    warhorse test
-
-Additionally, there is option to add user-defined tasks.  Although, if Warhorse is doing it's job well - this functionality should rarely be required.
-
-    warhorse run my-task
+    warhorse build
 
 ### Configuring tasks
 
-Warhorse has a single configuration script.  After a standard install, it can be found in the project's ./bin/ directory:
+Warhorse has a single configuration script.  After a standard install, it can be found in the project's root directory:
 
-    tasks.js
+    ./warhorse.js
 
 In this file is the skeleton of Warhorse's configuration - which can be modified to suit your needs - or left, as is, if you require nothing special.
 
-For example, the build task looks like this:
+For example, the 'precompile-sass' action looks like this:
 
 ```javascript
-warhorse.task("build", function() {
-    warhorse.load("./src/js/**/*.js", function(file) {
-        warhorse.bundle(file, function(file) {
-            warhorse.save(file, "./dist/js/");
-        });    
-    });
+warhorse.task("precompile-sass", function() {
+    warhorse.load({})
+        .compileSASS({})
+        .minifyCSS({})
+        .save("./test/data/client_dist/css/" + warhorse.file.name);
 });
 ```
 
-If you wished to change Warhorse bundling default - and NOT use minification - then you can add a config to the bundle call like:-
+But if you wished to change the defaults - not use minification - and perhaps use instead some custom include path - then you could add a config to the bundle call like:-
 
 ```javascript
-warhorse.task("build", function() {
-    warhorse.load("./src/js/**/*.js", function(file) {
-        warhorse.bundle(file, function(file) {
-            warhorse.save(file, "./dist/js/");
-        },{
-            minify: false
-        });    
-    });
+warhorse.task("precompile-sass", function() {
+    warhorse.load({})
+        .compileSASS({includePaths: "./some/custom/path/"})
+        .save("./test/data/client_dist/css/" + warhorse.file.name);
 });
 ```
 
@@ -116,76 +145,6 @@ Warhorse favours "convention over configuration".  Sticking to good conventions 
 This convention-based approach works extremely well for the majority of "real-world" production projects with a typical level of product complexity. 
 
 Additionally, where any fixed standard exists within the JavaScript ecosystem - ideas from other language ecosystems have been adopted - wherever they could enhance code clarity.
-
-For example, I shouldn't have to tell every task runner I have to put together - that my source is in the src/ directory!  Because for the last hundred projects I wrote, it was in the src/ directory - and the number of times in my entire 20+ year programming career where I wrote code that wasn't in a directory called src/ is almost never!!!
- 
-Thus Warhorse EXPECTS to find your source code and sub-directories under src/ - to save you the burden.  To save you having to type those four letters "src/"... a thousand f*ckin' times in your future!!!
-
-And that's just one benefit. :)
-
-### Project Convention
-
-#### Templates
-
-Warhorse offers a number of standard project setups "out-the-box":-
-
-* Client-side application
-* Client-side library
-* Server-side Node.js application
-* NPM module
-* Full-stack application
-
-In addition, all client-side applications can be pre-configured for either the browser or Cordova/PhoneGap.
-
-#### Structure
-
-The general project structure of each project template aims to be as flat and as simple as is practical.  Additionally, the various template directory layouts easily interchangeable and overlaid.  For example, starting a project using a client layout and then realising that you wanted a full-stack layout is as easy to fix as one Warhorse command and a file cut 'n paste! 
-
-In each Convention, you will find:-
-
-* All configs in one place => conf/
-* All docs in one place => docs/
-* All source in one place => src/
-* All test code, test dependencies in one place => test/
-* All distribution code AND boiler-plate 'encapsulated' in one place => dist/
-
-In addition, the 'source', 'test' and 'distribution' directories - are 'mirrors' of each other in structure - thus making all code/asset organisation uniform and "obvious" to anyone looking at this project for the first time.
-
-## Documentation
-
-All documentation except the README are automatically generated and updated by Warhorse.  
-
-It provides as standard:-
- 
- * API documentation for the projects source code
- * a result report for the project's unit tests
- * a coverage report for the project
- * and lint reports for the various code and CSS resources used.
- 
-
-## EXTENSION AND FLEXIBILTY
-
-Because the entire project is structured to be so standard and generic - extension and modification, if it proves necessary, should be straight forward.  
-
-## MODULE MANAGEMENT
-
-Warhorse supports both the CommonJS an the newer ES2015 syntactical forms of module handling.  
-
-You can 'require' or 'import' interchangably and export any way you wish too.  The only constraint is that each code file is self-consistent. i.e. does not mix module handling styles in the same file.
-
-Thus,
-```javascript
-    const MyClass = require("./MyClass");
-    ...
-    module.exports = MyOtherClass;
-```
-And,
-```javascript
-    import MyClass from "./MyClass";
-    ...
-    export default MyOtherClass;
-```
-Are treated - in every way - identically by Warhorse.
 
 
 ## A note on the license

@@ -1,6 +1,6 @@
 {
   "name": "warhorse",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A simple, friendly and reliable JavaScript Task Runner... able to crush your enemies!",
   "keywords": [
     "javascript",
@@ -34,10 +34,11 @@
     "windows"
   ],
   "engines": {
-    "node": "~7.9.0",
-    "npm": "~4.2.0"
+    "node": "~6.10.0",
+    "npm": "~3.10.10"
   },
   "scripts": {
+    "postinstall": "node ./bin/installTools.js",
     "document-api": "jsdoc -c ./conf/.jsdocrc -r",
     "document-forced-readme": "jsdoc -c ./conf/.jsdocrc -r --readme ./README.md",
     "test": "npm run test-only && npm run test-cover",

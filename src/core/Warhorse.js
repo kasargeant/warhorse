@@ -15,6 +15,7 @@ const path = require("path");
 const zlib = require("zlib");
 
 const glob = require("glob");
+const shell = require("shelljs");
 
 const browserify = require("browserify");
 const csso = require("csso");
@@ -27,12 +28,13 @@ const chalk = require("chalk");
 const log = console.log;
 const logTask = function(value)    {console.log(chalk.bgBlue(" " + value));};
 const logAction = function(value)    {console.log(chalk.blue(" - " + value));};
-const logStage = function(value)   {console.log(chalk.yellow("   -> " + value));};
-const logWarning = function(value) {console.warn(chalk.orange(value));};
+const logStage = function(value)   {console.log(chalk.cyan("   -> " + value));};
+const logWarning = function(value) {console.warn(chalk.yellow(value));};
 const logError = function(value)   {console.error(chalk.red(value));};
 
 
 /**
+ * @class
  * @classdesc The main Warhorse class, containing all actions available to automate tasks and builds.
  */
 class Warhorse {
@@ -46,6 +48,11 @@ class Warhorse {
     constructor(options = {}) {
         this.defaults = {
             directory: process.cwd(),
+
+            bundle: {
+                transpile: true
+            },
+            clean: {},
             document: {
                 src: "./src",
                 dst: "./docs/api"
@@ -59,16 +66,23 @@ class Warhorse {
                 email: "unknown@nowhere.com",
                 license: "GPL-3.0"
             },
-            bundle: {
-                transpile: true
+            load: {
+                encoding: "utf8"
+            },
+            minify: {},
+            pack: {
+                gif: {},
+                jpg: {},
+                png: {},
+                svg: {}
             },
             precompile: {
                 includePaths: ["./src/sass"]
             },
-            minify: {},
             rename: {},
             save: {
-                compress: false
+                compress: false,
+                encoding: "utf8"
             }
         };
 
@@ -112,6 +126,19 @@ class Warhorse {
         // Return self for chaining.
         return this;
     }
+
+    /**
+     * Bundle action.
+     * @param {Array} paths - Array of paths or files to empty and delete.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {this} - Returns self for chaining.
+     */
+    clean(paths, options = {}) {
+        logAction(`Cleaning project of generated files.`);
+        shell.rm("-rf", ...paths);
+        logStage(`Done.`);
+    }
+
 
     /**
      * Compile LESS action.
@@ -294,13 +321,15 @@ class Warhorse {
      */
     load(options = {}) {
 
-        logAction(`Loading file: ${this.file.name}`);
+        logAction(`Loading file: ${this.file.name + this.file.name}`);
+
+        let config = Object.assign(this.settings.load, options);
 
         // Accepts a single filepath only.
         let srcPath = this.file.path + this.file.name;
-        logStage(`from path: ${srcPath}`);
+        //logStage(`from path: ${srcPath}`);
 
-        this.file.content = fs.readFileSync(srcPath, "utf8");
+        this.file.content = fs.readFileSync(srcPath, config.encoding);
 
         // Return self for chaining.
         return this;
@@ -345,6 +374,129 @@ class Warhorse {
     }
 
     /**
+     * Pack GIF asset action.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {this} - Returns self for chaining.
+     */
+    packGIF(options = {}) {
+
+        logAction(`Packing GIF from: ${this.file.path + this.file.name}`);
+
+        let config = Object.assign(this.settings.pack.gif, options);
+
+        config.data = this.file.content;         // e.g. index.scss
+        config.includePaths = [this.file.path];  // e.g. ./src/sass
+        // ALTERNATIVE config.file = file.path + "/" + file.name;
+
+        // Process the data
+        // NOTE: Shell process used in order to force sync behaviour.
+        let processed = child.execSync(`imagemin --plugin=gifsicle --optimizationLevel=2`, {
+            input: this.file.content,
+            encoding: "binary"
+        });
+        this.file.content = processed;
+
+        // Transform the extension
+        // this.file.extension = ".css";
+        // this.file.name = this.file.stem + this.file.extension;
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Pack JPG asset action.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {this} - Returns self for chaining.
+     */
+    packJPG(options = {}) {
+
+        logAction(`Packing JPG from: ${this.file.path + this.file.name}`);
+
+        let config = Object.assign(this.settings.pack.jpg, options);
+
+        config.data = this.file.content;         // e.g. index.scss
+        config.includePaths = [this.file.path];  // e.g. ./src/sass
+        // ALTERNATIVE config.file = file.path + "/" + file.name;
+
+        // Process the data
+        // NOTE: Shell process used in order to force sync behaviour.
+        let processed = child.execSync(`imagemin --plugin=jpegtran`, {
+            input: this.file.content,
+            encoding: "binary"
+        });
+        this.file.content = processed;
+
+        // Transform the extension
+        // this.file.extension = ".css";
+        // this.file.name = this.file.stem + this.file.extension;
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Pack PNG asset action.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {this} - Returns self for chaining.
+     */
+    packPNG(options = {}) {
+
+        logAction(`Packing PNG from: ${this.file.path + this.file.name}`);
+
+        let config = Object.assign(this.settings.pack.png, options);
+
+        config.data = this.file.content;         // e.g. index.scss
+        config.includePaths = [this.file.path];  // e.g. ./src/sass
+        // ALTERNATIVE config.file = file.path + "/" + file.name;
+
+        // Process the data
+        // NOTE: Shell process used in order to force sync behaviour.
+        let processed = child.execSync(`imagemin --plugin=pngquant --quality=75`, {
+            input: this.file.content,
+            encoding: "binary"
+        });
+        this.file.content = processed;
+
+        // Transform the extension
+        // this.file.extension = ".css";
+        // this.file.name = this.file.stem + this.file.extension;
+
+        // Return self for chaining.
+        return this;
+    }
+    
+    /**
+     * Pack SVG asset action.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {this} - Returns self for chaining.
+     */
+    packSVG(options = {}) {
+
+        logAction(`Packing SVG from: ${this.file.path + this.file.name}`);
+
+        let config = Object.assign(this.settings.pack.svg, options);
+
+        config.data = this.file.content;         // e.g. index.scss
+        config.includePaths = [this.file.path];  // e.g. ./src/sass
+        // ALTERNATIVE config.file = file.path + "/" + file.name;
+
+        // Process the data
+        // NOTE: Shell process used in order to force sync behaviour.
+        let processed = child.execSync(`imagemin --plugin=svgo`, {
+            input: this.file.content
+        });
+        this.file.content = processed;
+
+        // Transform the extension
+        // this.file.extension = ".css";
+        // this.file.name = this.file.stem + this.file.extension;
+
+        // Return self for chaining.
+        return this;
+    }
+    
+    /**
      * Rename action.  Allows modification/replacement/injection of file details into the sequence of actions.
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
@@ -373,7 +525,7 @@ class Warhorse {
         // Sanity check
         if(!filePath) {return null;}
 
-        logStage(`Splitting file path: ${filePath}`); // e.g. /docs/index.html
+        //logStage(`Splitting file path: ${filePath}`); // e.g. /docs/index.html  // DEBUG ONLY
 
         let name = path.posix.basename(filePath);           // e.g. index.html
         let directory = path.dirname(filePath) + "/";       // e.g. /docs/
@@ -414,9 +566,9 @@ class Warhorse {
 
         if(config.compress === true) {
             let data = zlib.gzipSync(this.file.content);
-            fs.writeFileSync(dstPath + ".gz", data, "utf8");
+            fs.writeFileSync(dstPath + ".gz", data, config.encoding);
         } else {
-            fs.writeFileSync(dstPath, this.file.content, "utf8");
+            fs.writeFileSync(dstPath, this.file.content, config.encoding);
         }
 
         // Return self for chaining.
@@ -451,14 +603,13 @@ class Warhorse {
      * @private
      */
     _use(globPath, task) {
-        logAction(`Parsing: ${globPath}`);
+        //logAction(`Parsing: ${globPath}`);
 
         // Sync filesystem check
         let filePaths = glob.sync(globPath);
         if(filePaths.constructor === Array && filePaths.length > 0) {
             for(let filePath of filePaths) {
                 this.file = this._splitPath(filePath);
-                logStage(`Handling file from: ${this.file.name}`);
                 task();
             }
         } else {
@@ -473,7 +624,9 @@ class Warhorse {
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
-    use(taskName, filePath, options = {}) {
+    use(taskName, filePath = "index.html", options = {}) {
+
+        logTask(`TASK: ${taskName}`);
 
         // Retrieve task from the taskName
         let task = this.tasks[taskName];
@@ -498,33 +651,39 @@ class Warhorse {
         return this;
     }
 
-    // /**
-    //  * Execute task function.
-    //  * @param {string} name - Name of the task.
-    //  * @returns {void}
-    //  */
-    // execute(taskName) {
-    //     logTask(`TASK ${taskName}`);
-    //     let task = this.tasks[taskName];
-    //     if(task !== null) {
-    //         //console.log("Executing command: " + typeof task);
-    //         task();
-    //     }
-    // }
+    /**
+     * Execute task function.
+     * @param {string} taskName - Name of the task.
+     * @returns {this} - Returns self for chaining.
+     */
+    execute(taskName) {
+        logTask(`TASK ${taskName}`);
+        let task = this.tasks[taskName];
+        if(task !== null) {
+            //console.log("Executing command: " + typeof task);
+            task();
+        }
+
+        // Return self for chaining.
+        return this;
+    }
 
     /**
      * Execute command function.
      * @param {string} cmdName - Name of the task.
-     * @returns {void}
+     * @returns {this} - Returns self for chaining.
      * @private
      */
-    execute(cmdName) {
+    executeCommand(cmdName) {
         logTask(`COMMAND ${cmdName}`);
         let cmd = this.cmds[cmdName];
         if(cmd !== null) {
             //console.log("Executing command type: " + typeof cmd);
             cmd();
         }
+
+        // Return self for chaining.
+        return this;
     }
 }
 

@@ -10,7 +10,7 @@
 
 // Imports
 const Warhorse = require("../src/core/Warhorse");
-const configureTasks = require("../src/tasks");
+const configureTasks = require("../warhorse.js");
 
 // Runner
 function run(command, options) {
@@ -21,7 +21,7 @@ function run(command, options) {
 
     console.log();
     console.log(`WARHORSE working...`);
-    warhorse.execute(command);
+    warhorse.executeCommand(command);
     console.log(`WARHORSE done.`);
 }
 

@@ -1,0 +1,88 @@
+#!/usr/bin/env node
+
+/**
+ * @file warhorse
+ * @description The Warhorse command-line interface (CLI).
+ * @author Kyle Alexis Sargeant <kasargeant@gmail.com> {@link https://github.com/kasargeant https://github.com/kasargeant}.
+ * @copyright Kyle Alexis Sargeant 2017
+ * @license See LICENSE file included in this distribution.
+ */
+
+let argv = require("minimist")(process.argv.slice(2), {
+    string: "task",
+    alias: {h: "help", v: "version"},
+    default: {task: "build"},
+    "--": true
+});
+console.dir(argv);
+console.log(`Working directory: ${process.cwd()}`);
+
+// var args = minimist(process.argv.slice(2), {
+//     string: 'lang',
+//     boolean: 'pager',
+//     alias: { h: 'help', v: 'version' },
+//     default: { lang: 'en' },
+//     '--': true,
+//     stopEarly: true, /* populate _ with first non-option */
+//     unknown: function () { ... } /* invoked on unknown param */
+// });
+//
+// // --lang xml --no-pager -h index.js package.json
+// args == {
+//     lang: 'xml',
+//     pager: false,
+//     h: true,
+//     help: true,
+//     _: [ 'index.js', 'package.json' ]
+// }
+
+const run = require("../src/index");
+
+const commands = ["build", "clean", "distribute", "document", "init", "pack", "precompile", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
+
+const help = `
+	Usage
+	  $ warhorse <command> <options>
+
+	Commands
+	  build,         Builds the project in the current directory.
+	  distribute,    Makes a final distribution build of the project in the ./dist directory.
+	  document,      Documents the project in the current directory.
+	  init,          Initialises and creates a new project in the current directory.
+	  precompile,    Precompiles and minimises all style and template assets.
+
+	Options
+	  --config,  -c  Use a specific config file.
+	  --help,    -h  Shows this information.
+	  --project, -p  Use a specific project convention.
+	  --version, -v  Shows Warhorse CLI version.
+
+	Examples
+	  $ warhorse build --config ./conf/.warhorserc
+	  🌈  ...crushing your enemies!!! 🌈
+`;
+
+
+
+// Determine arguments
+if(argv._.length > 0) {
+    let command = argv._[0];
+
+    if(commands.includes(command)) {
+
+        run(command, {});
+    } else {
+        console.log(`Error: Unrecognised commmand '${command}'.`);
+        console.log(help);
+    }
+} else {
+    if(argv.help === true) {
+        console.log(help);
+    } else if(argv.version === true) {
+        let warhorsePackage = require("../package.json");
+        console.log(`Warhorse version: ${warhorsePackage.version}`);
+    } else {
+        console.log(`Error: Missing any command.`);
+        console.log(help);
+    }
+}
