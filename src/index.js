@@ -21,7 +21,7 @@ function run(command, options) {
 
     console.log();
     console.log(`WARHORSE working...`);
-    warhorse.execute(command);
+    warhorse.executeCommand(command);
     console.log(`WARHORSE done.`);
 }
 

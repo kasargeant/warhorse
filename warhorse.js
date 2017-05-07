@@ -21,6 +21,17 @@ function tasks(warhorse) {
             .save("./test/data/client_dist/js/" + warhorse.file.name);
     });
 
+    warhorse.task("clean-dist", function() {
+        warhorse.clean([
+            "./test/data/client_dist/img/ico/*",
+            "./test/data/client_dist/img/gif/*",
+            "./test/data/client_dist/img/jpg/*",
+            "./test/data/client_dist/img/png/*",
+            "./test/data/client_dist/img/svg/*",
+            "./test/data/client_dist/css/*",
+            "./test/data/client_dist/js/*",
+            "./test/data/client_dist/css/*"]);
+    });
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     warhorse.task("copy-ico", function() {
@@ -34,7 +45,6 @@ function tasks(warhorse) {
             .packGIF({})
             .save("./test/data/client_dist/img/gif/" + warhorse.file.name, {encoding: "binary"});
     });
-
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     warhorse.task("pack-jpg", function() {
@@ -88,6 +98,10 @@ function tasks(warhorse) {
             .documentJS({});
     });
 
+    warhorse.cmd("clean", function() {
+        warhorse.execute("clean-dist");
+    });
+
     warhorse.cmd("document", function() {
         warhorse.documentJS({});
     });
@@ -109,8 +123,7 @@ function tasks(warhorse) {
         warhorse.use("precompile-less", "./test/data/client_src/less/index.less", {});
         // warhorse.use("precompile-sass", "./test/data/client_src/sass/index.scss", {});
     });
-
-
+    
     warhorse.cmd("test", function() {
         // TODO - Implement command 'test'
     });

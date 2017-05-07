@@ -15,6 +15,7 @@ const path = require("path");
 const zlib = require("zlib");
 
 const glob = require("glob");
+const shell = require("shelljs");
 
 const browserify = require("browserify");
 const csso = require("csso");
@@ -47,6 +48,11 @@ class Warhorse {
     constructor(options = {}) {
         this.defaults = {
             directory: process.cwd(),
+
+            bundle: {
+                transpile: true
+            },
+            clean: {},
             document: {
                 src: "./src",
                 dst: "./docs/api"
@@ -60,17 +66,20 @@ class Warhorse {
                 email: "unknown@nowhere.com",
                 license: "GPL-3.0"
             },
-            bundle: {
-                transpile: true
+            load: {
+                encoding: "utf8"
+            },
+            minify: {},
+            pack: {
+                gif: {},
+                jpg: {},
+                png: {},
+                svg: {}
             },
             precompile: {
                 includePaths: ["./src/sass"]
             },
-            minify: {},
             rename: {},
-            load: {
-                encoding: "utf8"
-            },
             save: {
                 compress: false,
                 encoding: "utf8"
@@ -117,6 +126,19 @@ class Warhorse {
         // Return self for chaining.
         return this;
     }
+
+    /**
+     * Bundle action.
+     * @param {Array} paths - Array of paths or files to empty and delete.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {this} - Returns self for chaining.
+     */
+    clean(paths, options = {}) {
+        logAction(`Cleaning project of generated files.`);
+        shell.rm("-rf", ...paths);
+        logStage(`Done.`);
+    }
+
 
     /**
      * Compile LESS action.
@@ -299,13 +321,13 @@ class Warhorse {
      */
     load(options = {}) {
 
-        logAction(`Loading file: ${this.file.name}`);
+        logAction(`Loading file: ${this.file.name + this.file.name}`);
 
         let config = Object.assign(this.settings.load, options);
 
         // Accepts a single filepath only.
         let srcPath = this.file.path + this.file.name;
-        logStage(`from path: ${srcPath}`);
+        //logStage(`from path: ${srcPath}`);
 
         this.file.content = fs.readFileSync(srcPath, config.encoding);
 
@@ -358,9 +380,9 @@ class Warhorse {
      */
     packGIF(options = {}) {
 
-        logAction(`Packing GIF from: ${this.file.path}`);
+        logAction(`Packing GIF from: ${this.file.path + this.file.name}`);
 
-        let config = Object.assign(this.settings.precompile, options);
+        let config = Object.assign(this.settings.pack.gif, options);
 
         config.data = this.file.content;         // e.g. index.scss
         config.includePaths = [this.file.path];  // e.g. ./src/sass
@@ -389,9 +411,9 @@ class Warhorse {
      */
     packJPG(options = {}) {
 
-        logAction(`Packing JPG from: ${this.file.path}`);
+        logAction(`Packing JPG from: ${this.file.path + this.file.name}`);
 
-        let config = Object.assign(this.settings.precompile, options);
+        let config = Object.assign(this.settings.pack.jpg, options);
 
         config.data = this.file.content;         // e.g. index.scss
         config.includePaths = [this.file.path];  // e.g. ./src/sass
@@ -420,9 +442,9 @@ class Warhorse {
      */
     packPNG(options = {}) {
 
-        logAction(`Packing PNG from: ${this.file.path}`);
+        logAction(`Packing PNG from: ${this.file.path + this.file.name}`);
 
-        let config = Object.assign(this.settings.precompile, options);
+        let config = Object.assign(this.settings.pack.png, options);
 
         config.data = this.file.content;         // e.g. index.scss
         config.includePaths = [this.file.path];  // e.g. ./src/sass
@@ -451,9 +473,9 @@ class Warhorse {
      */
     packSVG(options = {}) {
 
-        logAction(`Packing SVG from: ${this.file.path}`);
+        logAction(`Packing SVG from: ${this.file.path + this.file.name}`);
 
-        let config = Object.assign(this.settings.precompile, options);
+        let config = Object.assign(this.settings.pack.svg, options);
 
         config.data = this.file.content;         // e.g. index.scss
         config.includePaths = [this.file.path];  // e.g. ./src/sass
@@ -503,7 +525,7 @@ class Warhorse {
         // Sanity check
         if(!filePath) {return null;}
 
-        logStage(`Splitting file path: ${filePath}`); // e.g. /docs/index.html
+        //logStage(`Splitting file path: ${filePath}`); // e.g. /docs/index.html  // DEBUG ONLY
 
         let name = path.posix.basename(filePath);           // e.g. index.html
         let directory = path.dirname(filePath) + "/";       // e.g. /docs/
@@ -581,14 +603,13 @@ class Warhorse {
      * @private
      */
     _use(globPath, task) {
-        logAction(`Parsing: ${globPath}`);
+        //logAction(`Parsing: ${globPath}`);
 
         // Sync filesystem check
         let filePaths = glob.sync(globPath);
         if(filePaths.constructor === Array && filePaths.length > 0) {
             for(let filePath of filePaths) {
                 this.file = this._splitPath(filePath);
-                logStage(`Handling file from: ${this.file.name}`);
                 task();
             }
         } else {
@@ -603,7 +624,9 @@ class Warhorse {
      * @param {Object} options - Options to further configure this action.
      * @returns {this} - Returns self for chaining.
      */
-    use(taskName, filePath, options = {}) {
+    use(taskName, filePath = "index.html", options = {}) {
+
+        logTask(`TASK: ${taskName}`);
 
         // Retrieve task from the taskName
         let task = this.tasks[taskName];
@@ -628,33 +651,39 @@ class Warhorse {
         return this;
     }
 
-    // /**
-    //  * Execute task function.
-    //  * @param {string} name - Name of the task.
-    //  * @returns {void}
-    //  */
-    // execute(taskName) {
-    //     logTask(`TASK ${taskName}`);
-    //     let task = this.tasks[taskName];
-    //     if(task !== null) {
-    //         //console.log("Executing command: " + typeof task);
-    //         task();
-    //     }
-    // }
+    /**
+     * Execute task function.
+     * @param {string} taskName - Name of the task.
+     * @returns {this} - Returns self for chaining.
+     */
+    execute(taskName) {
+        logTask(`TASK ${taskName}`);
+        let task = this.tasks[taskName];
+        if(task !== null) {
+            //console.log("Executing command: " + typeof task);
+            task();
+        }
+
+        // Return self for chaining.
+        return this;
+    }
 
     /**
      * Execute command function.
      * @param {string} cmdName - Name of the task.
-     * @returns {void}
+     * @returns {this} - Returns self for chaining.
      * @private
      */
-    execute(cmdName) {
+    executeCommand(cmdName) {
         logTask(`COMMAND ${cmdName}`);
         let cmd = this.cmds[cmdName];
         if(cmd !== null) {
             //console.log("Executing command type: " + typeof cmd);
             cmd();
         }
+
+        // Return self for chaining.
+        return this;
     }
 }
 

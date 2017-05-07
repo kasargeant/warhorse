@@ -38,7 +38,7 @@ console.log(`Working directory: ${process.cwd()}`);
 
 const run = require("../src/index");
 
-const commands = ["build", "distribute", "document", "init", "pack", "precompile", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
+const commands = ["build", "clean", "distribute", "document", "init", "pack", "precompile", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
 
 const help = `
 	Usage
