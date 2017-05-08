@@ -40,7 +40,6 @@ Warhorse was written as a reaction to the approach taken by build tooling and ta
 
     npm -g install warhorse
 
-
 ## Quick Start
 
 ### Making a New Project
@@ -60,7 +59,7 @@ Warhorse will setup up a project structure, together will all boilerplate and sc
 the two key files used by Warhorse are:-
 
 * ./conf/.warhorserc
-* ./warhorseTasks.js
+* ./warhorse.js
 
 Both can be found in the ./conf/ directory of your new project.
 
@@ -70,7 +69,7 @@ To let Warhorse know that you want it to automate your project, two files are re
 
 The two key files are:-
 
-* ./conf/warhorserc - A configuration file for the Warhorse application.
+* ./conf/.warhorserc - A configuration file for the Warhorse application.
 * ./warhorse.js - A configuration file for Warhorse's commands and tasks.
 
 And you'll need to edit these to tell Warhorse:-

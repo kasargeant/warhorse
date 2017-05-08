@@ -98,7 +98,7 @@ class Warhorse {
     /**
      * Bundle action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     bundle(options = {}) {
 
@@ -131,7 +131,7 @@ class Warhorse {
      * Bundle action.
      * @param {Array} paths - Array of paths or files to empty and delete.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     clean(paths, options = {}) {
         logAction(`Cleaning project of generated files.`);
@@ -143,7 +143,7 @@ class Warhorse {
     /**
      * Compile LESS action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     compileLESS(options = {}) {
 
@@ -189,7 +189,7 @@ class Warhorse {
     /**
      * Compile SCSS(SASS) action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     compileSASS(options = {}) {
 
@@ -298,7 +298,7 @@ class Warhorse {
     /**
      * Document JS API action.  Documents JavaScript from src/ folder(s).
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     documentJS(options = {}) {
 
@@ -317,7 +317,7 @@ class Warhorse {
     /**
      * Load action.  Loads files being used for processing by the action that follows.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     load(options = {}) {
 
@@ -338,7 +338,7 @@ class Warhorse {
     /**
      * Minify CSS action.  Minimisation for standard CSS.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     minifyCSS(options = {}) {
 
@@ -355,18 +355,17 @@ class Warhorse {
     /**
      * Minify JS action.  Minimisation for ES51/ES2015 JavaScript.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     minifyJS(options = {}) {
 
         logAction(`Minifying JS from: ${this.file.path}`);
 
         let config = Object.assign(this.settings.bundle, options);
-
+        config.fromString = true; // Essential for data input
+        
         // Process the data
-        let processed = uglify.minify({"file": this.file.content}, {
-            fromString: true
-        }).code;
+        let processed = uglify.minify({"file": this.file.content}, config).code;
         this.file.content = processed.toString();
 
         // Return self for chaining.
@@ -376,7 +375,7 @@ class Warhorse {
     /**
      * Pack GIF asset action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     packGIF(options = {}) {
 
@@ -407,7 +406,7 @@ class Warhorse {
     /**
      * Pack JPG asset action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     packJPG(options = {}) {
 
@@ -438,7 +437,7 @@ class Warhorse {
     /**
      * Pack PNG asset action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     packPNG(options = {}) {
 
@@ -469,7 +468,7 @@ class Warhorse {
     /**
      * Pack SVG asset action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     packSVG(options = {}) {
 
@@ -499,7 +498,7 @@ class Warhorse {
     /**
      * Rename action.  Allows modification/replacement/injection of file details into the sequence of actions.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     rename(options = {}) {
 
@@ -508,7 +507,7 @@ class Warhorse {
         let config = Object.assign(this.settings.save, options);
 
         // Rename (i.e. overwrite) any values in the file object with the user-defined options object
-        this.file = Object.assign(this.file, options);
+        this.file = Object.assign(this.file, config);
 
         // Return self for chaining.
         return this;
@@ -556,7 +555,7 @@ class Warhorse {
      * Save action.
      * @param {string} dstPath - The file path that this file will be saved to.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     save(dstPath, options = {}) {
 
@@ -598,7 +597,7 @@ class Warhorse {
     /**
      * Private helper for load().
      * @param {string} globPath - A filename, filepath or globpath.
-     * @param {string} task - The task to be executed.
+     * @param {Function} task - The task to be executed.
      * @returns {void}
      * @private
      */
@@ -622,7 +621,7 @@ class Warhorse {
      * @param {string} taskName - The name of the task to be executed for every batch item.
      * @param {string} filePath - File path (globs/wildcards allowed) to be processed by this action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     use(taskName, filePath = "index.html", options = {}) {
 
@@ -654,7 +653,7 @@ class Warhorse {
     /**
      * Execute task function.
      * @param {string} taskName - Name of the task.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     execute(taskName) {
         logTask(`TASK ${taskName}`);
@@ -671,7 +670,7 @@ class Warhorse {
     /**
      * Execute command function.
      * @param {string} cmdName - Name of the task.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      * @private
      */
     executeCommand(cmdName) {
