@@ -21,14 +21,15 @@ const browserify = require("browserify");
 const csso = require("csso");
 //const less = require("less");
 const sass = require("node-sass");
-const uglify = require("uglify-js");
+const uglify = require("uglify-es");
 
 // Setup console
 const chalk = require("chalk");
 const log = console.log;
-const logTask = function(value)    {console.log(chalk.bgBlue(" " + value));};
-const logAction = function(value)    {console.log(chalk.blue(" - " + value));};
-const logStage = function(value)   {console.log(chalk.cyan("   -> " + value));};
+const logCmd = function(value)    {console.log(chalk.bgMagenta(" " + value));};
+const logTask = function(value)    {console.log(chalk.bgBlue("  " + value));};
+const logAction = function(value)    {console.log(chalk.blue("  - " + value));};
+const logStage = function(value)   {console.log(chalk.cyan("    -> " + value));};
 const logWarning = function(value) {console.warn(chalk.yellow(value));};
 const logError = function(value)   {console.error(chalk.red(value));};
 
@@ -45,9 +46,12 @@ class Warhorse {
      * @constructor
      * @param {Object} options - Configuration options to override Warhorse's own defaults.
      */
-    constructor(options = {}) {
+    constructor(workingDirectory, options = {}) {
         this.defaults = {
-            directory: process.cwd(),
+
+            directory: workingDirectory,
+
+            language: ["es51", "es2015", "es2015+JSX"],
 
             bundle: {
                 transpile: true
@@ -331,13 +335,11 @@ class Warhorse {
      */
     load(options = {}) {
 
-        logAction(`Loading file: ${this.file.name + this.file.name}`);
-
         let config = Object.assign(this.settings.load, options);
 
         // Accepts a single filepath only.
         let srcPath = this.file.path + this.file.name;
-        //logStage(`from path: ${srcPath}`);
+        logAction(`Loading file: ${this.file.path + this.file.name}`);
 
         this.file.content = fs.readFileSync(srcPath, config.encoding);
 
@@ -374,9 +376,22 @@ class Warhorse {
         let config = Object.assign(this.settings.bundle, options);
         config.fromString = true; // Essential for data input
         
-        // Process the data
-        let processed = uglify.minify({"file": this.file.content}, config).code;
-        this.file.content = processed.toString();
+        // // Process the data (old uglify-js)
+        // let processed = uglify.minify({"file": this.file.content}, config).code;
+        // this.file.content = processed.toString();
+
+        // Process the data (new uglify-es)
+        let processed = uglify.minify(this.file.content);
+        this.file.content = processed;
+        // let processed = uglify.minify(this.file.content, {
+        //     sourceMap: {
+        //         filename: "out.js",
+        //         url: "out.js.map"
+        //     }
+        // });
+        // console.log(processed.map);  // source map
+        console.log(processed.code); // minified output
+
 
         // Return self for chaining.
         return this;
@@ -585,6 +600,16 @@ class Warhorse {
     }
 
     /**
+     * Command 'wrapper' function.  Wraps a task, or list of tasks, to be executed by the named command.
+     * @param {string} name - Name of the task.
+     * @param {string} cmdFn - A function containing the tasks executed for this command.
+     * @returns {void}
+     */
+    cmd(name, cmdFn) {
+        this.cmds[name] = cmdFn;
+    }
+
+    /**
      * Task 'wrapper' function.  Wraps an action, or list of actions, to be followed by the named task.
      * @param {string} name - Name of the task.
      * @param {string} taskFn - A function containing the actions followed for the task.
@@ -661,6 +686,24 @@ class Warhorse {
         if(task !== null) {
             //console.log("Executing command: " + typeof task);
             task();
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Execute command function.
+     * @param {string} cmdName - Name of the command.
+     * @returns {Object} - Returns self for chaining.
+     * @private
+     */
+    executeCmd(cmdName) {
+        logCmd(`COMMAND ${cmdName}`);
+        let cmd = this.cmds[cmdName];
+        if(cmd !== null) {
+            //console.log("Executing command type: " + typeof cmd);
+            cmd();
         }
 
         // Return self for chaining.

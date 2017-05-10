@@ -9,21 +9,23 @@
 "use strict";
 
 // Imports
-const Warhorse = require("../src/classes/Warhorse");
-const configureTasks = require("../warhorse.js");
-//const tasks = require("../warhorse.js");
+const chalk = require("chalk");
+const WARHORSE_CONFIG = require("../conf/warhorse.json");
+const Warhorse = require("./modules/Warhorse");
 
 // Runner
-function run(command, options) {
+function run(workingDirectory, args) {
 
-    const warhorse = new Warhorse(options);
-    // warhorse.tasks = configureTasks(warhorse);
+    const warhorse = new Warhorse(WARHORSE_CONFIG);
+
+    const configureTasks = require(workingDirectory + "/_warhorse.js");
     configureTasks(warhorse);
 
     console.log();
-    console.log(`WARHORSE working...`);
-    warhorse.execute(command);
-    console.log(`WARHORSE done.`);
+    console.log(chalk.inverse(`WARHORSE working...`));
+    warhorse.executeCmd(args[0]);
+    console.log(chalk.inverse(`WARHORSE done.`));
+    console.log();
 }
 
 // Exports

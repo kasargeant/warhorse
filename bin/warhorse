@@ -14,27 +14,10 @@ let argv = require("minimist")(process.argv.slice(2), {
     default: {task: "build"},
     "--": true
 });
-console.dir(argv);
-console.log(`Working directory: ${process.cwd()}`);
-
-// var args = minimist(process.argv.slice(2), {
-//     string: 'lang',
-//     boolean: 'pager',
-//     alias: { h: 'help', v: 'version' },
-//     default: { lang: 'en' },
-//     '--': true,
-//     stopEarly: true, /* populate _ with first non-option */
-//     unknown: function () { ... } /* invoked on unknown param */
-// });
-//
-// // --lang xml --no-pager -h index.js package.json
-// args == {
-//     lang: 'xml',
-//     pager: false,
-//     h: true,
-//     help: true,
-//     _: [ 'index.js', 'package.json' ]
-// }
+// console.dir(argv);
+// /Users/kyle/dev/warhorse
+let workingDirectory = process.cwd();
+console.log(`Working directory: ${workingDirectory}`);
 
 const run = require("../src/index");
 
@@ -62,27 +45,22 @@ const help = `
 	  🌈  ...crushing your enemies!!! 🌈
 `;
 
+// Respond to user input
+if(argv.help === true) {
+    console.log(help);
+} else if(argv.version === true) {
+    let warhorsePackage = require(workingDirectory + "/" + "package.json");
+    console.log(`Warhorse version: ${warhorsePackage.version}`);
+} else if(argv._.length > 0) {
 
-
-// Determine arguments
-if(argv._.length > 0) {
-    let command = argv._[0];
-
-    if(commands.includes(command)) {
-
-        run(command, {});
+    // Determine command
+    if(commands.includes(argv._[0])) {
+        run(workingDirectory, argv._); // Passes command and rest args
     } else {
-        console.log(`Error: Unrecognised commmand '${command}'.`);
+        console.log(`Error: Unrecognised command '${argv._[0]}'.`);
         console.log(help);
     }
 } else {
-    if(argv.help === true) {
-        console.log(help);
-    } else if(argv.version === true) {
-        let warhorsePackage = require("../package.json");
-        console.log(`Warhorse version: ${warhorsePackage.version}`);
-    } else {
-        console.log(`Error: Missing any command.`);
-        console.log(help);
-    }
+    console.log(`Error: Missing any command.`);
+    console.log(help);
 }

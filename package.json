@@ -37,6 +37,11 @@
     "node": "~6.10.0",
     "npm": "~3.10.10"
   },
+  "files": [
+    "bin/",
+    "conf/",
+    "src/"
+  ],
   "scripts": {
     "postinstall": "node ./bin/installTools.js",
     "document-api": "jsdoc -c ./conf/.jsdocrc -r",
@@ -82,8 +87,7 @@
     "minimist": "^1.2.0",
     "node-fetch": "^1.6.3",
     "node-sass": "^4.5.2",
-    "nsfw": "^1.0.15",
     "shelljs": "^0.7.7",
-    "uglify-js": "github:mishoo/UglifyJS2#harmony"
+    "uglify-es": "^3.0.3"
   }
 }

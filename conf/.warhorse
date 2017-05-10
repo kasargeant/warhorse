@@ -1,7 +1,0 @@
-{
-  tooling: {
-    bundle: ["es51", "es2015"],
-    compileStyles: ["less", "sass"],
-    compileTemplates: ["handlebars"]
-  }
-}

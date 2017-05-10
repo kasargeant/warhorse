@@ -5,7 +5,6 @@
 
 # TYPICAL TOOLCHAIN
 .idea/
-atlassian-ide-plugin.xml
 
 # TYPICAL MODULE HANDLERS
 node_modules/
