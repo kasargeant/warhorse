@@ -9,19 +9,20 @@
 "use strict";
 
 // Imports
-const Warhorse = require("../src/core/Warhorse");
+const Warhorse = require("../src/classes/Warhorse");
 const configureTasks = require("../warhorse.js");
+//const tasks = require("../warhorse.js");
 
 // Runner
 function run(command, options) {
 
     const warhorse = new Warhorse(options);
-
+    // warhorse.tasks = configureTasks(warhorse);
     configureTasks(warhorse);
 
     console.log();
     console.log(`WARHORSE working...`);
-    warhorse.executeCommand(command);
+    warhorse.execute(command);
     console.log(`WARHORSE done.`);
 }
 

@@ -1,0 +1,15 @@
+# DEFAULT GIT IGNORE FILE
+
+# OS CHAFF
+.DS_Store
+
+# TYPICAL TOOLCHAIN
+.idea/
+atlassian-ide-plugin.xml
+
+# TYPICAL MODULE HANDLERS
+node_modules/
+
+# BUILD FOLDERS
+dist/
+

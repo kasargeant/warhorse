@@ -221,7 +221,17 @@ class Warhorse {
      * @returns {void}
      * @private - until implemented!
      */
-    init(file, next, options = {}) {
+    configure(projectConfig) {
+        // TODO - Maybe implement... still not convinced this isn't config overkill! - KAS
+    }
+
+    /**
+     * Create project (using the defined convention) action.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {void}
+     * @private - until implemented!
+     */
+    init(options = {}) {
         //
         // // Resolve configuration
         // let config = Object.assign(this.settings.init, options);
@@ -575,16 +585,6 @@ class Warhorse {
     }
 
     /**
-     * Command 'wrapper' function.  Wraps a task, or list of tasks, to be executed by the named command.
-     * @param {string} name - Name of the task.
-     * @param {string} cmdFn - A function containing the tasks executed for this command.
-     * @returns {void}
-     */
-    cmd(name, cmdFn) {
-        this.cmds[name] = cmdFn;
-    }
-
-    /**
      * Task 'wrapper' function.  Wraps an action, or list of actions, to be followed by the named task.
      * @param {string} name - Name of the task.
      * @param {string} taskFn - A function containing the actions followed for the task.
@@ -661,24 +661,6 @@ class Warhorse {
         if(task !== null) {
             //console.log("Executing command: " + typeof task);
             task();
-        }
-
-        // Return self for chaining.
-        return this;
-    }
-
-    /**
-     * Execute command function.
-     * @param {string} cmdName - Name of the task.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    executeCommand(cmdName) {
-        logTask(`COMMAND ${cmdName}`);
-        let cmd = this.cmds[cmdName];
-        if(cmd !== null) {
-            //console.log("Executing command type: " + typeof cmd);
-            cmd();
         }
 
         // Return self for chaining.
