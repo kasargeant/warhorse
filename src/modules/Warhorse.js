@@ -17,7 +17,7 @@ const zlib = require("zlib");
 const glob = require("glob");
 const shell = require("shelljs");
 
-const browserify = require("browserify");
+// const browserify = require("browserify");
 const csso = require("csso");
 //const less = require("less");
 const sass = require("node-sass");
@@ -33,7 +33,6 @@ const logStage = function(value)   {console.log(chalk.cyan("    -> " + value));}
 const logWarning = function(value) {console.warn(chalk.yellow(value));};
 const logError = function(value)   {console.error(chalk.red(value));};
 
-
 /**
  * @class
  * @classdesc The main Warhorse class, containing all actions available to automate tasks and builds.
@@ -46,11 +45,9 @@ class Warhorse {
      * @constructor
      * @param {Object} options - Configuration options to override Warhorse's own defaults.
      */
-    constructor(workingDirectory, options = {}) {
+    constructor(moduleDirectory, workingDirectory, options = {}) {
         this.defaults = {
-
-            directory: workingDirectory,
-
+            
             language: ["es51", "es2015", "es2015+JSX"],
 
             bundle: {
@@ -89,14 +86,29 @@ class Warhorse {
                 encoding: "utf8"
             }
         };
-
         this.settings = Object.assign(this.defaults, options);
-
+        
         this.cmds = {}; // Lookup for built-in commands.
         this.tasks = {}; // Lookup for user-defined tasks.
 
+        this.workingDirectory = workingDirectory;
+        this.moduleDirectory = moduleDirectory;
+        
         this.file = null; // Main arg passed from function to function - requires sync operation of course!
 
+        // Finally add user-defined tasks.
+        try {
+            const configureTasks = require(workingDirectory + "/_warhorse.js");
+            configureTasks(this);
+        } catch(ex) {
+            // fs.writeFileSync(workingDirectory + "/_warhorse.js", )
+            logWarning("Warning: This directory is missing a _warhorse.js file and is uninitialised.");
+
+            // Only valid command at this point is 'init'.
+            this.cmd("init", function() {
+                this.init();
+            }.bind(this));
+        }
     }
 
     /**
@@ -233,9 +245,31 @@ class Warhorse {
      * Create project (using the defined convention) action.
      * @param {Object} options - Options to further configure this action.
      * @returns {void}
+     * @private
+     */
+    _initModule() {
+        let srcPath = this.moduleDirectory + "/conventions/" + "module/*";
+        shell.cp("-R", srcPath, "./");
+    }
+
+
+    /**
+     * Create project (using the defined convention) action.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {void}
      * @private - until implemented!
      */
     init(options = {}) {
+
+        let convention = "MODULE";
+        switch(convention) {
+            case "MODULE":
+                this._initModule();
+                break;
+            default:
+                console.error("Error: Unrecognised or missing project convention.");
+        }
+
         //
         // // Resolve configuration
         // let config = Object.assign(this.settings.init, options);
@@ -269,7 +303,7 @@ class Warhorse {
         //
         // // Create project directory structure
         // //FIXME - Guard can be removed once function is fully implemented.
-        // let workingDirectory = this.settings.directory;
+        // let workingDirectory = this.settings.workingDirectory;
         // if(workingDirectory === "/Users/kasargeant/dev/projects/warhorse") {
         //     mkdirSync("./temp");
         //
@@ -390,7 +424,7 @@ class Warhorse {
         //     }
         // });
         // console.log(processed.map);  // source map
-        console.log(processed.code); // minified output
+        // console.log(processed.code); // minified output
 
 
         // Return self for chaining.

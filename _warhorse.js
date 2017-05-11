@@ -1,5 +1,5 @@
 /**
- * @file tasks.js
+ * @file _warhorse.js
  * @description The Warhorse tasks default configuration.
  * @author Kyle Alexis Sargeant <kasargeant@gmail.com> {@link https://github.com/kasargeant https://github.com/kasargeant}.
  * @copyright Kyle Alexis Sargeant 2017
@@ -10,16 +10,6 @@
 
 // Warhorse task definitions
 function tasks(warhorse) {
-
-    // This defines a PER PROJECT configuration.
-    warhorse.configure({
-        language: ["es51", "es2015", "es2015+JSX"],
-        tooling: {
-            images: ["gif", "jpg", "png", "svg"],
-            stylesheets: ["less", "sass"],
-            templates: ["handlebars"]
-        }
-    });
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // COMMANDS

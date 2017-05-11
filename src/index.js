@@ -15,12 +15,10 @@ const Warhorse = require("./modules/Warhorse");
 
 // Runner
 function run(workingDirectory, args) {
+    let moduleDirectory = __dirname;
+    const warhorse = new Warhorse(moduleDirectory, workingDirectory, WARHORSE_CONFIG);
 
-    const warhorse = new Warhorse(WARHORSE_CONFIG);
-
-    const configureTasks = require(workingDirectory + "/_warhorse.js");
-    configureTasks(warhorse);
-
+    console.log("Warhorse location: " + warhorse.moduleDirectory);
     console.log();
     console.log(chalk.inverse(`WARHORSE working...`));
     warhorse.executeCmd(args[0]);
