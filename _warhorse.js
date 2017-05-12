@@ -33,12 +33,7 @@ function tasks(warhorse) {
     warhorse.cmd("document", function() {
         warhorse.documentJS({});
     });
-
-    warhorse.cmd("init", function() {
-        //warhorse.init({});
-        // TODO - Implement command 'init'
-    });
-
+    
     warhorse.cmd("pack", function() {
         warhorse.use("copy-ico", "./test/data/client_src/img/ico/*.ico", {});
         warhorse.use("pack-gif", "./test/data/client_src/img/gif/*.gif", {});

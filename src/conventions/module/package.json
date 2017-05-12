@@ -21,12 +21,6 @@
     "node": "~7.9.0",
     "npm": "~4.2.0"
   },
-  "files": [
-    "conf/",
-    "data/",
-    "modules/",
-    "index.js"
-  ],
   "scripts": {
     "test": "jest --verbose",
     "test-update": "jest --updateSnapshot"

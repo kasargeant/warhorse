@@ -21,7 +21,7 @@ function run(workingDirectory, args) {
     console.log("Warhorse location: " + warhorse.moduleDirectory);
     console.log();
     console.log(chalk.inverse(`WARHORSE working...`));
-    warhorse.executeCmd(args[0]);
+    warhorse.executeCmd(args);
     console.log(chalk.inverse(`WARHORSE done.`));
     console.log();
 }

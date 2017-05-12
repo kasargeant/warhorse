@@ -87,7 +87,9 @@ class Warhorse {
             }
         };
         this.settings = Object.assign(this.defaults, options);
-        
+
+        this.conventions = ["module"];
+
         this.cmds = {}; // Lookup for built-in commands.
         this.tasks = {}; // Lookup for user-defined tasks.
 
@@ -103,11 +105,6 @@ class Warhorse {
         } catch(ex) {
             // fs.writeFileSync(workingDirectory + "/_warhorse.js", )
             logWarning("Warning: This directory is missing a _warhorse.js file and is uninitialised.");
-
-            // Only valid command at this point is 'init'.
-            this.cmd("init", function() {
-                this.init();
-            }.bind(this));
         }
     }
 
@@ -728,12 +725,26 @@ class Warhorse {
 
     /**
      * Execute command function.
-     * @param {string} cmdName - Name of the command.
+     * @param {string} args - Arguments passed from the command line interface.
      * @returns {Object} - Returns self for chaining.
      * @private
      */
-    executeCmd(cmdName) {
+    executeCmd(args) {
+        let [cmdName, convention="module", ...rest] = args;
+
         logCmd(`COMMAND ${cmdName}`);
+
+        // Handle built-ins
+        if(cmdName === "init") {
+            if(this.conventions.includes(convention)) {
+                this.init(convention);
+            } else {
+                logError(`Error: Unrecognised project convention: '${convention}'.`);
+            }
+            return null; // Success or fail - nothing to return.
+        }
+
+        // Handle user-definables
         let cmd = this.cmds[cmdName];
         if(cmd !== null) {
             //console.log("Executing command type: " + typeof cmd);
