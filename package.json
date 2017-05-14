@@ -38,7 +38,7 @@
     "npm": "~3.10.10"
   },
   "scripts": {
-    "postinstall": "node ./bin/installTools.js",
+    "TEMPpostinstall": "node ./bin/installTools.js",
     "document-api": "jsdoc -c ./conf/.jsdocrc -r",
     "document-forced-readme": "jsdoc -c ./conf/.jsdocrc -r --readme ./README.md",
     "test": "npm run test-only && npm run test-cover",
@@ -70,6 +70,7 @@
     "csso": "^3.1.1",
     "eslint": "^3.19.0",
     "glob": "^7.1.1",
+    "inquirer": "^3.0.6",
     "inuitcss": "^6.0.0-beta.4",
     "jest": "^19.0.2",
     "jest-cli": "^19.0.2",

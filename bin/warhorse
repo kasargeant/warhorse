@@ -21,7 +21,7 @@ console.log(`Working directory: ${workingDirectory}`);
 
 const run = require("../src/index");
 
-const commands = ["build", "clean", "distribute", "document", "init", "lint", "pack", "precompile", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
+const commands = ["build", "clean", "create", "distribute", "document", "init", "lint", "pack", "precompile", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
 
 const help = `
 	Usage
@@ -29,6 +29,7 @@ const help = `
 
 	Commands
 	  build,         Builds the project in the current directory.
+	  create,        Initialises and creates a new project interactively in a named sub-directory.
 	  distribute,    Makes a final distribution build of the project in the ./dist directory.
 	  document,      Documents the project in the current directory.
 	  init,          Initialises and creates a new project in the current directory.

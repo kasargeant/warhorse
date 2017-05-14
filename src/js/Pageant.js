@@ -6,7 +6,7 @@ const chalk = require("chalk");
  * @classdesc A class of static pretty-print console functions.
  * @static
  */
-class Unfurl {
+class Pageant {
 
     static cmd(value) {console.log(chalk.bgMagenta(" " + value));}
     static task(value) {console.log(chalk.bgBlue("  " + value));}
@@ -20,6 +20,6 @@ class Unfurl {
 }
 
 // Exports
-module.exports = Unfurl;
+module.exports = Pageant;
 
 
