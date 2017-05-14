@@ -17,13 +17,16 @@ let argv = require("minimist")(process.argv.slice(2), {
 // console.dir(argv);
 // /Users/kyle/dev/warhorse
 let workingDirectory = process.cwd();
-console.log(`Working directory: ${workingDirectory}`);
+//console.log(`Working directory: ${workingDirectory}`);
 
 const run = require("../src/index");
 
 const commands = ["build", "clean", "create", "distribute", "document", "init", "lint", "pack", "precompile", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
 
 const help = `
+  ============================================================================
+  WARHORSE HELP SHEET
+  
 	Usage
 	  $ warhorse <flags> <command> <options>
 
@@ -43,9 +46,15 @@ const help = `
 
 	Examples
 	  $ warhorse init module my-module
+	     COMMAND init...
+	     
 	  $ warhorse build
+	     COMMAND build...
+	     
 	  $ warhorse distribute --config ./conf/.warhorse
-	  🌈  ...crushing your enemies!!! 🌈
+	     🌈 ...CRUSHING YOUR ENEMIES!!! 🌈
+
+  ============================================================================
 
 `;
 

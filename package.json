@@ -38,7 +38,7 @@
     "npm": "~3.10.10"
   },
   "scripts": {
-    "TEMPpostinstall": "node ./bin/installTools.js",
+    "postinstall": "node ./bin/installTools.js",
     "document-api": "jsdoc -c ./conf/.jsdocrc -r",
     "document-forced-readme": "jsdoc -c ./conf/.jsdocrc -r --readme ./README.md",
     "test": "npm run test-only && npm run test-cover",

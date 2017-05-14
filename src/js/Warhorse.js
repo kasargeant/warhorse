@@ -102,7 +102,7 @@ class Warhorse {
         this.linterJSStyle.registerDefaultRules();
         // this.linterJSStyle.configure(confJSCS);
         this.linterJSSyntax = jshint; // Note: JSHint is IFFY.
-        this.linterJSStats = {errors: 0, warnings: 0};
+        this.linterJSStats = {reports: [], errors: 0, warnings: 0};
 
         this.commands = ["build", "clean", "create", "distribute", "document", "init", "lint", "pack", "precompile", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
         this.conventions = ["module"];

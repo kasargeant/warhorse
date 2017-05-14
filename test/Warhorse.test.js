@@ -1,6 +1,9 @@
 /**
- * @file Warhorse Class unit tests
- * @author Kyle Alexis Sargeant
+ * @file Warhorse.test.js
+ * @description Unit tests for the Warhorse Class.
+ * @author Kyle Alexis Sargeant <kasargeant@gmail.com> {@link https://github.com/kasargeant https://github.com/kasargeant}.
+ * @copyright Kyle Alexis Sargeant 2017
+ * @license See LICENSE file included in this distribution.
  */
 
 "use strict";
@@ -50,6 +53,20 @@ fileDummy = {
 };
 fileDummy.content = fs.readFileSync(fileDummy.original).toString();
 const FILE_DUMMY_JS = Object.freeze(fileDummy);
+
+// Setup dummy JS file (Linting - FAIL CASE)
+fileDummy = {
+    original: "./test/data/client_src/js/Circle.js",
+    path: "./test/data/client_src/js/",
+    name: "Circle.js",
+    stem: "Circle",
+    extension: ".js",
+    config: false,
+    content: null
+};
+fileDummy.content = fs.readFileSync(fileDummy.original).toString();
+const FILE_DUMMY_JS_LINT_FAIL = Object.freeze(fileDummy);
+
 
 // Setup dummy SASS file
 fileDummy = {
@@ -120,6 +137,15 @@ describe("Class: Warhorse", function() {
         });
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        it("should be able to lint JS code", function() {
+            warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_JS_LINT_FAIL));
+            warhorse.lintJS();
+            console.log(warhorse.linterJSStats);
+            expect(warhorse.linterJSStats.errors).toBe(1);
+            expect(warhorse.linterJSStats.warnings).toBe(1);
+        });
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         it("should be able to load a file", function() {
             warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_JS));
             warhorse.load({});
@@ -133,35 +159,43 @@ describe("Class: Warhorse", function() {
             expect(warhorse.file.content).toMatchSnapshot();
         });
 
-        it("should be able to minify JS", function() {
+        it("should be able to minify JS code", function() {
             warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_JS));
             warhorse.minifyJS({});
             expect(warhorse.file.content).toMatchSnapshot();
         });
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        it("should be able to pack a GIF", function() {
-            warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_JS));
-            warhorse.minifyJS({});
-            expect(warhorse.file.content).toMatchSnapshot();
-        });
+        // TODO - Implement asset packing tests
+        // it("should be able to pack a GIF", function() {
+        //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_GIF));
+        //     warhorse.packGIF({});
+        //     expect(warhorse.file.content).toMatchSnapshot();
+        // });
+        //
+        // it("should be able to pack a JPG", function() {
+        //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_JPG));
+        //     warhorse.packJPG({});
+        //     expect(warhorse.file.content).toMatchSnapshot();
+        // });
+        //
+        // it("should be able to pack a PNG", function() {
+        //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_GIF));
+        //     warhorse.packGIF({});
+        //     expect(warhorse.file.content).toMatchSnapshot();
+        // });
+        //
+        // it("should be able to pack a SVG", function() {
+        //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_SVG));
+        //     warhorse.packSVG({});
+        //     expect(warhorse.file.content).toMatchSnapshot();
+        // });
 
-        it("should be able to pack a JPG", function() {
-            warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_JS));
-            warhorse.minifyJS({});
-            expect(warhorse.file.content).toMatchSnapshot();
-        });
-        
-        
-        // packPNG
-        // packSVG
+        // TODO -> tests for:-
         // rename
         // save
         // task
         // use
-
-
-
 
     });
 
