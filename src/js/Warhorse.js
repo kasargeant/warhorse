@@ -17,21 +17,27 @@ const zlib = require("zlib");
 const glob = require("glob");
 const shell = require("shelljs");
 
-const browserify = require("browserify");
+// const browserify = require("browserify");
 const csso = require("csso");
+const jscs = require("jscs");
+let confJSCS = require("../../conf/jscs.json");
+const jshint = require("jshint").JSHINT;
+let confJSHINT = require("../../conf/jshint.json");
+
 //const less = require("less");
 const sass = require("node-sass");
-const uglify = require("uglify-js");
+const uglify = require("uglify-es");
+const jest = require("jest-cli");
 
 // Setup console
 const chalk = require("chalk");
 const log = console.log;
-const logTask = function(value)    {console.log(chalk.bgBlue(" " + value));};
-const logAction = function(value)    {console.log(chalk.blue(" - " + value));};
-const logStage = function(value)   {console.log(chalk.cyan("   -> " + value));};
+const logCmd = function(value)    {console.log(chalk.bgMagenta(" " + value));};
+const logTask = function(value)    {console.log(chalk.bgBlue("  " + value));};
+const logAction = function(value)    {console.log(chalk.blue("  - " + value));};
+const logStage = function(value)   {console.log(chalk.cyan("    -> " + value));};
 const logWarning = function(value) {console.warn(chalk.yellow(value));};
 const logError = function(value)   {console.error(chalk.red(value));};
-
 
 /**
  * @class
@@ -45,9 +51,10 @@ class Warhorse {
      * @constructor
      * @param {Object} options - Configuration options to override Warhorse's own defaults.
      */
-    constructor(options = {}) {
+    constructor(moduleDirectory, workingDirectory, options = {}) {
         this.defaults = {
-            directory: process.cwd(),
+            
+            language: ["es51", "es2015", "es2015+JSX"],
 
             bundle: {
                 transpile: true
@@ -66,6 +73,7 @@ class Warhorse {
                 email: "unknown@nowhere.com",
                 license: "GPL-3.0"
             },
+            lint: {},
             load: {
                 encoding: "utf8"
             },
@@ -83,22 +91,41 @@ class Warhorse {
             save: {
                 compress: false,
                 encoding: "utf8"
-            }
+            },
+            test: require("../../conf/jest.json")
         };
-
         this.settings = Object.assign(this.defaults, options);
+
+        this.linterJSSyntax = new jscs();
+        this.linterJSSyntax.registerDefaultRules();
+        this.linterJSSyntax.configure(confJSCS);
+        this.linterJSSemantics = jshint; // Note: JSHint is IFFY.
+        this.linterJSStats = {errors: 0, warnings: 0};
+
+        this.conventions = ["module"];
 
         this.cmds = {}; // Lookup for built-in commands.
         this.tasks = {}; // Lookup for user-defined tasks.
 
+        this.workingDirectory = workingDirectory;
+        this.moduleDirectory = moduleDirectory;
+        
         this.file = null; // Main arg passed from function to function - requires sync operation of course!
 
+        // Finally add user-defined tasks.
+        try {
+            const configureTasks = require(workingDirectory + "/_warhorse.js");
+            configureTasks(this);
+        } catch(ex) {
+            // fs.writeFileSync(workingDirectory + "/_warhorse.js", )
+            logWarning("Warning: This directory is missing a _warhorse.js file and is uninitialised.");
+        }
     }
 
     /**
      * Bundle action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     bundle(options = {}) {
 
@@ -131,7 +158,7 @@ class Warhorse {
      * Bundle action.
      * @param {Array} paths - Array of paths or files to empty and delete.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     clean(paths, options = {}) {
         logAction(`Cleaning project of generated files.`);
@@ -139,11 +166,30 @@ class Warhorse {
         logStage(`Done.`);
     }
 
+    /**
+     * Built-in 'lint' command.
+     */
+    cmdLint() {
+        this.linterJSStats = {reports: [], errors: 0, warnings: 0};
 
+        this.cmds["lint"]();
+
+        this.linterJSStats.reports.map(function(description) {
+            logError(description);
+        }.bind(this));
+        console.warn("Total number of JavaScript warnings: " + this.linterJSStats.warnings);
+        console.error("Total number of JavaScript errors: " + this.linterJSStats.errors);
+    }
+
+    /**
+     * Built-in 'lint' command.
+     */
+    
+    
     /**
      * Compile LESS action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     compileLESS(options = {}) {
 
@@ -189,7 +235,7 @@ class Warhorse {
     /**
      * Compile SCSS(SASS) action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     compileSASS(options = {}) {
 
@@ -221,7 +267,65 @@ class Warhorse {
      * @returns {void}
      * @private - until implemented!
      */
-    init(file, next, options = {}) {
+    configure(projectConfig) {
+        // TODO - Maybe implement... still not convinced this isn't config overkill! - KAS
+    }
+
+    /**
+     * Document JS API action.  Documents JavaScript from src/ folder(s).
+     * @param {Object} options - Options to further configure this action.
+     * @returns {Object} - Returns self for chaining.
+     */
+    documentJS(options = {}) {
+
+        let config = Object.assign(this.settings.document, options);
+
+        logAction(`Documenting file(s) from: ${config.src}`);
+        logStage(`to path: ${config.dst}`);
+
+        let pathConfig = this.workingDirectory + "/conf";
+        child.execSync(`jsdoc -r -c ${pathConfig}/jsdoc.json`);
+        // child.execSync(`jsdoc ${config.src} -r -c ${pathConfig}/.jsdocrc -d ${config.dst}`);
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Create project (using the defined convention) action.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {void}
+     * @private
+     */
+    _initModule() {
+        let srcPath = this.moduleDirectory + "/conventions/" + "module/*";
+        shell.cp("-R", srcPath, "./");
+        shell.mkdir("-p", ["./docs/", "./docs/api", "./docs/coverage", "./docs/tests"]);
+        shell.mkdir("-p", ["./dist/", "./dist/conf", "./dist/data", "./dist/js"]);
+        let stdout = child.execSync(`npm install`);
+        if(stdout) {
+            log(stdout.toString());
+        }
+    }
+
+
+    /**
+     * Create project (using the defined convention) action.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {void}
+     * @private - until implemented!
+     */
+    init(options = {}) {
+
+        let convention = "MODULE";
+        switch(convention) {
+            case "MODULE":
+                this._initModule();
+                break;
+            default:
+                console.error("Error: Unrecognised or missing project convention.");
+        }
+
         //
         // // Resolve configuration
         // let config = Object.assign(this.settings.init, options);
@@ -255,7 +359,7 @@ class Warhorse {
         //
         // // Create project directory structure
         // //FIXME - Guard can be removed once function is fully implemented.
-        // let workingDirectory = this.settings.directory;
+        // let workingDirectory = this.settings.workingDirectory;
         // if(workingDirectory === "/Users/kasargeant/dev/projects/warhorse") {
         //     mkdirSync("./temp");
         //
@@ -296,38 +400,17 @@ class Warhorse {
     }
 
     /**
-     * Document JS API action.  Documents JavaScript from src/ folder(s).
-     * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
-     */
-    documentJS(options = {}) {
-
-        let config = Object.assign(this.settings.document, options);
-
-        logAction(`Documenting file(s) from: ${config.src}`);
-        logStage(`to path: ${config.dst}`);
-
-        child.execSync(`jsdoc -r -c ./conf/.jsdocrc`);
-        // child.execSync(`jsdoc ${config.src} -r -c ./conf/.jsdocrc -d ${config.dst}`);
-
-        // Return self for chaining.
-        return this;
-    }
-
-    /**
      * Load action.  Loads files being used for processing by the action that follows.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     load(options = {}) {
-
-        logAction(`Loading file: ${this.file.name + this.file.name}`);
 
         let config = Object.assign(this.settings.load, options);
 
         // Accepts a single filepath only.
         let srcPath = this.file.path + this.file.name;
-        //logStage(`from path: ${srcPath}`);
+        logAction(`Loading file: ${this.file.path + this.file.name}`);
 
         this.file.content = fs.readFileSync(srcPath, config.encoding);
 
@@ -336,9 +419,59 @@ class Warhorse {
     }
 
     /**
+     * Lint JS action.  Lint JS code.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {Object} - Returns self for chaining.
+     */
+    lintJS(options = {}) {
+
+        // NOTE: this.file.content - remains unchanged.
+
+        logAction(`Linting JS from: ${this.file.path}`);
+
+        let config = Object.assign(this.settings.lint, options);
+
+        // const reporter = function(errors) {
+        //     console.log(errors.length ? "FAIL" : "OK");
+        // };
+
+        // Use JSHint
+        this.linterJSSemantics(this.file.content, confJSHINT);
+        let processed = this.linterJSSemantics.data();
+        let errors = processed.errors;
+        // console.log(JSON.stringify(processed));
+        if(errors !== undefined && errors.length > 0) {
+            // The results object can be used to render a descriptive explanation of each error:
+            errors.map(function(err) {
+                //console.log(`${this.file.originalName}: line ${err.line}, col ${err.character}, ${err.reason}\n`);
+                this.linterJSStats.reports.push(`Lint Error: ${this.file.path + this.file.name}: line ${err.line}, col ${err.character}, ${err.reason}`);
+            }.bind(this));
+            this.linterJSStats.errors += errors.length;
+        }
+
+        // Use JSCS
+        processed = this.linterJSSyntax.checkString(this.file.content);
+        errors = processed.getErrorList();
+        if(errors !== undefined && errors.length > 0) {
+            // The results object can be used to render a descriptive explanation of each error:
+            errors.map(function(error) {
+                let colorizeOutput = true;
+                // console.log(processed.explainError(error, colorizeOutput) + "\n");
+                this.linterJSStats.reports.push("Lint Warning: " + this.file.path + this.file.name + "\n" + processed.explainError(error, colorizeOutput) + "\n");
+            }.bind(this));
+            // console.error("Total number of JavaScript style errors: " + errors.length);
+            this.linterJSStats.errors += warnings.length;
+        }
+
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
      * Minify CSS action.  Minimisation for standard CSS.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     minifyCSS(options = {}) {
 
@@ -355,19 +488,31 @@ class Warhorse {
     /**
      * Minify JS action.  Minimisation for ES51/ES2015 JavaScript.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     minifyJS(options = {}) {
 
         logAction(`Minifying JS from: ${this.file.path}`);
 
         let config = Object.assign(this.settings.bundle, options);
+        config.fromString = true; // Essential for data input
+        
+        // // Process the data (old uglify-js)
+        // let processed = uglify.minify({"file": this.file.content}, config).code;
+        // this.file.content = processed.toString();
 
-        // Process the data
-        let processed = uglify.minify({"file": this.file.content}, {
-            fromString: true
-        }).code;
-        this.file.content = processed.toString();
+        // Process the data (new uglify-es)
+        let processed = uglify.minify(this.file.content);
+        this.file.content = processed;
+        // let processed = uglify.minify(this.file.content, {
+        //     sourceMap: {
+        //         filename: "out.js",
+        //         url: "out.js.map"
+        //     }
+        // });
+        // console.log(processed.map);  // source map
+        // console.log(processed.code); // minified output
+
 
         // Return self for chaining.
         return this;
@@ -376,7 +521,7 @@ class Warhorse {
     /**
      * Pack GIF asset action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     packGIF(options = {}) {
 
@@ -407,7 +552,7 @@ class Warhorse {
     /**
      * Pack JPG asset action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     packJPG(options = {}) {
 
@@ -438,7 +583,7 @@ class Warhorse {
     /**
      * Pack PNG asset action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     packPNG(options = {}) {
 
@@ -469,7 +614,7 @@ class Warhorse {
     /**
      * Pack SVG asset action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     packSVG(options = {}) {
 
@@ -499,7 +644,7 @@ class Warhorse {
     /**
      * Rename action.  Allows modification/replacement/injection of file details into the sequence of actions.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     rename(options = {}) {
 
@@ -508,7 +653,7 @@ class Warhorse {
         let config = Object.assign(this.settings.save, options);
 
         // Rename (i.e. overwrite) any values in the file object with the user-defined options object
-        this.file = Object.assign(this.file, options);
+        this.file = Object.assign(this.file, config);
 
         // Return self for chaining.
         return this;
@@ -556,7 +701,7 @@ class Warhorse {
      * Save action.
      * @param {string} dstPath - The file path that this file will be saved to.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     save(dstPath, options = {}) {
 
@@ -596,9 +741,33 @@ class Warhorse {
     }
 
     /**
+     * Test JavaScript units action.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {Object} - Returns self for chaining.
+     */
+    testJS(options = {}) {
+
+        logAction(`Testing JS from: ${this.file.path + this.file.name}`);
+
+        let config = Object.assign(this.settings.test, options);
+        
+        jest.runCLI(config, this.workingDirectory, (result) => {
+            if(result.numFailedTests || result.numFailedTestSuites) {
+                // cb(new gutil.PluginError('gulp-jest', { message: 'Tests Failed' }));
+                //console.log("ERRORS!!!!");
+            } else {
+                // cb();
+            }
+        });
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
      * Private helper for load().
      * @param {string} globPath - A filename, filepath or globpath.
-     * @param {string} task - The task to be executed.
+     * @param {Function} task - The task to be executed.
      * @returns {void}
      * @private
      */
@@ -622,7 +791,7 @@ class Warhorse {
      * @param {string} taskName - The name of the task to be executed for every batch item.
      * @param {string} filePath - File path (globs/wildcards allowed) to be processed by this action.
      * @param {Object} options - Options to further configure this action.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     use(taskName, filePath = "index.html", options = {}) {
 
@@ -654,7 +823,7 @@ class Warhorse {
     /**
      * Execute task function.
      * @param {string} taskName - Name of the task.
-     * @returns {this} - Returns self for chaining.
+     * @returns {Object} - Returns self for chaining.
      */
     execute(taskName) {
         logTask(`TASK ${taskName}`);
@@ -670,12 +839,29 @@ class Warhorse {
 
     /**
      * Execute command function.
-     * @param {string} cmdName - Name of the task.
-     * @returns {this} - Returns self for chaining.
+     * @param {string} args - Arguments passed from the command line interface.
+     * @returns {Object} - Returns self for chaining.
      * @private
      */
-    executeCommand(cmdName) {
-        logTask(`COMMAND ${cmdName}`);
+    executeCmd(args) {
+        let [cmdName, convention="module", ...rest] = args;
+
+        logCmd(`COMMAND ${cmdName}`);
+
+        // Handle built-ins
+        if(cmdName === "init") {
+            if(this.conventions.includes(convention)) {
+                this.init(convention);
+            } else {
+                logError(`Error: Unrecognised project convention: '${convention}'.`);
+            }
+            return null; // Success or fail - nothing to return.
+        } else if(cmdName === "lint") {
+            this.cmdLint();
+            return null; // Success or fail - nothing to return.
+        }
+
+        // Handle user-definables
         let cmd = this.cmds[cmdName];
         if(cmd !== null) {
             //console.log("Executing command type: " + typeof cmd);

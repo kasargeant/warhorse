@@ -1,19 +1,13 @@
 # DEFAULT NPM IGNORE FILE
 
-# OS CHAFF
-.DS_Store
-
 # TYPICAL TOOLCHAIN
 .idea/
-
-# TYPICAL MODULE HANDLERS
-node_modules/
 
 # TEMPORARY FOLDERS AND FILES
 scratch/
 temp/
-/test/data/client_dist/
 
-# FIXME - KEEP OUT OF DISTRO UNTIL A MORE STABLE VERSION...
-/docs/coverage/
-/docs/tests/
+# REPO FOLDERS NOT FOR NPM PUBLISHING
+/dist/
+/docs/
+/test/

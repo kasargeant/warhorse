@@ -4,6 +4,8 @@
 
 const child = require("child_process");
 
+console.log("This may take a few minutes...");
+
 child.execSync("npm -g install browserify");
 child.execSync("npm -g install eslint");
 child.execSync("npm -g install jshint");

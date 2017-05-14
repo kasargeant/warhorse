@@ -1,3 +1,7 @@
+"use strict";
+
+// Imports
+
 // Component
 class Polygon {
     constructor(height, width) { //class constructor
@@ -6,8 +10,8 @@ class Polygon {
         this.width = width;
     }
 
-    sayName() {
-        console.log("Name:", this.name);
+    sayName() { //class method
+        console.log("Hi, I am a", this.name + ".");
     }
 }
 

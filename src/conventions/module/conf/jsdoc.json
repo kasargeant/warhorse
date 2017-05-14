@@ -2,8 +2,15 @@
   "tags": {
     "allowUnknownTags": true
   },
+  "source": {
+    "include": ["./src/README.md", "./src/"],
+    "exclude": ["scratch/"],
+    "includePattern": ".+\\.js(doc)?$",
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
   "opts": {
-    "destination": "./docs/api"
+    "destination": "./docs/api",
+    "template": "./node_modules/minami"
   },
   "plugins": [
     "plugins/markdown"
@@ -12,7 +19,7 @@
     "cleverLinks": false,
     "monospaceLinks": false,
     "default": {
-      "outputSourceFiles": true
+      "outputSourceFiles": false
     },
     "path": "ink-docstrap",
     "theme": "cerulean",
