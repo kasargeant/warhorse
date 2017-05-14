@@ -19,9 +19,15 @@ const shell = require("shelljs");
 
 // const browserify = require("browserify");
 const csso = require("csso");
+const jscs = require("jscs");
+let confJSCS = require("../../conf/jscs.json");
+const jshint = require("jshint").JSHINT;
+let confJSHINT = require("../../conf/jshint.json");
+
 //const less = require("less");
 const sass = require("node-sass");
 const uglify = require("uglify-es");
+const jest = require("jest-cli");
 
 // Setup console
 const chalk = require("chalk");
@@ -67,6 +73,7 @@ class Warhorse {
                 email: "unknown@nowhere.com",
                 license: "GPL-3.0"
             },
+            lint: {},
             load: {
                 encoding: "utf8"
             },
@@ -84,9 +91,16 @@ class Warhorse {
             save: {
                 compress: false,
                 encoding: "utf8"
-            }
+            },
+            test: require("../../conf/jest.json")
         };
         this.settings = Object.assign(this.defaults, options);
+
+        this.linterJSSyntax = new jscs();
+        this.linterJSSyntax.registerDefaultRules();
+        this.linterJSSyntax.configure(confJSCS);
+        this.linterJSSemantics = jshint; // Note: JSHint is IFFY.
+        this.linterJSStats = {errors: 0, warnings: 0};
 
         this.conventions = ["module"];
 
@@ -152,7 +166,26 @@ class Warhorse {
         logStage(`Done.`);
     }
 
+    /**
+     * Built-in 'lint' command.
+     */
+    cmdLint() {
+        this.linterJSStats = {reports: [], errors: 0, warnings: 0};
 
+        this.cmds["lint"]();
+
+        this.linterJSStats.reports.map(function(description) {
+            logError(description);
+        }.bind(this));
+        console.warn("Total number of JavaScript warnings: " + this.linterJSStats.warnings);
+        console.error("Total number of JavaScript errors: " + this.linterJSStats.errors);
+    }
+
+    /**
+     * Built-in 'lint' command.
+     */
+    
+    
     /**
      * Compile LESS action.
      * @param {Object} options - Options to further configure this action.
@@ -239,6 +272,26 @@ class Warhorse {
     }
 
     /**
+     * Document JS API action.  Documents JavaScript from src/ folder(s).
+     * @param {Object} options - Options to further configure this action.
+     * @returns {Object} - Returns self for chaining.
+     */
+    documentJS(options = {}) {
+
+        let config = Object.assign(this.settings.document, options);
+
+        logAction(`Documenting file(s) from: ${config.src}`);
+        logStage(`to path: ${config.dst}`);
+
+        let pathConfig = this.workingDirectory + "/conf";
+        child.execSync(`jsdoc -r -c ${pathConfig}/jsdoc.json`);
+        // child.execSync(`jsdoc ${config.src} -r -c ${pathConfig}/.jsdocrc -d ${config.dst}`);
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
      * Create project (using the defined convention) action.
      * @param {Object} options - Options to further configure this action.
      * @returns {void}
@@ -247,6 +300,12 @@ class Warhorse {
     _initModule() {
         let srcPath = this.moduleDirectory + "/conventions/" + "module/*";
         shell.cp("-R", srcPath, "./");
+        shell.mkdir("-p", ["./docs/", "./docs/api", "./docs/coverage", "./docs/tests"]);
+        shell.mkdir("-p", ["./dist/", "./dist/conf", "./dist/data", "./dist/js"]);
+        let stdout = child.execSync(`npm install`);
+        if(stdout) {
+            log(stdout.toString());
+        }
     }
 
 
@@ -341,25 +400,6 @@ class Warhorse {
     }
 
     /**
-     * Document JS API action.  Documents JavaScript from src/ folder(s).
-     * @param {Object} options - Options to further configure this action.
-     * @returns {Object} - Returns self for chaining.
-     */
-    documentJS(options = {}) {
-
-        let config = Object.assign(this.settings.document, options);
-
-        logAction(`Documenting file(s) from: ${config.src}`);
-        logStage(`to path: ${config.dst}`);
-
-        child.execSync(`jsdoc -r -c ./conf/.jsdocrc`);
-        // child.execSync(`jsdoc ${config.src} -r -c ./conf/.jsdocrc -d ${config.dst}`);
-
-        // Return self for chaining.
-        return this;
-    }
-
-    /**
      * Load action.  Loads files being used for processing by the action that follows.
      * @param {Object} options - Options to further configure this action.
      * @returns {Object} - Returns self for chaining.
@@ -373,6 +413,56 @@ class Warhorse {
         logAction(`Loading file: ${this.file.path + this.file.name}`);
 
         this.file.content = fs.readFileSync(srcPath, config.encoding);
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Lint JS action.  Lint JS code.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {Object} - Returns self for chaining.
+     */
+    lintJS(options = {}) {
+
+        // NOTE: this.file.content - remains unchanged.
+
+        logAction(`Linting JS from: ${this.file.path}`);
+
+        let config = Object.assign(this.settings.lint, options);
+
+        // const reporter = function(errors) {
+        //     console.log(errors.length ? "FAIL" : "OK");
+        // };
+
+        // Use JSHint
+        this.linterJSSemantics(this.file.content, confJSHINT);
+        let processed = this.linterJSSemantics.data();
+        let errors = processed.errors;
+        // console.log(JSON.stringify(processed));
+        if(errors !== undefined && errors.length > 0) {
+            // The results object can be used to render a descriptive explanation of each error:
+            errors.map(function(err) {
+                //console.log(`${this.file.originalName}: line ${err.line}, col ${err.character}, ${err.reason}\n`);
+                this.linterJSStats.reports.push(`Lint Error: ${this.file.path + this.file.name}: line ${err.line}, col ${err.character}, ${err.reason}`);
+            }.bind(this));
+            this.linterJSStats.errors += errors.length;
+        }
+
+        // Use JSCS
+        processed = this.linterJSSyntax.checkString(this.file.content);
+        errors = processed.getErrorList();
+        if(errors !== undefined && errors.length > 0) {
+            // The results object can be used to render a descriptive explanation of each error:
+            errors.map(function(error) {
+                let colorizeOutput = true;
+                // console.log(processed.explainError(error, colorizeOutput) + "\n");
+                this.linterJSStats.reports.push("Lint Warning: " + this.file.path + this.file.name + "\n" + processed.explainError(error, colorizeOutput) + "\n");
+            }.bind(this));
+            // console.error("Total number of JavaScript style errors: " + errors.length);
+            this.linterJSStats.errors += warnings.length;
+        }
+
 
         // Return self for chaining.
         return this;
@@ -651,6 +741,30 @@ class Warhorse {
     }
 
     /**
+     * Test JavaScript units action.
+     * @param {Object} options - Options to further configure this action.
+     * @returns {Object} - Returns self for chaining.
+     */
+    testJS(options = {}) {
+
+        logAction(`Testing JS from: ${this.file.path + this.file.name}`);
+
+        let config = Object.assign(this.settings.test, options);
+        
+        jest.runCLI(config, this.workingDirectory, (result) => {
+            if(result.numFailedTests || result.numFailedTestSuites) {
+                // cb(new gutil.PluginError('gulp-jest', { message: 'Tests Failed' }));
+                //console.log("ERRORS!!!!");
+            } else {
+                // cb();
+            }
+        });
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
      * Private helper for load().
      * @param {string} globPath - A filename, filepath or globpath.
      * @param {Function} task - The task to be executed.
@@ -741,6 +855,9 @@ class Warhorse {
             } else {
                 logError(`Error: Unrecognised project convention: '${convention}'.`);
             }
+            return null; // Success or fail - nothing to return.
+        } else if(cmdName === "lint") {
+            this.cmdLint();
             return null; // Success or fail - nothing to return.
         }
 

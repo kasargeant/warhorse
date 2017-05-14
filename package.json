@@ -53,7 +53,7 @@
   },
   "jest": {
     "coverageDirectory": "./docs/coverage",
-    "setupTestFrameworkScriptFile": "./test/shared/StorageMocks.js",
+    "setupTestFrameworkScriptFile": "./test/shared/MockStorage.js",
     "testResultsProcessor": "./node_modules/jest-html-reporter"
   },
   "jest-html-reporter": {

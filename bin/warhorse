@@ -21,11 +21,11 @@ console.log(`Working directory: ${workingDirectory}`);
 
 const run = require("../src/index");
 
-const commands = ["build", "clean", "distribute", "document", "init", "pack", "precompile", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
+const commands = ["build", "clean", "distribute", "document", "init", "lint", "pack", "precompile", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
 
 const help = `
 	Usage
-	  $ warhorse <command> <options>
+	  $ warhorse <flags> <command> <options>
 
 	Commands
 	  build,         Builds the project in the current directory.
@@ -34,15 +34,18 @@ const help = `
 	  init,          Initialises and creates a new project in the current directory.
 	  precompile,    Precompiles and minimises all style and template assets.
 
-	Options
+	Flags
 	  --config,  -c  Use a specific config file.
 	  --help,    -h  Shows this information.
 	  --project, -p  Use a specific project convention.
 	  --version, -v  Shows Warhorse CLI version.
 
 	Examples
-	  $ warhorse build --config ./conf/.warhorserc
+	  $ warhorse init module my-module
+	  $ warhorse build
+	  $ warhorse distribute --config ./conf/.warhorse
 	  🌈  ...crushing your enemies!!! 🌈
+
 `;
 
 // Respond to user input

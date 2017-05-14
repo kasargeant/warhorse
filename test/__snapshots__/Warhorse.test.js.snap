@@ -2,7 +2,7 @@
 
 exports[`Class: Warhorse Actions should be able to bundle JS code 1`] = `
 "(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require==\\"function\\"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error(\\"Cannot find module '\\"+o+\\"'\\");throw f.code=\\"MODULE_NOT_FOUND\\",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require==\\"function\\"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
+\\"use strict\\";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if (\\"value\\" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -14,16 +14,15 @@ var Polygon = function () {
         _classCallCheck(this, Polygon);
 
         //class constructor
-        this.name = 'Polygon';
+        this.name = \\"Polygon\\";
         this.height = height;
         this.width = width;
     }
 
     _createClass(Polygon, [{
-        key: 'sayName',
+        key: \\"sayName\\",
         value: function sayName() {
-            //class method
-            console.log('Hi, I am a', this.name + '.');
+            console.log(\\"Name:\\", this.name);
         }
     }]);
 
@@ -91,7 +90,7 @@ var sq = new Square(30);
 console.log(sq.area);
 
 },{\\"./Square\\":2}]},{},[3])
-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIm5vZGVfbW9kdWxlcy9icm93c2VyLXBhY2svX3ByZWx1ZGUuanMiLCJ0ZXN0L2RhdGEvY2xpZW50X3NyYy9qcy9Qb2x5Z29uLmpzIiwidGVzdC9kYXRhL2NsaWVudF9zcmMvanMvU3F1YXJlLmpzIiwidGVzdC9kYXRhL2NsaWVudF9zcmMvaW5kZXguanMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7Ozs7QUNBQTtJQUNNLE87QUFDRixxQkFBWSxNQUFaLEVBQW9CLEtBQXBCLEVBQTJCO0FBQUE7O0FBQUU7QUFDekIsYUFBSyxJQUFMLEdBQVksU0FBWjtBQUNBLGFBQUssTUFBTCxHQUFjLE1BQWQ7QUFDQSxhQUFLLEtBQUwsR0FBYSxLQUFiO0FBQ0g7Ozs7a0NBRVM7QUFBRTtBQUNSLG9CQUFRLEdBQVIsQ0FBWSxZQUFaLEVBQTBCLEtBQUssSUFBTCxHQUFZLEdBQXRDO0FBQ0g7Ozs7OztBQUdMOzs7QUFDQSxPQUFPLE9BQVAsR0FBaUIsT0FBakI7Ozs7Ozs7Ozs7Ozs7QUNkQSxJQUFNLFVBQVUsUUFBUSxXQUFSLENBQWhCOztJQUVNLE07OztBQUNGLHNCQUF1QjtBQUFBLFlBQVgsTUFBVyx1RUFBSixFQUFJOztBQUFBOztBQUNJO0FBREosb0hBQ2IsTUFEYSxFQUNMLE1BREssSUFBRTs7O0FBRXJCLGNBQUssSUFBTCxHQUFZLFFBQVo7QUFGbUI7QUFHdEI7Ozs7NEJBRVU7QUFBRTtBQUNULG1CQUFPLEtBQUssTUFBTCxHQUFjLEtBQUssS0FBMUI7QUFDSDs7OztFQVJnQixPOztBQVdyQjs7O0FBQ0EsT0FBTyxPQUFQLEdBQWlCLE1BQWpCOzs7OztBQ2RBO0FBQ0EsSUFBTSxTQUFTLFFBQVEsVUFBUixDQUFmOztBQUVBLElBQUksS0FBSyxJQUFJLE1BQUosQ0FBVyxFQUFYLENBQVQ7O0FBRUEsUUFBUSxHQUFSLENBQVksR0FBRyxJQUFmIiwiZmlsZSI6ImdlbmVyYXRlZC5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzQ29udGVudCI6WyIoZnVuY3Rpb24gZSh0LG4scil7ZnVuY3Rpb24gcyhvLHUpe2lmKCFuW29dKXtpZighdFtvXSl7dmFyIGE9dHlwZW9mIHJlcXVpcmU9PVwiZnVuY3Rpb25cIiYmcmVxdWlyZTtpZighdSYmYSlyZXR1cm4gYShvLCEwKTtpZihpKXJldHVybiBpKG8sITApO3ZhciBmPW5ldyBFcnJvcihcIkNhbm5vdCBmaW5kIG1vZHVsZSAnXCIrbytcIidcIik7dGhyb3cgZi5jb2RlPVwiTU9EVUxFX05PVF9GT1VORFwiLGZ9dmFyIGw9bltvXT17ZXhwb3J0czp7fX07dFtvXVswXS5jYWxsKGwuZXhwb3J0cyxmdW5jdGlvbihlKXt2YXIgbj10W29dWzFdW2VdO3JldHVybiBzKG4/bjplKX0sbCxsLmV4cG9ydHMsZSx0LG4scil9cmV0dXJuIG5bb10uZXhwb3J0c312YXIgaT10eXBlb2YgcmVxdWlyZT09XCJmdW5jdGlvblwiJiZyZXF1aXJlO2Zvcih2YXIgbz0wO288ci5sZW5ndGg7bysrKXMocltvXSk7cmV0dXJuIHN9KSIsIi8vIENvbXBvbmVudFxuY2xhc3MgUG9seWdvbiB7XG4gICAgY29uc3RydWN0b3IoaGVpZ2h0LCB3aWR0aCkgeyAvL2NsYXNzIGNvbnN0cnVjdG9yXG4gICAgICAgIHRoaXMubmFtZSA9ICdQb2x5Z29uJztcbiAgICAgICAgdGhpcy5oZWlnaHQgPSBoZWlnaHQ7XG4gICAgICAgIHRoaXMud2lkdGggPSB3aWR0aDtcbiAgICB9XG5cbiAgICBzYXlOYW1lKCkgeyAvL2NsYXNzIG1ldGhvZFxuICAgICAgICBjb25zb2xlLmxvZygnSGksIEkgYW0gYScsIHRoaXMubmFtZSArICcuJyk7XG4gICAgfVxufVxuXG4vLyBFeHBvcnRzXG5tb2R1bGUuZXhwb3J0cyA9IFBvbHlnb247XG5cbiIsImNvbnN0IFBvbHlnb24gPSByZXF1aXJlKFwiLi9Qb2x5Z29uXCIpO1xuXG5jbGFzcyBTcXVhcmUgZXh0ZW5kcyBQb2x5Z29uIHtcbiAgICBjb25zdHJ1Y3RvcihsZW5ndGg9MTApIHsgLy8gRVM2IGZlYXR1cmVzIERlZmF1bHQgUGFyYW1ldGVyc1xuICAgICAgICBzdXBlcihsZW5ndGgsIGxlbmd0aCk7IC8vY2FsbCB0aGUgcGFyZW50IG1ldGhvZCB3aXRoIHN1cGVyXG4gICAgICAgIHRoaXMubmFtZSA9IFwiU3F1YXJlXCI7XG4gICAgfVxuXG4gICAgZ2V0IGFyZWEoKSB7IC8vY2FsY3VsYXRlZCBhdHRyaWJ1dGUgZ2V0dGVyXG4gICAgICAgIHJldHVybiB0aGlzLmhlaWdodCAqIHRoaXMud2lkdGg7XG4gICAgfVxufVxuXG4vLyBFeHBvcnRzXG5tb2R1bGUuZXhwb3J0cyA9IFNxdWFyZTtcbiIsIi8vIEltcG9ydHNcbmNvbnN0IFNxdWFyZSA9IHJlcXVpcmUoXCIuL1NxdWFyZVwiKTtcblxubGV0IHNxID0gbmV3IFNxdWFyZSgzMCk7XG5cbmNvbnNvbGUubG9nKHNxLmFyZWEpO1xuIl19
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uLy4uLy5ucG0tZ2xvYmFsL2xpYi9ub2RlX21vZHVsZXMvYnJvd3NlcmlmeS9ub2RlX21vZHVsZXMvYnJvd3Nlci1wYWNrL19wcmVsdWRlLmpzIiwidGVzdC9kYXRhL2NsaWVudF9zcmMvanMvUG9seWdvbi5qcyIsInRlc3QvZGF0YS9jbGllbnRfc3JjL2pzL1NxdWFyZS5qcyIsInRlc3QvZGF0YS9jbGllbnRfc3JjL2luZGV4LmpzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBOzs7Ozs7O0FDQUE7SUFDTSxPO0FBQ0YscUJBQVksTUFBWixFQUFvQixLQUFwQixFQUEyQjtBQUFBOztBQUFFO0FBQ3pCLGFBQUssSUFBTCxHQUFZLFNBQVo7QUFDQSxhQUFLLE1BQUwsR0FBYyxNQUFkO0FBQ0EsYUFBSyxLQUFMLEdBQWEsS0FBYjtBQUNIOzs7O2tDQUVTO0FBQ04sb0JBQVEsR0FBUixDQUFZLE9BQVosRUFBcUIsS0FBSyxJQUExQjtBQUNIOzs7Ozs7QUFHTDs7O0FBQ0EsT0FBTyxPQUFQLEdBQWlCLE9BQWpCOzs7Ozs7Ozs7Ozs7O0FDZEEsSUFBTSxVQUFVLFFBQVEsV0FBUixDQUFoQjs7SUFFTSxNOzs7QUFDRixzQkFBdUI7QUFBQSxZQUFYLE1BQVcsdUVBQUosRUFBSTs7QUFBQTs7QUFDSTtBQURKLG9IQUNiLE1BRGEsRUFDTCxNQURLLElBQUU7OztBQUVyQixjQUFLLElBQUwsR0FBWSxRQUFaO0FBRm1CO0FBR3RCOzs7OzRCQUVVO0FBQUU7QUFDVCxtQkFBTyxLQUFLLE1BQUwsR0FBYyxLQUFLLEtBQTFCO0FBQ0g7Ozs7RUFSZ0IsTzs7QUFXckI7OztBQUNBLE9BQU8sT0FBUCxHQUFpQixNQUFqQjs7Ozs7QUNkQTtBQUNBLElBQU0sU0FBUyxRQUFRLFVBQVIsQ0FBZjs7QUFFQSxJQUFJLEtBQUssSUFBSSxNQUFKLENBQVcsRUFBWCxDQUFUOztBQUVBLFFBQVEsR0FBUixDQUFZLEdBQUcsSUFBZiIsImZpbGUiOiJnZW5lcmF0ZWQuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlc0NvbnRlbnQiOlsiKGZ1bmN0aW9uIGUodCxuLHIpe2Z1bmN0aW9uIHMobyx1KXtpZighbltvXSl7aWYoIXRbb10pe3ZhciBhPXR5cGVvZiByZXF1aXJlPT1cImZ1bmN0aW9uXCImJnJlcXVpcmU7aWYoIXUmJmEpcmV0dXJuIGEobywhMCk7aWYoaSlyZXR1cm4gaShvLCEwKTt2YXIgZj1uZXcgRXJyb3IoXCJDYW5ub3QgZmluZCBtb2R1bGUgJ1wiK28rXCInXCIpO3Rocm93IGYuY29kZT1cIk1PRFVMRV9OT1RfRk9VTkRcIixmfXZhciBsPW5bb109e2V4cG9ydHM6e319O3Rbb11bMF0uY2FsbChsLmV4cG9ydHMsZnVuY3Rpb24oZSl7dmFyIG49dFtvXVsxXVtlXTtyZXR1cm4gcyhuP246ZSl9LGwsbC5leHBvcnRzLGUsdCxuLHIpfXJldHVybiBuW29dLmV4cG9ydHN9dmFyIGk9dHlwZW9mIHJlcXVpcmU9PVwiZnVuY3Rpb25cIiYmcmVxdWlyZTtmb3IodmFyIG89MDtvPHIubGVuZ3RoO28rKylzKHJbb10pO3JldHVybiBzfSkiLCIvLyBDb21wb25lbnRcbmNsYXNzIFBvbHlnb24ge1xuICAgIGNvbnN0cnVjdG9yKGhlaWdodCwgd2lkdGgpIHsgLy9jbGFzcyBjb25zdHJ1Y3RvclxuICAgICAgICB0aGlzLm5hbWUgPSBcIlBvbHlnb25cIjtcbiAgICAgICAgdGhpcy5oZWlnaHQgPSBoZWlnaHQ7XG4gICAgICAgIHRoaXMud2lkdGggPSB3aWR0aDtcbiAgICB9XG5cbiAgICBzYXlOYW1lKCkge1xuICAgICAgICBjb25zb2xlLmxvZyhcIk5hbWU6XCIsIHRoaXMubmFtZSk7XG4gICAgfVxufVxuXG4vLyBFeHBvcnRzXG5tb2R1bGUuZXhwb3J0cyA9IFBvbHlnb247XG5cbiIsImNvbnN0IFBvbHlnb24gPSByZXF1aXJlKFwiLi9Qb2x5Z29uXCIpO1xuXG5jbGFzcyBTcXVhcmUgZXh0ZW5kcyBQb2x5Z29uIHtcbiAgICBjb25zdHJ1Y3RvcihsZW5ndGg9MTApIHsgLy8gRVM2IGZlYXR1cmVzIERlZmF1bHQgUGFyYW1ldGVyc1xuICAgICAgICBzdXBlcihsZW5ndGgsIGxlbmd0aCk7IC8vY2FsbCB0aGUgcGFyZW50IG1ldGhvZCB3aXRoIHN1cGVyXG4gICAgICAgIHRoaXMubmFtZSA9IFwiU3F1YXJlXCI7XG4gICAgfVxuXG4gICAgZ2V0IGFyZWEoKSB7IC8vY2FsY3VsYXRlZCBhdHRyaWJ1dGUgZ2V0dGVyXG4gICAgICAgIHJldHVybiB0aGlzLmhlaWdodCAqIHRoaXMud2lkdGg7XG4gICAgfVxufVxuXG4vLyBFeHBvcnRzXG5tb2R1bGUuZXhwb3J0cyA9IFNxdWFyZTtcbiIsIi8vIEltcG9ydHNcbmNvbnN0IFNxdWFyZSA9IHJlcXVpcmUoXCIuL1NxdWFyZVwiKTtcblxubGV0IHNxID0gbmV3IFNxdWFyZSgzMCk7XG5cbmNvbnNvbGUubG9nKHNxLmFyZWEpO1xuIl19
 "
 `;
 
@@ -1268,7 +1267,23 @@ body {
 
 exports[`Class: Warhorse Actions should be able to minify CSS 1`] = `"html{color:#222;font-size:1em;line-height:1.4}::-moz-selection{background:#b3d4fc;text-shadow:none}::selection{background:#b3d4fc;text-shadow:none}fieldset,hr{border:0;padding:0}hr{display:block;height:1px;border-top:1px solid #ccc;margin:1em 0}audio,canvas,iframe,img,svg,video{vertical-align:middle}fieldset{margin:0}textarea{resize:vertical}.browserupgrade{margin:.2em 0;background:#ccc;color:#000;padding:.2em 0}.hidden{display:none!important;visibility:hidden}.visuallyhidden{border:0;clip:rect(0 0 0 0);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.visuallyhidden.focusable:active,.visuallyhidden.focusable:focus{clip:auto;height:auto;margin:0;overflow:visible;position:static;width:auto}.invisible{visibility:hidden}.clearfix:after,.clearfix:before{content:\\" \\";display:table}.clearfix:after{clear:both}@media print{*,:after,:before{background:0 0!important;color:#000!important;box-shadow:none!important;text-shadow:none!important}a,a:visited{text-decoration:underline}a[href]:after{content:\\" (\\" attr(href) \\")\\"}abbr[title]:after{content:\\" (\\" attr(title) \\")\\"}a[href^=\\"#\\"]:after,a[href^=\\"javascript:\\"]:after{content:\\"\\"}blockquote,pre{border:1px solid #999}thead{display:table-header-group}blockquote,img,pre,tr{page-break-inside:avoid}img{max-width:100%!important}h2,h3,p{orphans:3;widows:3}h2,h3{page-break-after:avoid}}"`;
 
-exports[`Class: Warhorse Actions should be able to minify JS 1`] = `"const Square=require(\\"./Square\\");let sq=new Square(30);console.log(sq.area);"`;
+exports[`Class: Warhorse Actions should be able to minify JS 1`] = `
+Object {
+  "code": "const Square=require(\\"./Square\\");let sq=new Square(30);console.log(sq.area);",
+}
+`;
+
+exports[`Class: Warhorse Actions should be able to pack a GIF 1`] = `
+Object {
+  "code": "const Square=require(\\"./Square\\");let sq=new Square(30);console.log(sq.area);",
+}
+`;
+
+exports[`Class: Warhorse Actions should be able to pack a JPG 1`] = `
+Object {
+  "code": "const Square=require(\\"./Square\\");let sq=new Square(30);console.log(sq.area);",
+}
+`;
 
 exports[`Class: Warhorse Actions should be able to parse a filepath 1`] = `
 Object {

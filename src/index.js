@@ -11,7 +11,7 @@
 // Imports
 const chalk = require("chalk");
 const WARHORSE_CONFIG = require("../conf/warhorse.json");
-const Warhorse = require("./modules/Warhorse");
+const Warhorse = require("./js/Warhorse");
 
 // Runner
 function run(workingDirectory, args) {

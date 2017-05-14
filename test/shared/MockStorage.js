@@ -1,9 +1,10 @@
-// Component
-var storageMock = (function mockStorage() {
-    var storage = {};
+"use strict";
+
+const MockStorage = (function() {
+    let storage = {};
     return {
         setItem: function(key, value) {
-            storage[key] = value || '';
+            storage[key] = value || "";
         },
         getItem: function(key) {
             return storage[key];
@@ -11,18 +12,18 @@ var storageMock = (function mockStorage() {
         removeItem: function(key) {
             delete storage[key];
         },
-        get length () {
+        get length() {
             return Object.keys(storage).length;
         },
         key: function(i) {
-            var keys = Object.keys(storage);
+            let keys = Object.keys(storage);
             return keys[i] || null;
         }
     };
 })();
-Object.defineProperty(window, "localStorage", {value: storageMock});
-Object.defineProperty(window, "sessionStorage", {value: storageMock});
+Object.defineProperty(window, "localStorage", {value: MockStorage});
+Object.defineProperty(window, "sessionStorage", {value: MockStorage});
 
 
 // Exports
-module.exports = storageMock;
+module.exports = MockStorage;

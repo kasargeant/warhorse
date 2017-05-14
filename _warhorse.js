@@ -6,15 +6,16 @@
  * @license See LICENSE file included in this distribution.
  */
 
-"use strict";
-
 // Warhorse task definitions
 function tasks(warhorse) {
+
+    "use strict";
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // COMMANDS
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Commands are used to group together any arbitary number of tasks.
+    // Commands are used to group together any arbitrary number of tasks.
+
     warhorse.cmd("build", function() {
         warhorse.use("build-js", "./test/data/client_src/js/*.js", {});
     });
@@ -33,7 +34,11 @@ function tasks(warhorse) {
     warhorse.cmd("document", function() {
         warhorse.documentJS({});
     });
-    
+
+    warhorse.cmd("lint", function() {
+        warhorse.use("lint-js", "./test/data/client_src/js/*.js", {});
+    });
+
     warhorse.cmd("pack", function() {
         warhorse.use("copy-ico", "./test/data/client_src/img/ico/*.ico", {});
         warhorse.use("pack-gif", "./test/data/client_src/img/gif/*.gif", {});
@@ -48,7 +53,7 @@ function tasks(warhorse) {
     });
 
     warhorse.cmd("test", function() {
-        // TODO - Implement command 'test'
+        warhorse.use("test-js", "./test/*.test.js", {});
     });
 
 
@@ -79,6 +84,12 @@ function tasks(warhorse) {
     warhorse.task("copy-ico", function() {
         warhorse.load({encoding: "binary"})
             .save("./test/data/client_dist/img/ico/" + warhorse.file.name, {encoding: "binary"});
+    });
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    warhorse.task("lint-js", function() {
+        warhorse.load()
+            .lintJS();
     });
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -123,6 +134,13 @@ function tasks(warhorse) {
             .minifyCSS({})
             .save("./test/data/client_dist/css/" + warhorse.file.name);
     });
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    warhorse.task("test-js", function() {
+        warhorse.testJS();
+    });
+
+
 
 
 
