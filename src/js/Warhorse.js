@@ -538,15 +538,15 @@ class Warhorse {
         log.action(`Minifying JS from: ${this.file.path}`);
 
         let config = Object.assign(this.settings.bundle, options);
-        config.fromString = true; // Essential for data input
-        
+
         // // Process the data (old uglify-js)
         // let processed = uglify.minify({"file": this.file.content}, config).code;
         // this.file.content = processed.toString();
 
         // Process the data (new uglify-es)
         let processed = uglify.minify(this.file.content);
-        this.file.content = processed;
+        this.file.content = processed.code;
+
         // let processed = uglify.minify(this.file.content, {
         //     sourceMap: {
         //         filename: "out.js",
