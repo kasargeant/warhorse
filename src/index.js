@@ -10,13 +10,20 @@
 
 // Imports
 const chalk = require("chalk");
-const WARHORSE_CONFIG = require("../conf/warhorse.json");
 const Warhorse = require("./js/Warhorse");
 
 // Runner
 function run(workingDirectory, args) {
     let moduleDirectory = __dirname;
-    const warhorse = new Warhorse(moduleDirectory, workingDirectory, WARHORSE_CONFIG);
+
+    let userConfig = {};
+    try {
+        userConfig = require(workingDirectory + "/conf/warhorse.json");
+    } catch(ex) {
+        console.warn("No user configuration defined.");
+    }
+
+    const warhorse = new Warhorse(moduleDirectory, workingDirectory, userConfig);
 
     console.log("Warhorse location: " + warhorse.moduleDirectory);
     console.log();
