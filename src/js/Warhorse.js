@@ -32,7 +32,29 @@ const jest = require("jest-cli");
 const packageBase = require("../conventions/package_base.json");
 
 // Setup console
-const log = require("./Pageant");
+const Pageant = require("pageant");
+const log = new Pageant({scheme: "256"});
+const color = log; // Create alias
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Warhorse specific
+log.cmd = function(value) {
+    // log.log(color.magentaBg(value));
+    log.log(color.style(value, "white", "magenta"));
+};
+log.task = function(value) {
+    value = "  " + color.style(value, "white", "blue");
+    log.log(value);
+};
+log.action = function(value) {
+    // value = "  - " + color.redBg(value);
+    value = "  - " + value;
+    log.log(value);
+};
+log.stage = function(value) {
+    value = "    -> " + color.cyan(value);
+    log.log(value);
+};
 
 /**
  * @class
@@ -51,10 +73,9 @@ class Warhorse {
     constructor(moduleDirectory, workingDirectory, options = {}) {
         this.defaults = {
             
-            language: ["es51", "es2015", "es2015+JSX"],
+            language: "es51", //"es51", "es2015", "es2015+JSX"
 
             bundle: {
-                transpile: true
             },
             clean: {},
             document: {
@@ -137,21 +158,30 @@ class Warhorse {
 
         log.action(`Bundling file from: ${this.file.path}`);
 
+        // Determine switches
+        let switches = "";
+        if(config.debug === true) {
+            switches += `--debug `;
+        }
+        if(config.standalone !== undefined) {
+            switches += `--standalone ${config.standalone} `;
+        }
+        switch(this.settings.language) {
+            case "es51":
+                switches += `--debug `;
+                break;
+            case "es2015":
+                switches += `-t [babelify] `;
+                break;
+            default:
+                console.error(`Error: Language spec. '${config.language}' is unsupported.`);
+        }
+
         // Process the data.
         // NOTE: Shell process used in order to force sync behaviour.
         // Determine if we're transpiling as well as bundling... or just bundling?
-        if(config.transpile === true) {
-            // Transpile then bundle
-            //let processed = child.execSync(`browserify --debug -t [babelify]`, {input: this.file.path});
-            let processed = child.execSync(`browserify --debug ${this.file.path} -t [babelify]`);
-            this.file.content = processed.toString();
-            //console.log(`stdout: ${this.file.content}`);
-        } else {
-            // Just bundle
-            let processed = child.execSync(`browserify --debug ${this.file.path}`);
-            this.file.content = processed.toString();
-            //console.log(`stdout: ${this.file.content}`);
-        }
+        let processed = child.execSync(`browserify ${switches} ${this.file.path}`);
+        this.file.content = processed.toString();
 
         // Return self for chaining.
         return this;
@@ -409,18 +439,6 @@ class Warhorse {
     }
 
     /**
-     * Create project convention action.
-     * @param {Object} file - File to be processed by this action.
-     * @param {Function} next - The next callback action to be executed after this one.
-     * @param {Object} options - Options to further configure this action.
-     * @returns {void}
-     * @private - until implemented!
-     */
-    configure(projectConfig) {
-        // TODO - Maybe implement... still not convinced this isn't config overkill! - KAS
-    }
-
-    /**
      * Document JS API action.  Documents JavaScript from src/ folder(s).
      * @param {Object} options - Options to further configure this action.
      * @returns {Object} - Returns self for chaining.
@@ -539,11 +557,7 @@ class Warhorse {
 
         let config = Object.assign(this.settings.bundle, options);
 
-        // // Process the data (old uglify-js)
-        // let processed = uglify.minify({"file": this.file.content}, config).code;
-        // this.file.content = processed.toString();
-
-        // Process the data (new uglify-es)
+        // Process the data
         let processed = uglify.minify(this.file.content);
         this.file.content = processed.code;
 
@@ -793,13 +807,12 @@ class Warhorse {
         log.action(`Testing JS from: ${this.file.path + this.file.name}`);
 
         let config = Object.assign(this.settings.test, options);
-        
+
+        //FIXME - BUG!!!  jest.runCLI({}, this.workingDirectory, function(result) {
         jest.runCLI(config, this.workingDirectory, function(result) {
             if(result.numFailedTests || result.numFailedTestSuites) {
-                // cb(new gutil.PluginError('gulp-jest', { message: 'Tests Failed' }));
                 console.log("Tests failed.");
             } else {
-                // cb();
                 console.log("Tests succeeded.");
             }
         });
