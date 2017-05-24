@@ -33,7 +33,7 @@ const packageBase = require("../conventions/package_base.json");
 
 // Setup console
 const Pageant = require("pageant");
-const log = new Pageant({scheme: "256"});
+const log = new Pageant();
 const color = log; // Create alias
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -142,7 +142,7 @@ class Warhorse {
             configureTasks(this);
         } catch(ex) {
             // fs.writeFileSync(workingDirectory + "/_warhorse.js", )
-            log.warning("Warning: This directory is missing a _warhorse.js file and is uninitialised.");
+            log.warn("Warning: This directory is missing a _warhorse.js file and is uninitialised.");
         }
     }
 
@@ -840,7 +840,7 @@ class Warhorse {
                 task(options);
             }
         } else {
-            log.warning("No files matched.");
+            log.warn("No files matched.");
         }
     }
 
