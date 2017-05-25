@@ -2,23 +2,48 @@
 
 "use strict";
 
-const child = require("child_process");
+const NpmHelper = require("../src/js/helpers/NpmHelper");
 
 console.log("This may take a few minutes...");
+let globalToolsToInstall = [
+    "browserify",
+    "eslint",
+    "jshint",
+    "jscs",
+    "jsdoc",
+    "less",
+    "node-sass",
+    "sass-lint",
+    "imagemin-cli",
+    "imagemin-gifsicle",
+    "imagemin-jpegtran",
+    "imagemin-pngquant",
+    "imagemin-svgo"
+];
 
-child.execSync("npm -g install browserify");
-child.execSync("npm -g install eslint");
-child.execSync("npm -g install jshint");
-child.execSync("npm -g install jscs");
-child.execSync("npm -g install jsdoc");
-child.execSync("npm -g install less");
-child.execSync("npm -g install node-sass");
-child.execSync("npm -g install sass-lint");
-child.execSync("npm -g install imagemin-cli");
-child.execSync("npm -g install imagemin-gifsicle");
-child.execSync("npm -g install imagemin-jpegtran");
-child.execSync("npm -g install imagemin-pngquant");
-child.execSync("npm -g install imagemin-svgo");
+NpmHelper.getPackageListGlobal(function(err, res) {
+    if(err) {
+        console.log(err);
+        return;
+    }
+    let globalPackageList = res;
+    let globalToolsInstalled = Object.keys(globalPackageList);
+    for(const packageName of globalToolsToInstall) {
+        if(!globalToolsInstalled.includes(packageName)) {
 
-console.log("Warhorse toolchain installed.");
+            console.log("Would install: " + packageName);
+
+            // Install global package
+            NpmHelper.installPackageGlobal(packageName, function(err, res) {
+                if(err) {
+                    console.error(`Error: Unable to install package '${packageName}'.`);
+                    console.error(err);
+                } else {
+                    console.log(`Installed global package '${packageName}'.`);
+                }
+            });
+        }
+    }
+});
+
 
