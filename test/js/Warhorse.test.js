@@ -10,7 +10,7 @@
 
 // Imports
 const fs = require.requireActual("fs");
-const Warhorse = require.requireActual("../src/js/Warhorse");
+const Warhorse = require.requireActual("../../src/js/Warhorse");
 
 // Constants
 let fileDummy;

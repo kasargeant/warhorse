@@ -41,10 +41,8 @@
     "postinstall": "node ./bin/installTools.js",
     "document-api": "jsdoc -c ./conf/.jsdocrc -r",
     "document-forced-readme": "jsdoc -c ./conf/.jsdocrc -r --readme ./README.md",
-    "test": "npm run test-only && npm run test-cover",
-    "test-cover": "jest --coverage",
-    "test-only": "jest --verbose",
-    "test-update": "jest --updateSnapshot"
+    "jest": "jest --verbose",
+    "jest-update": "jest --updateSnapshot"
   },
   "babel": {
     "presets": [
@@ -53,8 +51,16 @@
   },
   "jest": {
     "coverageDirectory": "./docs/coverage",
+    "coveragePathIgnorePatterns": [
+      "./conf/", "./dist/", "./src/",
+      "./test/data/", "./test/shared/"
+    ],
     "setupTestFrameworkScriptFile": "./test/shared/MockStorage.js",
-    "testResultsProcessor": "./node_modules/jest-html-reporter"
+    "testResultsProcessor": "./node_modules/jest-html-reporter",
+    "testPathIgnorePatterns": [
+      "./conf/", "./dist/", "./src/",
+      "./test/data/", "./test/shared/"
+    ]
   },
   "jest-html-reporter": {
     "pageTitle": "Test Results",
@@ -66,14 +72,12 @@
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^7.3.0",
     "browserify": "^14.1.0",
-    "chalk": "^1.1.3",
     "csso": "^3.1.1",
     "eslint": "^3.19.0",
     "glob": "^7.1.1",
     "inquirer": "^3.0.6",
     "inuitcss": "^6.0.0-beta.4",
     "jest": "^19.0.2",
-    "jest-cli": "^19.0.2",
     "jest-html-reporter": "^0.1.0",
     "jscs": "^3.0.7",
     "jsdoc": "^3.4.3",

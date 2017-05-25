@@ -1,11 +1,6 @@
 {
-  "coverageDirectory": "./docs/coverage",
-  "setupTestFrameworkScriptFile": "./test/shared/MockStorage.js",
+  "coverageDirectory": "docs/coverage",
+  "setupTestFrameworkScriptFile": "test/shared/MockStorage.js",
   "testResultsProcessor": "../../../node_modules/jest-html-reporter",
-  "jest-html-reporter": {
-    "pageTitle": "Test Results",
-    "outputPath": "docs/tests/index.html",
-    "includeFailureMsg": false
-  },
   "onlyChanged": true
 }

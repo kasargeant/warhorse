@@ -22,8 +22,8 @@
     "npm": "~4.2.0"
   },
   "scripts": {
-    "test": "jest --verbose",
-    "test-update": "jest --updateSnapshot"
+    "jest": "jest --verbose",
+    "jest-update": "jest --updateSnapshot"
   },
   "babel": {
     "presets": [
@@ -43,6 +43,7 @@
   "devDependencies": {
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^7.3.0",
+    "jest": "^19.0.2",
     "jest-html-reporter": "^0.1.0",
     "minami": "^1.2.3"
   }
