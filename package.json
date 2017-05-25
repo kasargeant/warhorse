@@ -1,6 +1,6 @@
 {
   "name": "warhorse",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "A simple, friendly and reliable JavaScript Task Runner... able to crush your enemies!",
   "keywords": [
     "javascript",
@@ -52,14 +52,20 @@
   "jest": {
     "coverageDirectory": "./docs/coverage",
     "coveragePathIgnorePatterns": [
-      "./conf/", "./dist/", "./src/",
-      "./test/data/", "./test/shared/"
+      "./conf/",
+      "./dist/",
+      "./src/",
+      "./test/data/",
+      "./test/shared/"
     ],
     "setupTestFrameworkScriptFile": "./test/shared/MockStorage.js",
     "testResultsProcessor": "./node_modules/jest-html-reporter",
     "testPathIgnorePatterns": [
-      "./conf/", "./dist/", "./src/",
-      "./test/data/", "./test/shared/"
+      "./conf/",
+      "./dist/",
+      "./src/",
+      "./test/data/",
+      "./test/shared/"
     ]
   },
   "jest-html-reporter": {
