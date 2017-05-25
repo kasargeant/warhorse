@@ -26,14 +26,13 @@ const jshint = require("jshint").JSHINT;
 //const less = require("less");
 const sass = require("node-sass");
 const uglify = require("uglify-es");
-const jest = require("jest-cli");
 
 // Default templates
 const packageBase = require("../conventions/package_base.json");
 
 // Setup console
 const Pageant = require("pageant");
-const log = new Pageant({scheme: "256"});
+const log = new Pageant();
 const color = log; // Create alias
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -115,7 +114,7 @@ class Warhorse {
                 compress: false,
                 encoding: "utf8"
             },
-            test: require("../../conf/jest.json")
+            test: {}
         };
         this.settings = Object.assign(this.defaults, options);
 
@@ -142,7 +141,7 @@ class Warhorse {
             configureTasks(this);
         } catch(ex) {
             // fs.writeFileSync(workingDirectory + "/_warhorse.js", )
-            log.warning("Warning: This directory is missing a _warhorse.js file and is uninitialised.");
+            log.warn("Warning: This directory is missing a _warhorse.js file and is uninitialised.");
         }
     }
 
@@ -808,14 +807,36 @@ class Warhorse {
 
         let config = Object.assign(this.settings.test, options);
 
-        //FIXME - BUG!!!  jest.runCLI({}, this.workingDirectory, function(result) {
-        jest.runCLI(config, this.workingDirectory, function(result) {
-            if(result.numFailedTests || result.numFailedTestSuites) {
-                console.log("Tests failed.");
-            } else {
-                console.log("Tests succeeded.");
-            }
-        });
+        // Determine switches
+        let switches = "";
+        if(config.config !== undefined) {
+            switches += `--config=${config.config} `;
+        }
+        if(config.coverage !== undefined && config.coverage === true) {
+            switches += `--coverage `;
+        }
+        if(config.updateSnapshot === true) {
+            switches += `--updateSnapshot `;
+        }
+        if(config.verbose === true) {
+            switches += `--verbose `;
+        }
+
+        // Process the data.
+        // NOTE: Shell process used in order to force sync behaviour.
+        // Determine if we're transpiling as well as bundling... or just bundling?
+        let processed = child.execSync(`npm run jest -- ${switches}`);
+        this.file.content = "true";
+
+
+        // //FIXME - BUG!!!  jest.runCLI({}, this.workingDirectory, function(result) {
+        // jest.runCLI(config, this.workingDirectory, function(result) {
+        //     if(result.numFailedTests || result.numFailedTestSuites) {
+        //         console.log("Tests failed.");
+        //     } else {
+        //         console.log("Tests succeeded.");
+        //     }
+        // });
 
         // Return self for chaining.
         return this;
@@ -840,7 +861,7 @@ class Warhorse {
                 task(options);
             }
         } else {
-            log.warning("No files matched.");
+            log.warn("No files matched.");
         }
     }
 
