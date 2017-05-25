@@ -7,7 +7,7 @@
   ],
   "author": "Unknown",
   "license": "GPL-3.0",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "directories": {
     "doc": "docs",
     "test": "test"
@@ -18,19 +18,31 @@
     "win32"
   ],
   "engines": {
-    "node": "~7.9.0",
-    "npm": "~4.2.0"
+    "node": "~6.10.0",
+    "npm": "~3.10.10"
   },
-  "scripts": {},
-  "babel": {
-    "presets": [
-      "es2015"
-    ]
+  "scripts": {
+    "jest": "jest --verbose",
+    "jest-update": "jest --updateSnapshot"
   },
   "jest": {
     "coverageDirectory": "./docs/coverage",
+    "coveragePathIgnorePatterns": [
+      "./conf/",
+      "./dist/",
+      "./src/",
+      "./test/data/",
+      "./test/shared/"
+    ],
     "setupTestFrameworkScriptFile": "./test/shared/MockStorage.js",
-    "testResultsProcessor": "./node_modules/jest-html-reporter"
+    "testResultsProcessor": "./node_modules/jest-html-reporter",
+    "testPathIgnorePatterns": [
+      "./conf/",
+      "./dist/",
+      "./src/",
+      "./test/data/",
+      "./test/shared/"
+    ]
   },
   "jest-html-reporter": {
     "pageTitle": "Test Results",
@@ -38,8 +50,7 @@
     "includeFailureMsg": false
   },
   "devDependencies": {
-    "babel-preset-es2015": "^6.24.1",
-    "babelify": "^7.3.0",
+    "jest": "^20.0.4",
     "jest-html-reporter": "^0.1.0",
     "minami": "^1.2.3"
   }

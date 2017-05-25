@@ -125,7 +125,7 @@ class Warhorse {
         this.linterJSStats = {reports: [], errors: 0, warnings: 0};
 
         this.commands = ["build", "clean", "create", "distribute", "document", "init", "lint", "pack", "precompile", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
-        this.conventions = ["module"];
+        this.conventions = ["module", "web"];
 
         this.cmds = {}; // Lookup for built-in commands.
         this.tasks = {}; // Lookup for user-defined tasks.
@@ -200,6 +200,23 @@ class Warhorse {
 
 
     /**
+     * Create project (using the defined convention) action.
+     * @param {string} convention - Name of the convention to follow.
+     * @returns {void}
+     * @private
+     */
+    _createConvention(convention) {
+
+        // let srcPath = this.moduleDirectory + "/conventions/" + "module/*";
+        let srcPath = `${this.moduleDirectory}/conventions/${convention}/*`;
+        shell.cp("-R", srcPath, "./");
+        let stdout = child.execSync(`npm install`);
+        if(stdout) {
+            log(stdout.toString());
+        }
+    }
+
+    /**
      * Built-in 'create' command.  Starts an interactive session and then initialises a project similar to 'init'.
      * @returns {void}
      */
@@ -213,13 +230,47 @@ class Warhorse {
 
             let config = Object.assign(packageBase, answers);
 
-            if(config.name !== "untitled") {
-                this.workingDirectory = this.workingDirectory + "/" + config.name;
-                shell.mkdir("-p", this.workingDirectory);
-                shell.cd(this.workingDirectory);
-            }
-            if(config.warhorse.convention !== "none") {
-                this.cmdInit(config.warhorse.convention, config);
+            let convention = config.warhorse.convention;
+            if(this.conventions.includes(convention)) {
+
+                // Create convention infrastructure
+                log.task(`Creating infrastructure for convention '${convention}'.`);
+                let projectPath = this.workingDirectory + "/" + config.name + "/";
+                let conventionPath = `${this.moduleDirectory}/conventions/${convention}/`;
+                shell.cp("-R", conventionPath, projectPath);
+
+                // Create a package.json for the new project
+                let packageNew = Object.assign(packageBase, config);
+
+                this.commands.map(function(cmdName) {
+                    packageNew.scripts[cmdName] = `warhorse ${cmdName}"`;
+                });
+
+                let str = JSON.stringify(packageNew, null, 2); // spacing level = 2
+                fs.writeFileSync(projectPath + "package.json", str);
+
+                // Create a license for the project
+                // ["Unlicense", "AGPL-3.0", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "GPL-2.0", "GPL-3.0", "MIT", "Proprietary"]
+                let license = config.license;
+                if(license === "Proprietary") {
+                    fs.writeFileSync("LICENSE", "This file is for your proprietary license.\n");
+                } else {
+                    let licensePath = `${this.moduleDirectory}/conventions/_licenses/${license}.txt`;
+                    fs.writeFileSync(projectPath + "LICENSE", fs.readFileSync(licensePath));
+                }
+
+                // Move into the new project directory
+                this.workingDirectory = projectPath;
+                process.chdir(this.workingDirectory);
+
+                // Install dependencies with a standard NPM install
+                let stdout = child.execSync(`npm install`);
+                if(stdout) {
+                    log(stdout.toString());
+                }
+
+            } else {
+                console.warn("Warning: No Convention selected.  Exiting.");
             }
 
         }.bind(this));
