@@ -218,11 +218,12 @@ class Warhorse {
 
     /**
      * Built-in 'create' command.  Starts an interactive session and then initialises a project similar to 'init'.
+     * @param {string} convention - Name of the project layout convention to follow.
      * @returns {void}
      */
-    cmdCreate() {
+    cmdCreate(convention) {
 
-        const questions = require("./interactions/create");
+        const questions = require(`./interactions/create_${convention}`);
 
         inquirer.prompt(questions).then(function(answers) {
             // console.log("\nProject construction summary:");
@@ -230,7 +231,6 @@ class Warhorse {
 
             let config = Object.assign(packageBase, answers);
 
-            let convention = config.warhorse.convention;
             if(this.conventions.includes(convention)) {
 
                 // Create convention infrastructure
@@ -987,7 +987,11 @@ class Warhorse {
             }
             return null; // Success or fail - nothing to return.
         } else if(cmdName === "create") {
-            this.cmdCreate();
+            if(this.conventions.includes(convention)) {
+                this.cmdCreate(convention);
+            } else {
+                log.error(`Error: Unrecognised project convention: '${convention}'.`);
+            }
             return null; // Success or fail - nothing to return.
         } else if(cmdName === "lint") {
             this.cmdLint();

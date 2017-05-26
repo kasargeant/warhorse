@@ -1,8 +1,5 @@
 "use strict";
 
-// Imports
-const inquirer = require("inquirer");
-
 const questions = [
     {
         type: "input",
@@ -58,9 +55,9 @@ const questions = [
     },
     {
         type: "list",
-        name: "warhorse.convention",
-        message: "Which Warhorse project convention do you wish to use?",
-        choices: ["module", "none"],
+        name: "warhorse.toolingTest",
+        message: "Which testing setup do you wish to use?",
+        choices: ["none", "Jasmine", "Jest", "Mocha"],
         filter: function(val) {
             return val.toLowerCase();
         }
@@ -76,15 +73,6 @@ const questions = [
     },
     {
         type: "list",
-        name: "warhorse.toolingTest",
-        message: "Which testing setup do you wish to use?",
-        choices: ["none", "Jasmine", "Jest", "Mocha"],
-        filter: function(val) {
-            return val.toLowerCase();
-        }
-    },
-    {
-        type: "list",
         name: "warhorse.toolingTemplates",
         message: "Which template engine do you wish to use?",
         choices: ["none", "Handlebars"],
@@ -94,7 +82,5 @@ const questions = [
     }
 ];
 
-inquirer.prompt(questions).then(function(answers) {
-    // console.log("\nProject construction summary:");
-    console.log(JSON.stringify(answers, null, "  "));
-});
+// Exports
+module.exports = questions;

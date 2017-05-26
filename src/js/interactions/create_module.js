@@ -55,36 +55,9 @@ const questions = [
     },
     {
         type: "list",
-        name: "warhorse.convention",
-        message: "Which Warhorse project convention do you wish to use?",
-        choices: ["module", "none"],
-        filter: function(val) {
-            return val.toLowerCase();
-        }
-    },
-    {
-        type: "list",
-        name: "warhorse.toolingStyle",
-        message: "Which CSS preprocessor do you wish to use?",
-        choices: ["none", "LESS", "SASS"],
-        filter: function(val) {
-            return val.toLowerCase();
-        }
-    },
-    {
-        type: "list",
         name: "warhorse.toolingTest",
         message: "Which testing setup do you wish to use?",
         choices: ["none", "Jasmine", "Jest", "Mocha"],
-        filter: function(val) {
-            return val.toLowerCase();
-        }
-    },
-    {
-        type: "list",
-        name: "warhorse.toolingTemplates",
-        message: "Which template engine do you wish to use?",
-        choices: ["none", "Handlebars"],
         filter: function(val) {
             return val.toLowerCase();
         }

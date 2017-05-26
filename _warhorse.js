@@ -62,7 +62,8 @@ function tasks(warhorse) {
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Each task describes a single 'pipeline' of actions upon a single file.
     warhorse.task("build-js", function() {
-        warhorse.load({}).bundle({})
+        warhorse.load({})
+            .bundle({standalone: "module.exports"})
             .minifyJS({})
             .save("./test/data/client_dist/js/" + warhorse.file.name);
     });
