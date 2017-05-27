@@ -26,7 +26,7 @@ function run(workingDirectory, args) {
 
     console.log("Warhorse location: " + warhorse.moduleDirectory);
     console.log();
-    warhorse.executeCmd(args);
+    warhorse.cli(args);
     console.log();
 }
 

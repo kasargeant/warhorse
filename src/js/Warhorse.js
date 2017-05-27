@@ -165,7 +165,7 @@ class Warhorse {
             this.tasks = userConfig.tasks;
         } catch(ex) {
             // fs.writeFileSync(workingDirectory + "/_warhorse.js", )
-            log.warn("Warning: This directory is missing a _warhorse.js file and is uninitialised.");
+            log.warn("Warning: This directory is missing a '_warhorse.js' file and is uninitialised.");
         }
     }
 
@@ -241,11 +241,35 @@ class Warhorse {
     }
 
     /**
+     * Built-in 'build' command.
+     * @returns {void}
+     * @private
+     */
+    _cmdBuild() {
+        let cmd = this.cmds["build"];
+        if(cmd !== null) {cmd();}
+        return this;    // Return self for chaining.
+    }
+
+    /**
+     * Built-in 'clean' command.
+     * @returns {void}
+     * @private
+     */
+    _cmdClean() {
+        let cmd = this.cmds["clean"];
+        if(cmd !== null) {cmd();}
+        return this;    // Return self for chaining.
+    }
+
+
+    /**
      * Built-in 'create' command.  Starts an interactive session and then initialises a project similar to 'init'.
      * @param {string} convention - Name of the project layout convention to follow.
      * @returns {void}
+     * @private
      */
-    cmdCreate(convention) {
+    _cmdCreate(convention) {
 
         const questions = require(`./interactions/create_${convention}`);
 
@@ -317,9 +341,6 @@ class Warhorse {
             }
 
         }.bind(this, log));
-
-
-
     }
 
     /**
@@ -345,7 +366,7 @@ class Warhorse {
      * @returns {void}
      * @private
      */
-    cmdInit(convention, options = {scripts: {}}) {
+    _cmdInit(convention, options = {scripts: {}}) {
 
 
         // Create a package.json for the new project
@@ -442,22 +463,93 @@ class Warhorse {
         return this;
     }
 
+
+    /**
+     * Built-in 'distribute' command.
+     * @returns {void}
+     * @private
+     */
+    _cmdDistribute() {
+        let cmd = this.cmds["distribute"];
+        if(cmd !== null) {cmd();}
+        return this;    // Return self for chaining.
+    }
+
+    /**
+     * Built-in 'document' command.
+     * @returns {void}
+     * @private
+     */
+    _cmdDocument() {
+        let cmd = this.cmds["document"];
+        if(cmd !== null) {cmd();}
+        return this;    // Return self for chaining.
+    }
+
+    /**
+     * Built-in 'fix' command.
+     * @returns {void}
+     * @private
+     */
+    _cmdFix() {
+        let cmd = this.cmds["fix"];
+        if(cmd !== null) {cmd();}
+        return this;    // Return self for chaining.
+    }
+
     /**
      * Built-in 'lint' command.
      * @returns {void}
+     * @private
      */
-    cmdLint() {
+    _cmdLint() {
         this.linterJSStats = {reports: [], errors: 0, warnings: 0};
 
-        this.cmds["lint"]();
-
-        this.linterJSStats.reports.map(function(description) {
-            log.error(description);
-        }.bind(this));
-        console.warn("Total number of JavaScript warnings: " + this.linterJSStats.warnings);
-        console.error("Total number of JavaScript errors: " + this.linterJSStats.errors);
+        let cmd = this.cmds["lint"];
+        if(cmd !== null) {
+            cmd();
+            this.linterJSStats.reports.map(function (description) {
+                log.error(description);
+            }.bind(this));
+            log.warn("Total number of JavaScript warnings: " + this.linterJSStats.warnings);
+            log.error("Total number of JavaScript errors: " + this.linterJSStats.errors);
+        }
     }
-    
+
+    /**
+     * Built-in 'pack' command.
+     * @returns {void}
+     * @private
+     */
+    _cmdPack() {
+        let cmd = this.cmds["pack"];
+        if(cmd !== null) {cmd();}
+        return this;    // Return self for chaining.
+    }
+
+    /**
+     * Built-in 'precompile' command.
+     * @returns {void}
+     * @private
+     */
+    _cmdPrecompile() {
+        let cmd = this.cmds["precompile"];
+        if(cmd !== null) {cmd();}
+        return this;    // Return self for chaining.
+    }
+
+    /**
+     * Built-in 'test' command.
+     * @returns {void}
+     * @private
+     */
+    _cmdTest() {
+        let cmd = this.cmds["test"];
+        if(cmd !== null) {cmd();}
+        return this;    // Return self for chaining.
+    }
+
+
     /**
      * Compile LESS action.
      * @param {Object} options - Options to further configure this action.
@@ -871,17 +963,53 @@ class Warhorse {
     }
 
     /**
-     * Command 'wrapper' function.  Wraps a task, or list of tasks, to be executed by the named command.
+     * Command 'wrapper' function (used exclusively in '_warhorse.js' file).  Wraps a task, or list of tasks, to be executed by the named command.
+     * @param {string} type - A 'command' or a 'task'.
+     * @param {string} name - Name of the task.
+     * @param {Function} fn - A function containing the tasks executed for this command.
+     * @returns {void}
+     */
+    define(type, name="", fn=null) {
+
+        if(name === "") {
+            log.error(`Error: Missing or malformed definition name.`);
+            return;
+        }
+
+        if(typeof(fn) !== "function") {
+            log.error(`Error: Missing or malformed definition function.`);
+            return;
+        }
+
+        if(type === "command") {
+            if(this.cmds[name] !== undefined) {
+                log.error(`Error: Attempt to redefine command '${name}'.`);
+                return;
+            }
+            this.cmds[name] = fn;
+        } else if(type === "task") {
+            if(this.tasks[name] !== undefined) {
+                log.error(`Error: Attempt to redefine task '${name}'.`);
+                return;
+            }
+            this.tasks[name] = fn;
+        } else {
+            log.error(`Error: Unrecognised definition type '${type}'.`);
+        }
+    }
+
+    /**
+     * Command 'wrapper' function (used exclusively in '_warhorse.js' file).  Wraps a task, or list of tasks, to be executed by the named command.
      * @param {string} name - Name of the task.
      * @param {string} cmdFn - A function containing the tasks executed for this command.
      * @returns {void}
      */
-    cmd(name, cmdFn) {
+    command(name, cmdFn) {
         this.cmds[name] = cmdFn;
     }
 
     /**
-     * Task 'wrapper' function.  Wraps an action, or list of actions, to be followed by the named task.
+     * Task 'wrapper' function (used exclusively in '_warhorse.js' file).  Wraps an action, or list of actions, to be followed by the named task.
      * @param {string} name - Name of the task.
      * @param {string} taskFn - A function containing the actions followed for the task.
      * @returns {void}
@@ -967,15 +1095,20 @@ class Warhorse {
      * @param {Object} options - Options are propagated to all task actions.
      * @returns {Object} - Returns self for chaining.
      */
-    use(taskName, filePath = "index.html", options = {}) {
+    use(taskName, filePath, options = {}) {
 
         log.task(`TASK: ${taskName}`);
 
         // Retrieve task from the taskName
         let task = this.tasks[taskName];
 
+        // If there are is no filePath to be sourced...
+        if(filePath === undefined) {
+            task();
+        }
+
         // If it is a batch of filePaths...
-        if(filePath.constructor === Array) {
+        else if(filePath.constructor === Array) {
             filePath.map(function(filePathItem) {
                 this._use(filePathItem, task, options);}.bind(this)
             );
@@ -994,14 +1127,43 @@ class Warhorse {
         return this;
     }
 
+
+    /**
+     * Execute command from the CLI.
+     * @param {string} name - Name of the command to execute.
+     * @returns {Object} - Returns self for chaining.
+     * @private
+     */
+    _executeCmd(name) {
+        switch(name) {
+            case "build": this._cmdBuild(); break;
+            case "clean": this._cmdClean(); break;
+            case "create": this._cmdCreate(); break;
+            case "distribute": this._cmdDistribute(); break;
+            case "document": this._cmdDocument(); break;
+            case "fix": this._cmdFix(); break;
+            case "init": this._cmdInit(); break;
+            case "lint": this._cmdLint(); break;
+            case "pack": this._cmdPack(); break;
+            case "precompile": this._cmdPrecompile(); break;
+            case "test": this._cmdTest(); break;
+            default:
+                log.error(`Error: Unrecognised command '${name}'.`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
     /**
      * Execute task function.
-     * @param {string} taskName - Name of the task.
+     * @param {string} name - Name of the task to execute.
      * @returns {Object} - Returns self for chaining.
+     * @private
      */
-    execute(taskName) {
-        log.task(`TASK ${taskName}`);
-        let task = this.tasks[taskName];
+    _executeTask(name) {
+        log.task(`TASK ${name}`);
+        let task = this.tasks[name];
         if(task !== null) {
             //console.log("Executing command: " + typeof task);
             task();
@@ -1012,12 +1174,28 @@ class Warhorse {
     }
 
     /**
-     * Execute command function.
+     * Executes the named command or task.
+     * @param {string} name - Name of the command or task to execute.
+     * @returns {Object} - Returns self for chaining.
+     */
+    execute(name) {
+        if(this.commands.includes(name)) {
+            this._executeCmd(name);
+        } else if(Object.keys(this.tasks).includes(name)) {
+            this._executeTask(name);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Execute command from the CLI.
      * @param {string} args - Arguments passed from the command line interface.
      * @returns {Object} - Returns self for chaining.
      * @private
      */
-    executeCmd(args) {
+    cli(args) {
         log.log(log.inverse(`WARHORSE active.`));
         let [cmdName, convention="module"] = args;
 
@@ -1026,14 +1204,14 @@ class Warhorse {
         // Handle built-ins
         if(cmdName === "init") {
             if(this.conventions.includes(convention)) {
-                this.cmdInit(convention);
+                this._cmdInit(convention);
             } else {
                 log.error(`Error: Unrecognised project convention: '${convention}'.`);
             }
             return null; // Success or fail - nothing to return.
         } else if(cmdName === "create") {
             if(this.conventions.includes(convention)) {
-                this.cmdCreate(convention);
+                this._cmdCreate(convention);
             } else {
                 log.error(`Error: Unrecognised project convention: '${convention}'.`);
             }
