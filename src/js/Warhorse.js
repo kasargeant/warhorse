@@ -56,14 +56,21 @@ log.stage = function(value) {
     log.log(value);
 };
 
+// Failure-tolerant version of fs.mkdirSync(dirPath) - won't overwrite existing dirs!!!
+const mkdirSync = function(dirPath) {
+    try {
+        fs.mkdirSync(dirPath);
+    } catch(err) {
+        if(err.code !== "EEXIST") {throw err;};
+    }
+};
 
-// Fault-tolerant version of fs.unlinkSync(filePath) - won't crash if no file already exists!!!
+// Failure-tolerant version of fs.unlinkSync(filePath) - won't crash if no file already exists!!!
 const unlinkSync = function(filePath) {
     try {
         fs.unlinkSync(filePath);
     } catch(err) {
         console.error(err.code);
-        // if(err.code !== "EEXIST") {throw err};
     }
 };
 
