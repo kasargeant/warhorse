@@ -19,38 +19,30 @@ function tasks(warhorse) {
         // Commands are used to group together any arbitrary number of tasks.
         commands: {
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "build": function () {
+            "build": () => {
                 warhorse.use("build-js", "./test/data/client_src/js/*.js", {});
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "distribute": function () {
-                warhorse
-                    .execute("precompile")
-                    .execute("test")
-                    .execute("lint")
-                    .execute("build")
-                    .execute("document");
+            "distribute": () => {
+                warhorse.use("precompile-less", "./test/data/client_src/less/index.less", {})
+                    .use("precompile-sass", "./test/data/client_src/sass/index.scss", {})
+                    .use("build-js", "./test/data/client_src/js/*.js", {})
+                    .documentJS();
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "clean": function () {
+            "clean": () => {
                 warhorse.execute("clean-dist");
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "document": function () {
-                warhorse.use("document-js");
+            "document": () => {
+                warhorse.documentJS();
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "lint": function () {
+            "lint": () => {
                 warhorse.use("lint-js", "./test/data/client_src/js/*.js", {});
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "pack": function () {
+            "pack": () => {
                 warhorse.use("copy-ico", "./test/data/client_src/img/ico/*.ico", {});
                 warhorse.use("pack-gif", "./test/data/client_src/img/gif/*.gif", {});
                 warhorse.use("pack-jpg", "./test/data/client_src/img/jpg/*.jpg", {});
@@ -58,14 +50,12 @@ function tasks(warhorse) {
                 warhorse.use("pack-svg", "./test/data/client_src/img/svg/*.svg", {});
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "precompile": function () {
+            "precompile": () => {
                 warhorse.use("precompile-less", "./test/data/client_src/less/index.less", {});
-                //warhorse.use("precompile-sass", "./test/data/client_src/sass/index.scss", {});
+                // warhorse.use("precompile-sass", "./test/data/client_src/sass/index.scss", {});
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "test": function () {
+            "test": () => {
                 warhorse.use("test-js", "./test/js/", {});
             }
         },
@@ -76,19 +66,16 @@ function tasks(warhorse) {
         // Each task describes a single 'pipeline' of actions upon a single file.
         tasks: {
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "build-js": function () {
-                warhorse
-                    .load()
+
+            "build-js": () => {
+                warhorse.load()
                     .bundle({standalone: "module.exports"})
                     .minifyJS()
                     .save("./test/data/client_dist/js/" + warhorse.file.name);
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "clean-dist": function () {
-                warhorse
-                    .clean([
+            "clean-dist": () => {
+                warhorse.clean([
                     "./test/data/client_dist/img/ico/*",
                     "./test/data/client_dist/img/gif/*",
                     "./test/data/client_dist/img/jpg/*",
@@ -99,80 +86,58 @@ function tasks(warhorse) {
                     "./test/data/client_dist/css/*"]);
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "copy-ico": function () {
-                warhorse
-                    .load({encoding: "binary"})
+            "copy-ico": () => {
+                warhorse.load({encoding: "binary"})
                     .save("./test/data/client_dist/img/ico/" + warhorse.file.name, {encoding: "binary"});
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "document-js": function () {
-                warhorse.documentJS();
-            },
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "lint-js": function () {
-                warhorse
-                    .load()
+            "lint-js": () => {
+                warhorse.load()
                     .lintJS();
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "pack-gif": function () {
-                warhorse
-                    .load({encoding: "binary"})
+            "pack-gif": () => {
+                warhorse.load({encoding: "binary"})
                     .packGIF()
                     .save("./test/data/client_dist/img/gif/" + warhorse.file.name, {encoding: "binary"});
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "pack-jpg": function () {
-                warhorse
-                    .load({encoding: "binary"})
+            "pack-jpg": () => {
+                warhorse.load({encoding: "binary"})
                     .packJPG()
                     .save("./test/data/client_dist/img/jpg/" + warhorse.file.name, {encoding: "binary"});
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "pack-png": function () {
-                warhorse
-                    .load({encoding: "binary"})
+            "pack-png": () => {
+                warhorse.load({encoding: "binary"})
                     .packPNG()
                     .save("./test/data/client_dist/img/png/" + warhorse.file.name, {encoding: "binary"});
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "pack-svg": function () {
-                warhorse
-                    .load()
+            "pack-svg": () => {
+                warhorse.load()
                     .packSVG()
                     .save("./test/data/client_dist/img/svg/" + warhorse.file.name);
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "precompile-less": function () {
-                warhorse
-                    .load()
+            "precompile-less": () => {
+                warhorse.load()
                     .compileLESS()
                     .minifyCSS()
                     .save("./test/data/client_dist/css/" + warhorse.file.name);
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "precompile-sass": function () {
-                warhorse
-                    .load()
+            "precompile-sass": () => {
+                warhorse.load()
                     .compileSASS()
                     .minifyCSS()
                     .save("./test/data/client_dist/css/" + warhorse.file.name);
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "test-js": function () {
-                warhorse
-                    .testJS();
+            "test-js": () => {
+                warhorse.testJS();
             }
+
         }
     };
 }

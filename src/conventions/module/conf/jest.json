@@ -1,0 +1,20 @@
+{
+  "rootDir": "../",
+  "coverageDirectory": "./docs/coverage",
+  "coveragePathIgnorePatterns": [
+    "conf/",
+    "dist/",
+    "src/",
+    "test/data/",
+    "test/shared/"
+  ],
+  "setupTestFrameworkScriptFile": "./test/shared/MockStorage.js",
+  "testResultsProcessor": "./node_modules/jest-html-reporter",
+  "testPathIgnorePatterns": [
+    "conf/",
+    "dist/",
+    "src/",
+    "test/data/",
+    "test/shared/"
+  ]
+}

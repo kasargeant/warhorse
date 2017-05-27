@@ -1,3 +1,14 @@
+/**
+ * @file NpmHelper.js
+ * @description An NPM helper for Warhorse.
+ * @author Kyle Alexis Sargeant <kasargeant@gmail.com> {@link https://github.com/kasargeant https://github.com/kasargeant}.
+ * @copyright Kyle Alexis Sargeant 2017
+ * @license See LICENSE file included in this distribution.
+ */
+
+"use strict";
+
+// Imports
 const npm = require("npm");
 
 const errorHandler = function(err) {
@@ -5,6 +16,9 @@ const errorHandler = function(err) {
     return err;
 };
 
+/**
+ * @private
+ */
 class NpmHelper {
 
     static installPackageGlobal(packageName, callback) {

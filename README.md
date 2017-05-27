@@ -82,9 +82,9 @@ Warhorse takes one good thing from Java's Maven... the idea of "convention over 
 
 Sticking to good conventions - saves a ton of configurational complexity and consequently too, a ton of developer and tester time that would be wasted having to update all the special paths, namings and project layouts throughout the life of a changing project.
 
-The 'Conventions' that Warhorse offers - are based on the multiple decades of experience of Warhorse's developer as well as the particular care taken to utilise "well-known" and standard structures and naming - wherever possible.
+The 'Conventions' that Warhorse offers - are based on the multiple decades of experience of Warhorse's main developer - and the particular care taken to utilise "well-known" and standard structures and naming - wherever possible.
 
-They have been designed to be logical - yet real-world.  For example, a software 'src/' directory - most logically has a corresponding 'dst/' directory.  But Warhorse doesn't use 'dst/' but rather 'dist/' instead.  The reason being that utilising 'dist/' - is ubiquitious in it's use by developers.  
+They have been designed to be logical - yet real-world.  For example, a software 'src/' directory - most logically might have a corresponding 'dst/' directory.  But Warhorse doesn't have a 'dst/' but rather 'dist/' instead.  The reason being, of course, that use of 'dist/' - to contain the final distributed product - is ubiquitous among contemporary developers.  
  
 Thus Warhorse's conventions are not an attempt to impose some "pure", "best-practice" or ideal onto developers - but rather - to simply formalise and automate what 80% of good developers already do!
 
