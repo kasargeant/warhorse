@@ -1,0 +1,17 @@
+{
+  "jest": {
+    "scripts": {
+      "jest": "jest --verbose",
+      "jest-update": "jest --updateSnapshot"
+    },
+    "jest-html-reporter": {
+      "pageTitle": "Test Results",
+      "outputPath": "docs/tests/index.html",
+      "includeFailureMsg": false
+    },
+    "devDependencies": {
+      "jest": "^20.0.4",
+      "jest-html-reporter": "^0.1.0"
+    }
+  }
+}

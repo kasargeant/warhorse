@@ -29,6 +29,7 @@ const uglify = require("uglify-es");
 
 // Default templates
 const packageBase = require("../conventions/package_base.json");
+const packageSnippets = require("../conventions/package_snippets.json");
 
 // Setup console
 const Pageant = require("pageant");
@@ -114,7 +115,9 @@ class Warhorse {
                 compress: false,
                 encoding: "utf8"
             },
-            test: {}
+            test: {
+                config: "./conf/jest.json"
+            }
         };
         this.settings = Object.assign(this.defaults, options);
 
@@ -243,14 +246,27 @@ class Warhorse {
                 let packageNew = Object.assign(packageBase, config);
 
                 this.commands.map(function(cmdName) {
-                    packageNew.scripts[cmdName] = `warhorse ${cmdName}"`;
+                    packageNew.scripts[cmdName] = `warhorse ${cmdName}`;
                 });
+
+                switch(packageNew.warhorse.toolingTest) {
+                    case "jasmine":
+                        console.warn("Jasmine testing unimplemented.");
+                        break;
+                    case "jest":
+                        packageNew = Object.assign(packageNew, packageSnippets.jest);
+                        break;
+                    case "mocha":
+                        console.warn("Mocha testing unimplemented.");
+                        break;
+                }
+
+                delete packageNew.warhorse;
 
                 let str = JSON.stringify(packageNew, null, 2); // spacing level = 2
                 fs.writeFileSync(projectPath + "package.json", str);
 
                 // Create a license for the project
-                // ["Unlicense", "AGPL-3.0", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "GPL-2.0", "GPL-3.0", "MIT", "Proprietary"]
                 let license = config.license;
                 if(license === "Proprietary") {
                     fs.writeFileSync("LICENSE", "This file is for your proprietary license.\n");
@@ -872,12 +888,13 @@ class Warhorse {
         if(config.verbose === true) {
             switches += `--verbose `;
         }
+        //console.log(`npm run jest -- ${switches}`);
 
         // Process the data.
         // NOTE: Shell process used in order to force sync behaviour.
         // Determine if we're transpiling as well as bundling... or just bundling?
         let processed = child.execSync(`npm run jest -- ${switches}`);
-        this.file.content = "true";
+        this.file.content = processed.toString();
 
 
         // //FIXME - BUG!!!  jest.runCLI({}, this.workingDirectory, function(result) {

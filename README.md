@@ -57,7 +57,7 @@ And it's a damn sight faster too!
 And if one of Warhorse's suggested project Conventions seems like a good fit for your project - then after a single:-
 
 ```
-warhorse init <your convention>
+warhorse create <your convention>
 ```
 
 ...your entire project is laid out in the current directory - already setup and automated and ready for you and your team to do serious software development!  How's that for zero-configuration?!? ;)
