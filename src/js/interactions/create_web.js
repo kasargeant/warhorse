@@ -1,8 +1,5 @@
 "use strict";
 
-// Imports
-const inquirer = require("inquirer");
-
 const questions = [
     {
         type: "input",
@@ -27,7 +24,7 @@ const questions = [
         name: "email",
         message: "What is the email address for the project?",
         validate: function(value) {
-            var pass = value.match(/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i);
+            let pass = value.match(/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i);
             if(pass) {
                 return true;
             }
@@ -41,7 +38,7 @@ const questions = [
         name: "version",
         message: "What version number should this project be set at?",
         validate: function(value) {
-            var pass = value.match(/^(\d+\.)?(\d+\.)?(\d+)$/i);
+            let pass = value.match(/^(\d+\.)?(\d+\.)?(\d+)$/i);
             if(pass) {
                 return true;
             }
@@ -54,13 +51,13 @@ const questions = [
         type: "list",
         name: "license",
         message: "Which license do you wish to use?",
-        choices: ["Unlicense", "AGPL-3.0", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "GPL-2.0", "GPL-3.0", "MIT", "Proprietary"]
+        choices: ["Unlicense", "AGPL-3.0", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "GPL-2.0", "GPL-3.0", "LGPL-2.1", "LGPL-3.0", "MIT", "Proprietary"]
     },
     {
         type: "list",
-        name: "warhorse.convention",
-        message: "Which Warhorse project convention do you wish to use?",
-        choices: ["module", "none"],
+        name: "warhorse.toolingTest",
+        message: "Which testing setup do you wish to use?",
+        choices: ["Jasmine", "Jest", "Mocha"],
         filter: function(val) {
             return val.toLowerCase();
         }
@@ -76,15 +73,6 @@ const questions = [
     },
     {
         type: "list",
-        name: "warhorse.toolingTest",
-        message: "Which testing setup do you wish to use?",
-        choices: ["none", "Jasmine", "Jest", "Mocha"],
-        filter: function(val) {
-            return val.toLowerCase();
-        }
-    },
-    {
-        type: "list",
         name: "warhorse.toolingTemplates",
         message: "Which template engine do you wish to use?",
         choices: ["none", "Handlebars"],
@@ -94,7 +82,5 @@ const questions = [
     }
 ];
 
-inquirer.prompt(questions).then(function(answers) {
-    // console.log("\nProject construction summary:");
-    console.log(JSON.stringify(answers, null, "  "));
-});
+// Exports
+module.exports = questions;

@@ -1,6 +1,6 @@
 # Warhorse
 
-NOTE: THIS PROJECT IS STILL BEING PROTOTYPED.  AND IS BASICALLY UNUSABLE FOR ANY PRODUCTION PROJECTS AT PRESENT.
+NOTE: THIS PROJECT WILL SHORTLY BE AT IT'S FIRST ALPHA RELEASE.  BUT IS STILL FAR TOO UNSTABLE AND INCOMPLETE FOR PRODUCTION PROJECTS AT PRESENT.
 
 YOU HAVE BEEN WARNED!!! ;)
 
@@ -57,7 +57,7 @@ And it's a damn sight faster too!
 And if one of Warhorse's suggested project Conventions seems like a good fit for your project - then after a single:-
 
 ```
-warhorse init <your convention>
+warhorse create <your convention>
 ```
 
 ...your entire project is laid out in the current directory - already setup and automated and ready for you and your team to do serious software development!  How's that for zero-configuration?!? ;)
@@ -78,13 +78,17 @@ See [Wiki:Quick Start](https://github.com/kasargeant/warhorse/wiki/Quick-Start) 
 
 ## Warhorse Conventions
 
-Warhorse favours "convention over configuration".  Sticking to good conventions - saves a ton of configurational complexity and consequently too, a ton of developer and tester time that would be wasted having to update all the special paths, namings and project layouts throughout the life of a changing project.
+Warhorse takes one good thing from Java's Maven... the idea of "convention over configuration".  
 
-This convention-based approach works extremely well for the majority of "real-world" production projects with a typical level of product complexity. 
+Sticking to good conventions - saves a ton of configurational complexity and consequently too, a ton of developer and tester time that would be wasted having to update all the special paths, namings and project layouts throughout the life of a changing project.
 
-Additionally, where any fixed standard exists within the JavaScript ecosystem - ideas from other language ecosystems have been adopted - wherever they could enhance code clarity.
+The 'Conventions' that Warhorse offers - are based on the multiple decades of experience of Warhorse's developer as well as the particular care taken to utilise "well-known" and standard structures and naming - wherever possible.
 
-You can find more information about using these, in the [Wiki:Warhorse Conventions](https://github.com/kasargeant/warhorse/wiki/Warhorse-Conventions).
+They have been designed to be logical - yet real-world.  For example, a software 'src/' directory - most logically has a corresponding 'dst/' directory.  But Warhorse doesn't use 'dst/' but rather 'dist/' instead.  The reason being that utilising 'dist/' - is ubiquitious in it's use by developers.  
+ 
+Thus Warhorse's conventions are not an attempt to impose some "pure", "best-practice" or ideal onto developers - but rather - to simply formalise and automate what 80% of good developers already do!
+
+You can find more information the specific Conventions that Warhorse offers in [Wiki:Warhorse Conventions](https://github.com/kasargeant/warhorse/wiki/Warhorse-Conventions).
 
 ## A note on the license
 
