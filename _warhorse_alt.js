@@ -76,7 +76,8 @@ function tasks(warhorse) {
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "build-js": function () {
-                warhorse.load()
+                warhorse
+                    .load()
                     .bundle({standalone: "module.exports"})
                     .minifyJS()
                     .save("./test/data/client_dist/js/" + warhorse.file.name);
@@ -84,7 +85,8 @@ function tasks(warhorse) {
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "clean-dist": function () {
-                warhorse.clean([
+                warhorse
+                    .clean([
                     "./test/data/client_dist/img/ico/*",
                     "./test/data/client_dist/img/gif/*",
                     "./test/data/client_dist/img/jpg/*",
@@ -97,47 +99,54 @@ function tasks(warhorse) {
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "copy-ico": function () {
-                warhorse.load({encoding: "binary"})
+                warhorse
+                    .load({encoding: "binary"})
                     .save("./test/data/client_dist/img/ico/" + warhorse.file.name, {encoding: "binary"});
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "lint-js": function () {
-                warhorse.load()
+                warhorse
+                    .load()
                     .lintJS();
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "pack-gif": function () {
-                warhorse.load({encoding: "binary"})
+                warhorse
+                    .load({encoding: "binary"})
                     .packGIF()
                     .save("./test/data/client_dist/img/gif/" + warhorse.file.name, {encoding: "binary"});
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "pack-jpg": function () {
-                warhorse.load({encoding: "binary"})
+                warhorse
+                    .load({encoding: "binary"})
                     .packJPG()
                     .save("./test/data/client_dist/img/jpg/" + warhorse.file.name, {encoding: "binary"});
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "pack-png": function () {
-                warhorse.load({encoding: "binary"})
+                warhorse
+                    .load({encoding: "binary"})
                     .packPNG()
                     .save("./test/data/client_dist/img/png/" + warhorse.file.name, {encoding: "binary"});
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "pack-svg": function () {
-                warhorse.load()
+                warhorse
+                    .load()
                     .packSVG()
                     .save("./test/data/client_dist/img/svg/" + warhorse.file.name);
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "precompile-less": function () {
-                warhorse.load()
+                warhorse
+                    .load()
                     .compileLESS()
                     .minifyCSS()
                     .save("./test/data/client_dist/css/" + warhorse.file.name);
@@ -145,7 +154,8 @@ function tasks(warhorse) {
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "precompile-sass": function () {
-                warhorse.load()
+                warhorse
+                    .load()
                     .compileSASS()
                     .minifyCSS()
                     .save("./test/data/client_dist/css/" + warhorse.file.name);
@@ -153,7 +163,8 @@ function tasks(warhorse) {
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "test-js": function () {
-                warhorse.testJS();
+                warhorse
+                    .testJS();
             }
         }
     };

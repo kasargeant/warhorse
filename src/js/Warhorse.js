@@ -158,8 +158,11 @@ class Warhorse {
 
         // Finally add user-defined tasks.
         try {
-            const configureTasks = require(workingDirectory + "/_warhorse.js");
-            configureTasks(this);
+            // const configureTasks = require(workingDirectory + "/_warhorse.js");
+            // configureTasks(this);
+            const userConfig = require(workingDirectory + "/_warhorse.js")(this);
+            this.cmds = userConfig.commands;
+            this.tasks = userConfig.tasks;
         } catch(ex) {
             // fs.writeFileSync(workingDirectory + "/_warhorse.js", )
             log.warn("Warning: This directory is missing a _warhorse.js file and is uninitialised.");
@@ -1015,6 +1018,7 @@ class Warhorse {
      * @private
      */
     executeCmd(args) {
+        log.log(log.inverse(`WARHORSE active.`));
         let [cmdName, convention="module"] = args;
 
         log.cmd(`COMMAND ${cmdName}`);
@@ -1045,6 +1049,8 @@ class Warhorse {
             //console.log("Executing command type: " + typeof cmd);
             cmd();
         }
+
+        log.log(log.inverse(`WARHORSE done.`));
 
         // Return self for chaining.
         return this;

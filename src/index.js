@@ -9,7 +9,6 @@
 "use strict";
 
 // Imports
-const chalk = require("chalk");
 const Warhorse = require("./js/Warhorse");
 
 // Runner
@@ -27,9 +26,7 @@ function run(workingDirectory, args) {
 
     console.log("Warhorse location: " + warhorse.moduleDirectory);
     console.log();
-    console.log(chalk.inverse(`WARHORSE active.`));
     warhorse.executeCmd(args);
-    // console.log(chalk.inverse(`WARHORSE done.`));
     console.log();
 }
 
