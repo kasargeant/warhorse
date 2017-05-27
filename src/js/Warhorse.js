@@ -56,6 +56,17 @@ log.stage = function(value) {
     log.log(value);
 };
 
+
+// Fault-tolerant version of fs.unlinkSync(filePath) - won't crash if no file already exists!!!
+const unlinkSync = function(filePath) {
+    try {
+        fs.unlinkSync(filePath);
+    } catch(err) {
+        console.error(err.code);
+        // if(err.code !== "EEXIST") {throw err};
+    }
+};
+
 /**
  * @class
  * @classdesc The main Warhorse class, containing all actions available to automate tasks and builds.
@@ -251,13 +262,19 @@ class Warhorse {
 
                 switch(packageNew.warhorse.toolingTest) {
                     case "jasmine":
-                        console.warn("Jasmine testing unimplemented.");
+                        console.warn("Jasmine testing unimplemented."); // TODO - Jasmine implementation
+                        // unlinkSync(projectPath + "/conf/jest.json");
+                        // unlinkSync(projectPath + "/conf/mocha.json");
                         break;
                     case "jest":
                         packageNew = Object.assign(packageNew, packageSnippets.jest);
+                        unlinkSync(projectPath + "/conf/jasmine.json");
+                        // unlinkSync(projectPath + "/conf/mocha.json");
                         break;
                     case "mocha":
-                        console.warn("Mocha testing unimplemented.");
+                        console.warn("Mocha testing unimplemented."); // TODO - Mocha implementation
+                        // unlinkSync(projectPath + "/conf/jasmine.json");
+                        // unlinkSync(projectPath + "/conf/jest.json");
                         break;
                 }
 
@@ -289,7 +306,7 @@ class Warhorse {
                 console.warn("Warning: No Convention selected.  Exiting.");
             }
 
-        }.bind(this));
+        }.bind(this, log));
 
 
 

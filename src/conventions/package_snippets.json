@@ -1,7 +1,7 @@
 {
   "jest": {
     "scripts": {
-      "jest": "jest --verbose",
+      "jest": "jest",
       "jest-update": "jest --updateSnapshot"
     },
     "jest-html-reporter": {
