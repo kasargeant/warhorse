@@ -673,21 +673,14 @@ class Warhorse {
 
         log.action(`Linting JS from: ${this.file.path}`);
 
-
-        // const reporter = function(errors) {
-        //     console.log(errors.length ? "FAIL" : "OK");
-        // };
-
         // Use JSHint
         let config = Object.assign(this.settings.lint.js.syntax, options);
         this.linterJSSyntax(this.file.content, config);
         let processed = this.linterJSSyntax.data();
         let errors = processed.errors;
-        // console.log(JSON.stringify(processed));
         if(errors !== undefined && errors.length > 0) {
             // The results object can be used to render a descriptive explanation of each error:
             errors.map(function(err) {
-                //console.log(`${this.file.originalName}: line ${err.line}, col ${err.character}, ${err.reason}\n`);
                 this.linterJSStats.reports.push(`Lint Error: ${this.file.path + this.file.name}: line ${err.line}, col ${err.character}, ${err.reason}`);
             }.bind(this));
             this.linterJSStats.errors += errors.length;
@@ -701,14 +694,11 @@ class Warhorse {
         if(errors !== undefined && errors.length > 0) {
             // The results object can be used to render a descriptive explanation of each error:
             errors.map(function(error) {
-                let colorizeOutput = true;
-                // console.log(processed.explainError(error, colorizeOutput) + "\n");
-                this.linterJSStats.reports.push("Lint Warning: " + this.file.path + this.file.name + "\n" + processed.explainError(error, colorizeOutput) + "\n");
+                this.linterJSStats.reports.push(`Lint Warning: ${this.file.path + this.file.name}: line ${error.line}, col ${error.col}, ${error.msg}`);
             }.bind(this));
             // console.error("Total number of JavaScript style errors: " + errors.length);
             this.linterJSStats.warnings += errors.length;
         }
-
 
         // Return self for chaining.
         return this;
@@ -1217,7 +1207,7 @@ class Warhorse {
             }
             return null; // Success or fail - nothing to return.
         } else if(cmdName === "lint") {
-            this.cmdLint();
+            this._cmdLint();
             return null; // Success or fail - nothing to return.
         }
 
