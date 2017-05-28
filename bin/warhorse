@@ -25,7 +25,7 @@ const commands = ["build", "clean", "create", "distribute", "document", "init", 
 
 const help = `
   ============================================================================
-  WARHORSE HELP SHEET
+  WARHORSE HELP
   
 	Usage
 	  $ warhorse <flags> <command> <options>
@@ -35,8 +35,9 @@ const help = `
 	  create,        Initialises and creates a new project interactively in a named sub-directory.
 	  distribute,    Makes a final distribution build of the project in the ./dist directory.
 	  document,      Documents the project in the current directory.
-	  init,          Initialises and creates a new project in the current directory.
+	  lint,          Runs linters across the project - checking both code style and quality.
 	  precompile,    Precompiles and minimises all style and template assets.
+	  test           Test the project code - runs both unit and integration tests.
 
 	Flags
 	  --config,  -c  Use a specific config file.
@@ -45,13 +46,9 @@ const help = `
 	  --version, -v  Shows Warhorse CLI version.
 
 	Examples
-	  $ warhorse init module my-module
-	     COMMAND init...
+	  $ warhorse create module
 	     
-	  $ warhorse build
-	     COMMAND build...
-	     
-	  $ warhorse distribute --config ./conf/.warhorse
+	  $ warhorse distribute 
 	     🌈 ...CRUSHING YOUR ENEMIES!!! 🌈
 
   ============================================================================

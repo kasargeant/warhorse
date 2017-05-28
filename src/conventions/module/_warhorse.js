@@ -9,67 +9,89 @@ function tasks(warhorse) {
 
     "use strict";
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // COMMANDS
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Commands are used to group together any arbitrary number of tasks.
+    return {
 
-    warhorse.cmd("build", function() {
-        warhorse.use("build-js", "./src/index.js", {});
-    });
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // COMMANDS
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Commands are used to group together any arbitrary number of tasks.
+        commands: {
 
-    warhorse.cmd("distribute", function() {
-        warhorse.use("build-js", "./src/index.js", {});
-        warhorse.documentJS({});
-    });
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            "build": function() {
+                warhorse.use("build-js", "./src/index.js", {});
+            },
 
-    warhorse.cmd("clean", function() {
-        warhorse.execute("clean-dist");
-    });
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            "distribute": function() {
+                warhorse
+                    .execute("test")
+                    .execute("lint")
+                    .execute("build")
+                    .execute("document");
+            },
 
-    warhorse.cmd("document", function() {
-        warhorse.documentJS({});
-    });
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            "clean": function() {
+                warhorse.execute("clean-dist");
+            },
 
-    warhorse.cmd("lint", function() {
-        warhorse.use("lint-js", "./src/**/*.js", {});
-    });
-    
-    warhorse.cmd("pack", function() {});
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            "document": function() {
+                warhorse.use("document-js");
+            },
 
-    warhorse.cmd("precompile", function() {});
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            "lint": function() {
+                warhorse.use("lint-js", "./src/js/*.js", {});
+            },
 
-    warhorse.cmd("test", function() {
-        warhorse.use("test-js", "./test/js/", {});
-    });
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            "test": function() {
+                warhorse.use("test-js", "./test/js/", {});
+            }
+        },
 
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASKS
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Each task describes a single 'pipeline' of actions upon a single file.
+        tasks: {
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TASKS
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Each task describes a single 'pipeline' of actions upon a single file.
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            "build-js": function() {
+                warhorse
+                    .load()
+                    .bundle({standalone: "module.exports"})
+                    .minifyJS()
+                    .save("./dist/" + warhorse.file.name);
+            },
 
-    warhorse.task("build-js", function() {
-        warhorse.load()
-            .bundle({standalone: "module.exports"})
-            .minifyJS()
-            .save("./dist/js/" + warhorse.file.name);
-    });
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            "clean-dist": function() {
+                warhorse
+                    .clean(["./dist/*"]);
+            },
 
-    warhorse.task("clean-dist", function() {
-        warhorse.clean(["./test/data/client_dist/js/*"]);
-    });
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            "document-js": function() {
+                warhorse.documentJS();
+            },
 
-    warhorse.task("lint-js", function() {
-        warhorse.load()
-            .lintJS();
-    });
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            "lint-js": function() {
+                warhorse
+                    .load()
+                    .lintJS();
+            },
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    warhorse.task("test-js", function() {
-        warhorse.testJS({"onlyChanged": false});
-    });
-
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            "test-js": function() {
+                warhorse
+                    .testJS();
+            }
+        }
+    };
 }
 
 // Exports
