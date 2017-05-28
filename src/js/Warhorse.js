@@ -15,7 +15,7 @@ const path = require("path");
 const zlib = require("zlib");
 
 const glob = require("glob");
-const inquirer = require("inquirer");
+const merge = require("merge");
 const shell = require("shelljs");
 
 // const browserify = require("browserify");
@@ -33,27 +33,34 @@ const packageSnippets = require("../conventions/package_snippets.json");
 
 // Setup console
 const Pageant = require("pageant");
-const log = new Pageant();
-const color = log; // Create alias
+const console = new Pageant();
+const color = console;
+// const color = {
+//     style: function(arg) {return arg;},
+//     inverse: function(arg) {return arg;},
+//     cyan: function(arg) {return arg;},
+//     red: function(arg) {return arg;},
+//     yellow: function(arg) {return arg;}
+// }; // Create alias
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Warhorse specific
-log.cmd = function(value) {
-    // log.log(color.magentaBg(value));
-    log.log(color.style(value, "white", "magenta"));
+console.cmd = function(value) {
+    // console.log(color.magentaBg(value));
+    console.log(color.style(value, "white", "magenta"));
 };
-log.task = function(value) {
+console.task = function(value) {
     value = "  " + color.style(value, "white", "blue");
-    log.log(value);
+    console.log(value);
 };
-log.action = function(value) {
+console.action = function(value) {
     // value = "  - " + color.redBg(value);
     value = "  - " + value;
-    log.log(value);
+    console.log(value);
 };
-log.stage = function(value) {
+console.stage = function(value) {
     value = "    -> " + color.cyan(value);
-    log.log(value);
+    console.log(value);
 };
 
 // Failure-tolerant version of fs.mkdirSync(dirPath) - won't overwrite existing dirs!!!
@@ -61,7 +68,7 @@ const mkdirSync = function(dirPath) {
     try {
         fs.mkdirSync(dirPath);
     } catch(err) {
-        if(err.code !== "EEXIST") {throw err;};
+        if(err.code !== "EEXIST") {throw err;}
     }
 };
 
@@ -165,7 +172,7 @@ class Warhorse {
             this.tasks = userConfig.tasks;
         } catch(ex) {
             // fs.writeFileSync(workingDirectory + "/_warhorse.js", )
-            log.warn("Warning: This directory is missing a '_warhorse.js' file and is uninitialised.");
+            console.warn("Warning: This directory is missing a '_warhorse.js' file and is uninitialised.");
         }
     }
 
@@ -179,7 +186,7 @@ class Warhorse {
         // Handle task configuration.
         let config = Object.assign(this.settings.bundle, options);
 
-        log.action(`Bundling file from: ${this.file.path}`);
+        console.action(`Bundling file from: ${this.file.path}`);
 
         // Determine switches
         let switches = "";
@@ -191,7 +198,6 @@ class Warhorse {
         }
         switch(this.settings.language) {
             case "es51":
-                switches += `--debug `;
                 break;
             case "es2015":
                 switches += `-t [babelify] `;
@@ -217,9 +223,9 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     clean(paths, options = {}) {
-        log.action(`Cleaning project of generated files.`);
+        console.action(`Cleaning project of generated files.`);
         shell.rm("-rf", ...paths);
-        log.stage(`Done.`);
+        console.stage(`Done.`);
     }
 
 
@@ -236,13 +242,13 @@ class Warhorse {
         shell.cp("-R", srcPath, "./");
         let stdout = child.execSync(`npm install`);
         if(stdout) {
-            log(stdout.toString());
+            console.log(stdout.toString());
         }
     }
 
     /**
      * Built-in 'build' command.
-     * @returns {void}
+     * @returns {Object} - Returns self for chaining.
      * @private
      */
     _cmdBuild() {
@@ -253,7 +259,7 @@ class Warhorse {
 
     /**
      * Built-in 'clean' command.
-     * @returns {void}
+     * @returns {Object} - Returns self for chaining.
      * @private
      */
     _cmdClean() {
@@ -262,85 +268,95 @@ class Warhorse {
         return this;    // Return self for chaining.
     }
 
+    _cmdCreateInner(convention, answers) {
+
+        if(answers.warhorse === undefined) {
+            console.error("Error: Create command failed.");
+            return;
+        }
+
+        // console.log("\nProject construction summary:");
+        console.log(JSON.stringify(answers, null, "  "));
+
+        let config = Object.assign(packageBase, answers);
+
+        if(this.conventions.includes(convention)) {
+
+            // Create convention infrastructure
+            console.task(`Creating infrastructure for convention '${convention}'.`);
+            let projectPath = this.workingDirectory + "/" + config.name + "/";
+            let conventionPath = `${this.moduleDirectory}/conventions/${convention}/`;
+            shell.cp("-R", conventionPath, projectPath);
+
+            // Create a package.json for the new project
+            let packageNew = Object.assign(packageBase, config);
+
+            this.commands.map(function(cmdName) {
+                packageNew.scripts[cmdName] = `warhorse ${cmdName}`;
+            });
+
+            packageNew.warhorse.toolingTest = "jest";// FIXME - REMOVE THIS HACK AS SOON AS JASMINE/MOCHA FUNCTIONALITY IN PLACE!!!
+            switch(packageNew.warhorse.toolingTest) {
+                case "jasmine":
+                    console.warn("Jasmine testing unimplemented."); // TODO - Jasmine implementation
+                    // unlinkSync(projectPath + "/conf/jest.json");
+                    // unlinkSync(projectPath + "/conf/mocha.json");
+                    break;
+                case "jest":
+                    packageNew = merge.recursive(true, packageNew, packageSnippets.jest);
+                    unlinkSync(projectPath + "/conf/jasmine.json");
+                    // unlinkSync(projectPath + "/conf/mocha.json");
+                    break;
+                case "mocha":
+                    console.warn("Mocha testing unimplemented."); // TODO - Mocha implementation
+                    // unlinkSync(projectPath + "/conf/jasmine.json");
+                    // unlinkSync(projectPath + "/conf/jest.json");
+                    break;
+                default:
+                    console.warn("No test tool selected.");
+            }
+
+            delete packageNew.warhorse;
+
+            let str = JSON.stringify(packageNew, null, 2); // spacing level = 2
+            fs.writeFileSync(projectPath + "package.json", str);
+
+            // Create a license for the project
+            let license = config.license;
+            let licensePath = `${this.moduleDirectory}/conventions/_licenses/${license}.txt`;
+            fs.writeFileSync(projectPath + "LICENSE", fs.readFileSync(licensePath));
+
+            // Move into the new project directory
+            this.workingDirectory = projectPath;
+            process.chdir(this.workingDirectory);
+
+            // Install dependencies with a standard NPM install
+            let stdout = child.execSync(`npm install`);
+            if(stdout) {
+                console.log(stdout.toString());
+            }
+
+        } else {
+            console.warn("Warning: No Convention selected.  Exiting.");
+        }
+    }
 
     /**
      * Built-in 'create' command.  Starts an interactive session and then initialises a project similar to 'init'.
      * @param {string} convention - Name of the project layout convention to follow.
-     * @returns {void}
+     * @returns {Object} - Returns self for chaining.
      * @private
      */
     _cmdCreate(convention) {
 
-        const questions = require(`./interactions/create_${convention}`);
+        const questions = require(`./interactions/questions_${convention}`);
 
-        inquirer.prompt(questions).then(function(answers) {
-            // console.log("\nProject construction summary:");
-            console.log(JSON.stringify(answers, null, "  "));
+        let answers = questions();
+        this._cmdCreateInner(convention, answers);
 
-            let config = Object.assign(packageBase, answers);
+        // Return self for chaining.
+        return this;
 
-            if(this.conventions.includes(convention)) {
-
-                // Create convention infrastructure
-                log.task(`Creating infrastructure for convention '${convention}'.`);
-                let projectPath = this.workingDirectory + "/" + config.name + "/";
-                let conventionPath = `${this.moduleDirectory}/conventions/${convention}/`;
-                shell.cp("-R", conventionPath, projectPath);
-
-                // Create a package.json for the new project
-                let packageNew = Object.assign(packageBase, config);
-
-                this.commands.map(function(cmdName) {
-                    packageNew.scripts[cmdName] = `warhorse ${cmdName}`;
-                });
-
-                switch(packageNew.warhorse.toolingTest) {
-                    case "jasmine":
-                        console.warn("Jasmine testing unimplemented."); // TODO - Jasmine implementation
-                        // unlinkSync(projectPath + "/conf/jest.json");
-                        // unlinkSync(projectPath + "/conf/mocha.json");
-                        break;
-                    case "jest":
-                        packageNew = Object.assign(packageNew, packageSnippets.jest);
-                        unlinkSync(projectPath + "/conf/jasmine.json");
-                        // unlinkSync(projectPath + "/conf/mocha.json");
-                        break;
-                    case "mocha":
-                        console.warn("Mocha testing unimplemented."); // TODO - Mocha implementation
-                        // unlinkSync(projectPath + "/conf/jasmine.json");
-                        // unlinkSync(projectPath + "/conf/jest.json");
-                        break;
-                }
-
-                delete packageNew.warhorse;
-
-                let str = JSON.stringify(packageNew, null, 2); // spacing level = 2
-                fs.writeFileSync(projectPath + "package.json", str);
-
-                // Create a license for the project
-                let license = config.license;
-                if(license === "Proprietary") {
-                    fs.writeFileSync("LICENSE", "This file is for your proprietary license.\n");
-                } else {
-                    let licensePath = `${this.moduleDirectory}/conventions/_licenses/${license}.txt`;
-                    fs.writeFileSync(projectPath + "LICENSE", fs.readFileSync(licensePath));
-                }
-
-                // Move into the new project directory
-                this.workingDirectory = projectPath;
-                process.chdir(this.workingDirectory);
-
-                // Install dependencies with a standard NPM install
-                let stdout = child.execSync(`npm install`);
-                if(stdout) {
-                    log(stdout.toString());
-                }
-
-            } else {
-                console.warn("Warning: No Convention selected.  Exiting.");
-            }
-
-        }.bind(this, log));
     }
 
     /**
@@ -355,7 +371,7 @@ class Warhorse {
         shell.cp("-R", srcPath, "./");
         let stdout = child.execSync(`npm install`);
         if(stdout) {
-            log(stdout.toString());
+            console.log(stdout.toString());
         }
     }
 
@@ -363,7 +379,7 @@ class Warhorse {
      * Create project (using the defined convention) action.
      * @param {string} convention - Name of the project layout convention to follow.
      * @param {Object} options - Options to further configure this command.
-     * @returns {void}
+     * @returns {Object} - Returns self for chaining.
      * @private
      */
     _cmdInit(convention, options = {scripts: {}}) {
@@ -466,7 +482,7 @@ class Warhorse {
 
     /**
      * Built-in 'distribute' command.
-     * @returns {void}
+     * @returns {Object} - Returns self for chaining.
      * @private
      */
     _cmdDistribute() {
@@ -477,7 +493,7 @@ class Warhorse {
 
     /**
      * Built-in 'document' command.
-     * @returns {void}
+     * @returns {Object} - Returns self for chaining.
      * @private
      */
     _cmdDocument() {
@@ -488,7 +504,7 @@ class Warhorse {
 
     /**
      * Built-in 'fix' command.
-     * @returns {void}
+     * @returns {Object} - Returns self for chaining.
      * @private
      */
     _cmdFix() {
@@ -499,7 +515,7 @@ class Warhorse {
 
     /**
      * Built-in 'lint' command.
-     * @returns {void}
+     * @returns {Object} - Returns self for chaining.
      * @private
      */
     _cmdLint() {
@@ -509,16 +525,16 @@ class Warhorse {
         if(cmd !== null) {
             cmd();
             this.linterJSStats.reports.map(function (description) {
-                log.error(description);
+                console.error(description);
             }.bind(this));
-            log.warn("Total number of JavaScript warnings: " + this.linterJSStats.warnings);
-            log.error("Total number of JavaScript errors: " + this.linterJSStats.errors);
+            console.warn("Total number of JavaScript warnings: " + this.linterJSStats.warnings);
+            console.error("Total number of JavaScript errors: " + this.linterJSStats.errors);
         }
     }
 
     /**
      * Built-in 'pack' command.
-     * @returns {void}
+     * @returns {Object} - Returns self for chaining.
      * @private
      */
     _cmdPack() {
@@ -529,7 +545,7 @@ class Warhorse {
 
     /**
      * Built-in 'precompile' command.
-     * @returns {void}
+     * @returns {Object} - Returns self for chaining.
      * @private
      */
     _cmdPrecompile() {
@@ -540,7 +556,7 @@ class Warhorse {
 
     /**
      * Built-in 'test' command.
-     * @returns {void}
+     * @returns {Object} - Returns self for chaining.
      * @private
      */
     _cmdTest() {
@@ -557,7 +573,7 @@ class Warhorse {
      */
     compileLESS(options = {}) {
 
-        log.action(`Compiling LESS from: ${this.file.path}`);
+        console.action(`Compiling LESS from: ${this.file.path}`);
 
         let config = Object.assign(this.settings.precompile, options);
 
@@ -603,7 +619,7 @@ class Warhorse {
      */
     compileSASS(options = {}) {
 
-        log.action(`Compiling SCSS from: ${this.file.path}`);
+        console.action(`Compiling SCSS from: ${this.file.path}`);
 
         let config = Object.assign(this.settings.precompile, options);
 
@@ -632,8 +648,8 @@ class Warhorse {
 
         let config = Object.assign(this.settings.document, options);
 
-        log.action(`Documenting file(s) from: ${config.src}`);
-        log.stage(`to path: ${config.dst}`);
+        console.action(`Documenting file(s) from: ${config.src}`);
+        console.stage(`to path: ${config.dst}`);
 
         let pathConfig = this.workingDirectory + "/conf";
         child.execSync(`jsdoc -r -c ${pathConfig}/jsdoc.json`);
@@ -654,7 +670,7 @@ class Warhorse {
 
         // Accepts a single filepath only.
         let srcPath = this.file.path + this.file.name;
-        log.action(`Loading file: ${this.file.path + this.file.name}`);
+        console.action(`Loading file: ${this.file.path + this.file.name}`);
 
         this.file.content = fs.readFileSync(srcPath, config.encoding);
 
@@ -671,7 +687,7 @@ class Warhorse {
 
         // NOTE: this.file.content - remains unchanged.
 
-        log.action(`Linting JS from: ${this.file.path}`);
+        console.action(`Linting JS from: ${this.file.path}`);
 
         // Use JSHint
         let config = Object.assign(this.settings.lint.js.syntax, options);
@@ -711,7 +727,7 @@ class Warhorse {
      */
     minifyCSS(options = {}) {
 
-        log.action(`Minifying CSS from: ${this.file.path}`);
+        console.action(`Minifying CSS from: ${this.file.path}`);
 
         let config = Object.assign(this.settings.minify, options);
 
@@ -728,7 +744,7 @@ class Warhorse {
      */
     minifyJS(options = {}) {
 
-        log.action(`Minifying JS from: ${this.file.path}`);
+        console.action(`Minifying JS from: ${this.file.path}`);
 
         let config = Object.assign(this.settings.bundle, options);
 
@@ -757,7 +773,7 @@ class Warhorse {
      */
     packGIF(options = {}) {
 
-        log.action(`Packing GIF from: ${this.file.path + this.file.name}`);
+        console.action(`Packing GIF from: ${this.file.path + this.file.name}`);
 
         let config = Object.assign(this.settings.pack.gif, options);
 
@@ -788,7 +804,7 @@ class Warhorse {
      */
     packJPG(options = {}) {
 
-        log.action(`Packing JPG from: ${this.file.path + this.file.name}`);
+        console.action(`Packing JPG from: ${this.file.path + this.file.name}`);
 
         let config = Object.assign(this.settings.pack.jpg, options);
 
@@ -819,7 +835,7 @@ class Warhorse {
      */
     packPNG(options = {}) {
 
-        log.action(`Packing PNG from: ${this.file.path + this.file.name}`);
+        console.action(`Packing PNG from: ${this.file.path + this.file.name}`);
 
         let config = Object.assign(this.settings.pack.png, options);
 
@@ -850,7 +866,7 @@ class Warhorse {
      */
     packSVG(options = {}) {
 
-        log.action(`Packing SVG from: ${this.file.path + this.file.name}`);
+        console.action(`Packing SVG from: ${this.file.path + this.file.name}`);
 
         let config = Object.assign(this.settings.pack.svg, options);
 
@@ -880,7 +896,7 @@ class Warhorse {
      */
     rename(options = {}) {
 
-        log.action(`Renaming file: ${this.file.path}`);
+        console.action(`Renaming file: ${this.file.path}`);
 
         let config = Object.assign(this.settings.save, options);
 
@@ -902,7 +918,7 @@ class Warhorse {
         // Sanity check
         if(!filePath) {return null;}
 
-        //log.stage(`Splitting file path: ${filePath}`); // e.g. /docs/index.html  // DEBUG ONLY
+        //console.stage(`Splitting file path: ${filePath}`); // e.g. /docs/index.html  // DEBUG ONLY
 
         let name = path.posix.basename(filePath);           // e.g. index.html
         let directory = path.dirname(filePath) + "/";       // e.g. /docs/
@@ -939,7 +955,7 @@ class Warhorse {
 
         let config = Object.assign(this.settings.save, options);
 
-        log.action(`Saving file to: ${dstPath}`);
+        console.action(`Saving file to: ${dstPath}`);
 
         if(config.compress === true) {
             let data = zlib.gzipSync(this.file.content);
@@ -962,29 +978,29 @@ class Warhorse {
     define(type, name="", fn=null) {
 
         if(name === "") {
-            log.error(`Error: Missing or malformed definition name.`);
+            console.error(`Error: Missing or malformed definition name.`);
             return;
         }
 
         if(typeof(fn) !== "function") {
-            log.error(`Error: Missing or malformed definition function.`);
+            console.error(`Error: Missing or malformed definition function.`);
             return;
         }
 
         if(type === "command") {
             if(this.cmds[name] !== undefined) {
-                log.error(`Error: Attempt to redefine command '${name}'.`);
+                console.error(`Error: Attempt to redefine command '${name}'.`);
                 return;
             }
             this.cmds[name] = fn;
         } else if(type === "task") {
             if(this.tasks[name] !== undefined) {
-                log.error(`Error: Attempt to redefine task '${name}'.`);
+                console.error(`Error: Attempt to redefine task '${name}'.`);
                 return;
             }
             this.tasks[name] = fn;
         } else {
-            log.error(`Error: Unrecognised definition type '${type}'.`);
+            console.error(`Error: Unrecognised definition type '${type}'.`);
         }
     }
 
@@ -1015,7 +1031,7 @@ class Warhorse {
      */
     testJS(options = {}) {
 
-        log.action(`Testing JS from: ${this.file.path + this.file.name}`);
+        console.action(`Testing JS from: ${this.file.path + this.file.name}`);
 
         let config = Object.assign(this.settings.test, options);
 
@@ -1064,7 +1080,7 @@ class Warhorse {
      * @private
      */
     _use(globPath, task, options) {
-        //log.action(`Parsing: ${globPath}`);
+        //console.action(`Parsing: ${globPath}`);
 
         // Sync filesystem check
         let filePaths = glob.sync(globPath);
@@ -1074,7 +1090,7 @@ class Warhorse {
                 task(options);
             }
         } else {
-            log.warn("No files matched.");
+            console.warn("No files matched.");
         }
     }
 
@@ -1087,7 +1103,7 @@ class Warhorse {
      */
     use(taskName, filePath, options = {}) {
 
-        log.task(`TASK: ${taskName}`);
+        console.task(`TASK: ${taskName}`);
 
         // Retrieve task from the taskName
         let task = this.tasks[taskName];
@@ -1138,7 +1154,7 @@ class Warhorse {
             case "precompile": this._cmdPrecompile(); break;
             case "test": this._cmdTest(); break;
             default:
-                log.error(`Error: Unrecognised command '${name}'.`);
+                console.error(`Error: Unrecognised command '${name}'.`);
         }
 
         // Return self for chaining.
@@ -1152,7 +1168,7 @@ class Warhorse {
      * @private
      */
     _executeTask(name) {
-        log.task(`TASK ${name}`);
+        console.task(`TASK ${name}`);
         let task = this.tasks[name];
         if(task !== null) {
             //console.log("Executing command: " + typeof task);
@@ -1186,24 +1202,24 @@ class Warhorse {
      * @private
      */
     cli(args) {
-        log.log(log.inverse(`WARHORSE active.`));
+        console.log(color.inverse(`WARHORSE active.`));
         let [cmdName, convention="module"] = args;
 
-        log.cmd(`COMMAND ${cmdName}`);
+        console.cmd(`COMMAND ${cmdName}`);
 
         // Handle built-ins
         if(cmdName === "init") {
             if(this.conventions.includes(convention)) {
                 this._cmdInit(convention);
             } else {
-                log.error(`Error: Unrecognised project convention: '${convention}'.`);
+                console.error(`Error: Unrecognised project convention: '${convention}'.`);
             }
             return null; // Success or fail - nothing to return.
         } else if(cmdName === "create") {
             if(this.conventions.includes(convention)) {
                 this._cmdCreate(convention);
             } else {
-                log.error(`Error: Unrecognised project convention: '${convention}'.`);
+                console.error(`Error: Unrecognised project convention: '${convention}'.`);
             }
             return null; // Success or fail - nothing to return.
         } else if(cmdName === "lint") {
@@ -1218,7 +1234,7 @@ class Warhorse {
             cmd();
         }
 
-        log.log(log.inverse(`WARHORSE done.`));
+        console.log(color.inverse(`WARHORSE done.`));
 
         // Return self for chaining.
         return this;
