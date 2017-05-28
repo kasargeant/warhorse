@@ -20,8 +20,8 @@ let argv = require("minimist")(process.argv.slice(2), {
     "--": true
 });
 
-let workingDirectory = process.cwd();
-let moduleDirectory = path.join(__dirname, "..");
+let workingDirectory = process.cwd() + "/";
+let moduleDirectory = path.join(__dirname, "..") + "/";
 
 const run = require("../src/index");
 
