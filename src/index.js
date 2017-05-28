@@ -12,8 +12,7 @@
 const Warhorse = require("./js/Warhorse");
 
 // Runner
-function run(workingDirectory, args) {
-    let moduleDirectory = __dirname;
+function run(moduleDirectory, workingDirectory, args) {
 
     let userConfig = {};
     try {
@@ -24,7 +23,7 @@ function run(workingDirectory, args) {
 
     const warhorse = new Warhorse(moduleDirectory, workingDirectory, userConfig);
 
-    console.log("Warhorse location: " + warhorse.moduleDirectory);
+    console.log("Warhorse CLI location: " + warhorse.moduleDirectory);
     console.log();
     warhorse.cli(args);
     console.log();

@@ -158,9 +158,10 @@ class Warhorse {
         this.cmds = {}; // Lookup for built-in commands.
         this.tasks = {}; // Lookup for user-defined tasks.
 
-        this.workingDirectory = workingDirectory;
         this.moduleDirectory = moduleDirectory;
-        
+        this.conventionsDirectory = moduleDirectory + "src/conventions/";
+        this.workingDirectory = workingDirectory;
+
         this.file = null; // Main arg passed from function to function - requires sync operation of course!
 
         // Finally add user-defined tasks.
@@ -228,24 +229,6 @@ class Warhorse {
         console.stage(`Done.`);
     }
 
-
-    /**
-     * Create project (using the defined convention) action.
-     * @param {string} convention - Name of the convention to follow.
-     * @returns {void}
-     * @private
-     */
-    _createConvention(convention) {
-
-        // let srcPath = this.moduleDirectory + "/conventions/" + "module/*";
-        let srcPath = `${this.moduleDirectory}/conventions/${convention}/*`;
-        shell.cp("-R", srcPath, "./");
-        let stdout = child.execSync(`npm install`);
-        if(stdout) {
-            console.log(stdout.toString());
-        }
-    }
-
     /**
      * Built-in 'build' command.
      * @returns {Object} - Returns self for chaining.
@@ -284,9 +267,8 @@ class Warhorse {
 
             // Create convention infrastructure
             console.task(`Creating infrastructure for convention '${convention}'.`);
-            let projectPath = this.workingDirectory + "/" + config.name + "/";
-            let conventionPath = `${this.moduleDirectory}/conventions/${convention}/`;
-            shell.cp("-R", conventionPath, projectPath);
+            let projectPath = this.workingDirectory + config.name + "/";
+            shell.cp("-R", `${this.conventionsDirectory}${convention}/`, projectPath);
 
             // Create a package.json for the new project
             let packageNew = Object.assign(packageBase, config);
@@ -323,7 +305,7 @@ class Warhorse {
 
             // Create a license for the project
             let license = config.license;
-            let licensePath = `${this.moduleDirectory}/conventions/_licenses/${license}.txt`;
+            let licensePath = `${this.conventionsDirectory}_licenses/${license}.txt`;
             fs.writeFileSync(projectPath + "LICENSE", fs.readFileSync(licensePath));
 
             // Move into the new project directory
@@ -367,7 +349,7 @@ class Warhorse {
      */
     _initModule(options = {}) {
 
-        let srcPath = this.moduleDirectory + "/conventions/" + "module/*";
+        let srcPath = this.conventionsDirectory + "module/*";
         shell.cp("-R", srcPath, "./");
         let stdout = child.execSync(`npm install`);
         if(stdout) {
@@ -651,8 +633,8 @@ class Warhorse {
         console.action(`Documenting file(s) from: ${config.src}`);
         console.stage(`to path: ${config.dst}`);
 
-        let pathConfig = this.workingDirectory + "/conf";
-        child.execSync(`jsdoc -r -c ${pathConfig}/jsdoc.json`);
+        let pathConfig = this.workingDirectory + "conf/";
+        child.execSync(`jsdoc -r -c ${pathConfig}jsdoc.json`);
         // child.execSync(`jsdoc ${config.src} -r -c ${pathConfig}/.jsdocrc -d ${config.dst}`);
 
         // Return self for chaining.
