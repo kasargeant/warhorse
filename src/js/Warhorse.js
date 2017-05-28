@@ -158,9 +158,9 @@ class Warhorse {
         this.cmds = {}; // Lookup for built-in commands.
         this.tasks = {}; // Lookup for user-defined tasks.
 
-        this.workingDirectory = workingDirectory;
         this.moduleDirectory = moduleDirectory;
-        
+        this.workingDirectory = workingDirectory;
+
         this.file = null; // Main arg passed from function to function - requires sync operation of course!
 
         // Finally add user-defined tasks.
@@ -237,8 +237,7 @@ class Warhorse {
      */
     _createConvention(convention) {
 
-        // let srcPath = this.moduleDirectory + "/conventions/" + "module/*";
-        let srcPath = `${this.moduleDirectory}/conventions/${convention}/*`;
+        let srcPath = `${this.moduleDirectory}/src/conventions/${convention}/*`;
         shell.cp("-R", srcPath, "./");
         let stdout = child.execSync(`npm install`);
         if(stdout) {
@@ -285,7 +284,7 @@ class Warhorse {
             // Create convention infrastructure
             console.task(`Creating infrastructure for convention '${convention}'.`);
             let projectPath = this.workingDirectory + "/" + config.name + "/";
-            let conventionPath = `${this.moduleDirectory}/conventions/${convention}/`;
+            let conventionPath = `${this.moduleDirectory}/src/conventions/${convention}/`;
             shell.cp("-R", conventionPath, projectPath);
 
             // Create a package.json for the new project
@@ -323,7 +322,7 @@ class Warhorse {
 
             // Create a license for the project
             let license = config.license;
-            let licensePath = `${this.moduleDirectory}/conventions/_licenses/${license}.txt`;
+            let licensePath = `${this.moduleDirectory}/src/conventions/_licenses/${license}.txt`;
             fs.writeFileSync(projectPath + "LICENSE", fs.readFileSync(licensePath));
 
             // Move into the new project directory
@@ -367,7 +366,7 @@ class Warhorse {
      */
     _initModule(options = {}) {
 
-        let srcPath = this.moduleDirectory + "/conventions/" + "module/*";
+        let srcPath = this.moduleDirectory + "/src/conventions/" + "module/*";
         shell.cp("-R", srcPath, "./");
         let stdout = child.execSync(`npm install`);
         if(stdout) {

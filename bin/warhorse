@@ -8,16 +8,20 @@
  * @license See LICENSE file included in this distribution.
  */
 
+"use strict";
+
+// Imports
+const path = require("path");
+
 let argv = require("minimist")(process.argv.slice(2), {
     string: "task",
     alias: {h: "help", v: "version"},
     default: {task: "build"},
     "--": true
 });
-// console.dir(argv);
-// /Users/kyle/dev/warhorse
+
 let workingDirectory = process.cwd();
-//console.log(`Working directory: ${workingDirectory}`);
+let moduleDirectory = path.join(__dirname, "..");
 
 const run = require("../src/index");
 
@@ -55,22 +59,29 @@ const help = `
 
 `;
 
+function showHelp() {
+    console.log();
+    console.log(`Warhorse CLI directory: ${moduleDirectory}`);
+    console.log(`Working directory: ${workingDirectory}`);
+    console.log(help);
+}
+
 // Respond to user input
 if(argv.help === true) {
-    console.log(help);
+    showHelp();
 } else if(argv.version === true) {
-    let warhorsePackage = require(workingDirectory + "/" + "package.json");
+    let warhorsePackage = require(moduleDirectory + "/" + "package.json");
     console.log(`Warhorse version: ${warhorsePackage.version}`);
 } else if(argv._.length > 0) {
 
     // Determine command
     if(commands.includes(argv._[0])) {
-        run(workingDirectory, argv._); // Passes command and rest args
+        run(moduleDirectory, workingDirectory, argv._); // Passes command and rest args
     } else {
-        console.log(`Error: Unrecognised command '${argv._[0]}'.`);
-        console.log(help);
+        console.error(`Error: Unrecognised command '${argv._[0]}'.`);
+        showHelp();
     }
 } else {
-    console.log(`Error: Missing any command.`);
-    console.log(help);
+    console.error(`Error: Missing any command.`);
+    showHelp();
 }
