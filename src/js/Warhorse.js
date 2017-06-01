@@ -33,7 +33,7 @@ const packageSnippets = require("../conventions/package_snippets.json");
 // Setup console
 const Pageant = require("pageant");
 const console = new Pageant();
-const color = console;
+const color = console.Color;
 // const color = {
 //     style: function(arg) {return arg;},
 //     inverse: function(arg) {return arg;},
