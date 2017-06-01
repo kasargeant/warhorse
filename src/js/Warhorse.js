@@ -12,7 +12,6 @@
 const child = require("child_process");
 const fs = require("fs");
 const path = require("path");
-const zlib = require("zlib");
 
 const glob = require("glob");
 const merge = require("merge");
@@ -34,7 +33,7 @@ const packageSnippets = require("../conventions/package_snippets.json");
 // Setup console
 const Pageant = require("pageant");
 const console = new Pageant();
-const color = console;
+const color = console.Color;
 // const color = {
 //     style: function(arg) {return arg;},
 //     inverse: function(arg) {return arg;},
@@ -47,19 +46,19 @@ const color = console;
 // Warhorse specific
 console.cmd = function(value) {
     // console.log(color.magentaBg(value));
-    console.log(color.style(value, "white", "magenta"));
+    console.log(color.blue(value));
 };
 console.task = function(value) {
-    value = "  " + color.style(value, "white", "blue");
+    value = "  " + color.cyan(value);
     console.log(value);
 };
 console.action = function(value) {
     // value = "  - " + color.redBg(value);
-    value = "  - " + value;
+    value = "  - " + color.gray(value);
     console.log(value);
 };
 console.stage = function(value) {
-    value = "    -> " + color.cyan(value);
+    value = "    -> " + color.green(value);
     console.log(value);
 };
 
@@ -940,8 +939,8 @@ class Warhorse {
         console.action(`Saving file to: ${dstPath}`);
 
         if(config.compress === true) {
-            let data = zlib.gzipSync(this.file.content);
-            fs.writeFileSync(dstPath + ".gz", data, config.encoding);
+            fs.writeFileSync(dstPath, this.file.content, config.encoding);
+            child.execSync(`tar -zcvf ${dstPath + ".tar.gz"} ${dstPath}`);
         } else {
             fs.writeFileSync(dstPath, this.file.content, config.encoding);
         }
