@@ -46,10 +46,10 @@ const color = console.Color;
 // Warhorse specific
 console.cmd = function(value) {
     // console.log(color.magentaBg(value));
-    console.log(color.style(value, "blue", "black", "bright"));
+    console.log(color.blue(value));
 };
 console.task = function(value) {
-    value = "  " + color.style(value, "white", "orange");
+    value = "  " + color.cyan(value);
     console.log(value);
 };
 console.action = function(value) {
@@ -58,7 +58,7 @@ console.action = function(value) {
     console.log(value);
 };
 console.stage = function(value) {
-    value = "    -> " + color.cyan(value);
+    value = "    -> " + color.green(value);
     console.log(value);
 };
 
