@@ -38,7 +38,6 @@
     "npm": "~3.10.10"
   },
   "scripts": {
-    "postinstall": "node ./bin/installTools.js",
     "document-api": "jsdoc -c ./conf/.jsdocrc -r",
     "document-forced-readme": "jsdoc -c ./conf/.jsdocrc -r --readme ./README.md",
     "jest": "jest --verbose",

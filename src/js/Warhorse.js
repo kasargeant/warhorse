@@ -994,14 +994,16 @@ class Warhorse {
 
     /**
      * Task 'wrapper' function (used exclusively in '_warhorse.js' file).  Wraps an action, or list of actions, to be followed by the named task.
-     * @param {string} name - Name of the task.
-     * @param {string|Array} args - Argument(s) for this task.
+     * @param {string} desc - Title or description of the task.
+     * @param {string} name - Name of the task tool.
      * @param {Object} options - Options to further configure this task.
+     * @param {string|Array} args - Argument(s) for this task.
+     * @param {boolean} showOutput - Flag indicating that task should display any output returned by the task.
      * @param {boolean} useEqualsSign - Use '=' sign between configuration key-values.
      * @returns {Object} - Returns self for chaining.
      */
-    task(name, args, options={}, useEqualsSign=false) {
-        console.task(`TASK ${name}`);
+    task(desc, name, options={}, args="", showOutput=true, useEqualsSign=false) {
+        console.task(`TASK: ${desc}`);
 
         let cmdLine = "./node_modules/.bin/" + name;
 
@@ -1028,7 +1030,7 @@ class Warhorse {
         let stdout = "";
         try {
             stdout = child.execSync(cmdLine, {stdio: "inherit"});
-            if(stdout !== null) {
+            if(stdout !== null && showOutput === true) {
                 console.log(stdout.toString());
             }
         } catch(ex) {
