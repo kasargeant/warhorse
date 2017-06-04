@@ -6,6 +6,13 @@
  * @license See LICENSE file included in this distribution.
  */
 
+// Warhorse Tool Configuration (Draft v0.0.2)
+// TODO = {
+//     src: "src/",
+//     dst: "dist/"
+//
+// };
+
 // Warhorse task definitions
 function tasks(warhorse) {
 
@@ -24,6 +31,12 @@ function tasks(warhorse) {
                 warhorse.task("Bundle project code", "browserify", {
                     outfile: "./test/data/client_dist/js/index.js"
                 }, "./test/data/client_src/js/index.js");
+
+                warhorse.task("Minify JavaScript code", "uglifyjs", {
+                    compress: "",
+                    mangle: "",
+                    output: "./test/data/client_dist/js/index.min.js"
+                }, "./test/data/client_dist/js/index.js");
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

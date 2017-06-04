@@ -664,13 +664,24 @@ class Warhorse {
             cmdLineArgs = " " + args;
         }
 
-        // Convert object to string
+        // Convert options object to string
         let cmdLineOpts = "";
         let keyValDel = (useEqualsSign === true) ? "=" : " ";
         for(let key in options) {
-            cmdLineOpts += ` --${key}${keyValDel}${options[key]}`;
+            let value = options[key];
+            if(value === false) {
+                // We have a config without value - to be ignored
+                // cmdLineOpts += "";
+            } else if(value === true) {
+                // We have a config without value - to be set
+                cmdLineOpts += ` --${key}${keyValDel}`;
+            } else {
+                // We have config value
+                cmdLineOpts += ` --${key}${keyValDel}${value}`;
+            }
         }
 
+        // Concatenate all cmdLine parts
         cmdLine += cmdLineArgs + cmdLineOpts;
 
         if(this.debug) {console.log("Executing: " + cmdLine);}
