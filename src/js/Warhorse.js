@@ -503,17 +503,9 @@ class Warhorse {
      * @private
      */
     _cmdLint() {
-        this.linterJSStats = {reports: [], errors: 0, warnings: 0};
-
         let cmd = this.cmds["lint"];
-        if(cmd !== null) {
-            cmd();
-            this.linterJSStats.reports.map(function (description) {
-                console.error(description);
-            }.bind(this));
-            console.warn("Total number of JavaScript warnings: " + this.linterJSStats.warnings);
-            console.error("Total number of JavaScript errors: " + this.linterJSStats.errors);
-        }
+        if(cmd !== null) {cmd();}
+        return this;    // Return self for chaining.
     }
 
     /**
@@ -1001,11 +993,47 @@ class Warhorse {
     /**
      * Task 'wrapper' function (used exclusively in '_warhorse.js' file).  Wraps an action, or list of actions, to be followed by the named task.
      * @param {string} name - Name of the task.
-     * @param {string} taskFn - A function containing the actions followed for the task.
-     * @returns {void}
+     * @param {string|Array} args - Argument(s) for this task.
+     * @param {Object} options - Options to further configure this task.
+     * @param {boolean} useEqualsSign - Use '=' sign between configuration key-values.
+     * @returns {Object} - Returns self for chaining.
      */
-    task(name, taskFn) {
-        this.tasks[name] = taskFn;
+    task(name, args, options={}, useEqualsSign=false) {
+
+        let cmdLine = "./node_modules/.bin/" + name;
+
+        let cmdLineArgs = "";
+        if(args.constructor === Array) {
+            for(let argc = 0; argc < args.length; argc++) {
+                cmdLineArgs += " " + args[argc];
+            }
+        } else {
+            cmdLineArgs = " " + args;
+        }
+
+        // Convert object to string
+        let cmdLineOpts = "";
+        let keyValDel = (useEqualsSign === true) ? "=" : " ";
+        for(let key in options) {
+            cmdLineOpts += ` --${key}${keyValDel}${options[key]}`;
+        }
+
+        cmdLine += cmdLineArgs + cmdLineOpts;
+
+        console.log("Executing: " + cmdLine);
+
+        let stdout = "";
+        try {
+            stdout = child.execSync(cmdLine, {stdio: "inherit"});
+            if(stdout !== null) {
+                console.log(stdout.toString());
+            }
+        } catch(ex) {
+            console.error(ex.message);
+        }
+
+        // Return self for chaining.
+        return this;
     }
 
     /**

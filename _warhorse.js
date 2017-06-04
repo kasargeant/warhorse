@@ -21,7 +21,7 @@ function tasks(warhorse) {
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "build": function() {
-                warhorse.use("build-js", "./test/data/client_src/js/*.js", {});
+                warhorse.task("browserify", "./test/data/client_src/js/index.js", {output: "./test/data/client_dist/js/index.js"});
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -41,32 +41,81 @@ function tasks(warhorse) {
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "document": function() {
-                warhorse.use("document-js");
+                warhorse.task("jsdoc", "./test/data/client_src/js/", {
+                    configure: "./conf/jsdoc.json",
+                    recurse: ""
+                });
+            },
+
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            "fix": function() {
+                warhorse.task("jscs", "./test/data/client_src/js/", {
+                    config: "./conf/jscs.json",
+                    fix: ""
+                });
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "lint": function() {
-                warhorse.use("lint-js", "./test/data/client_src/js/*.js", {});
+                warhorse.task("jscs", "./test/data/client_src/js/", {config: "./conf/jscs.json"});
+                warhorse.task("jshint", "./test/data/client_src/js/", {
+                    config: "./conf/jshint.json",
+                    "exclude-path": "./conf/.jshintignore"
+                }, true);
+                // warhorse.task("sass-lint", "./test/data/client_src/js/", {
+                //     config: "./conf/.sass-lint.yml",
+                //     "no-exit": "",
+                //     verbose: ""
+                // });
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "pack": function() {
+                warhorse.task("imagemin", "./test/data/client_src/img/png/*.png", {
+                    "plugin": "pngquant",
+                    "out-dir": "./test/data/client_dist/img/png/"
+                });
+                warhorse.task("imagemin", "./test/data/client_src/img/jpg/*.jpg", {
+                    "plugin": "jpegtran",
+                    "out-dir": "./test/data/client_dist/img/jpg/"
+                });
+                warhorse.task("imagemin", "./test/data/client_src/img/gif/*.gif", {
+                    "plugin": "gifsicle",
+                    "out-dir": "./test/data/client_dist/img/gif/"
+                });
+                warhorse.task("imagemin", "./test/data/client_src/img/svg/*.svg", {
+                    "plugin": "svgo",
+                    "out-dir": "./test/data/client_dist/img/svg/"
+                });
+
                 warhorse.use("copy-ico", "./test/data/client_src/img/ico/*.ico", {});
-                warhorse.use("pack-gif", "./test/data/client_src/img/gif/*.gif", {});
-                warhorse.use("pack-jpg", "./test/data/client_src/img/jpg/*.jpg", {});
-                warhorse.use("pack-png", "./test/data/client_src/img/png/*.png", {});
-                warhorse.use("pack-svg", "./test/data/client_src/img/svg/*.svg", {});
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "precompile": function() {
-                warhorse.use("precompile-less", "./test/data/client_src/less/index.less", {});
-                //warhorse.use("precompile-sass", "./test/data/client_src/sass/index.scss", {});
+                warhorse.task("lessc", "./test/data/client_src/less/index.less ./test/data/client_dist/css/index.css", {
+                    "relative-urls": "",
+                    "include-path": "./test/data/client_src/less/"
+                }, true);
+                warhorse.task("node-sass", "./test/data/client_src/sass/index.scss ./test/data/client_dist/css/index.css", {});
+
+                warhorse.task("postcss", "./test/data/client_dist/css/index.css", {
+                    use: "autoprefixer",
+                    replace: ""
+                });
+
+                warhorse.task("csso", "", {
+                    input: "./test/data/client_dist/css/index.css",
+                    output: "./test/data/client_dist/css/index.min.css"
+                });
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "test": function() {
-                warhorse.use("test-js", "./test/js/", {});
+                warhorse.task("jest", "./test/js/", {
+                    config: "./conf/jest.json",
+                    verbose: ""
+                });
             }
         },
 
