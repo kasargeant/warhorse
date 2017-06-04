@@ -96,8 +96,9 @@ class Warhorse {
      * @param {string} moduleDirectory - Directory where this file's module is.
      * @param {string} workingDirectory - Directory where this code was originally invoked from.
      * @param {Object} options - Configuration options to override Warhorse's own defaults.
+     * @param {boolean} useDebug - Flag to initiate verbose debug operation.
      */
-    constructor(moduleDirectory, workingDirectory, options = {}) {
+    constructor(moduleDirectory, workingDirectory, options = {}, useDebug = false) {
         this.defaults = {
             
             language: "es51", //"es51", "es2015", "es2015+JSX"
@@ -147,6 +148,7 @@ class Warhorse {
             }
         };
         this.settings = Object.assign(this.defaults, options);
+        this.debug = useDebug;
 
         this.linterJSStyle = new jscs();
         this.linterJSStyle.registerDefaultRules();
@@ -999,6 +1001,7 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     task(name, args, options={}, useEqualsSign=false) {
+        console.task(`TASK ${name}`);
 
         let cmdLine = "./node_modules/.bin/" + name;
 
@@ -1020,7 +1023,7 @@ class Warhorse {
 
         cmdLine += cmdLineArgs + cmdLineOpts;
 
-        console.log("Executing: " + cmdLine);
+        if(this.debug) {console.log("Executing: " + cmdLine);}
 
         let stdout = "";
         try {

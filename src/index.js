@@ -12,7 +12,7 @@
 const Warhorse = require("./js/Warhorse");
 
 // Runner
-function run(moduleDirectory, workingDirectory, args) {
+function run(moduleDirectory, workingDirectory, args, useDebug) {
 
     let userConfig = {};
     try {
@@ -21,7 +21,7 @@ function run(moduleDirectory, workingDirectory, args) {
         console.warn("No user configuration defined.");
     }
 
-    const warhorse = new Warhorse(moduleDirectory, workingDirectory, userConfig);
+    const warhorse = new Warhorse(moduleDirectory, workingDirectory, userConfig, useDebug);
 
     console.log("Warhorse CLI location: " + warhorse.moduleDirectory);
     console.log();

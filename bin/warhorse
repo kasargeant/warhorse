@@ -15,7 +15,7 @@ const path = require("path");
 
 let argv = require("minimist")(process.argv.slice(2), {
     string: "task",
-    alias: {h: "help", v: "version"},
+    alias: {d: "debug", h: "help", v: "version"},
     default: {task: "build"},
     "--": true
 });
@@ -45,6 +45,7 @@ const help = `
 
 	Flags
 	  --config,  -c  Use a specific config file.
+	  --debug,   -d  Operate in verbose debug mode.
 	  --help,    -h  Shows this information.
 	  --project, -p  Use a specific project convention.
 	  --version, -v  Shows Warhorse CLI version.
@@ -76,7 +77,7 @@ if(argv.help === true) {
 
     // Determine command
     if(commands.includes(argv._[0])) {
-        run(moduleDirectory, workingDirectory, argv._); // Passes command and rest args
+        run(moduleDirectory, workingDirectory, argv._, argv.debug); // Passes command and rest args
     } else {
         console.error(`Error: Unrecognised command '${argv._[0]}'.`);
         showHelp();
