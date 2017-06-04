@@ -1,4 +1,6 @@
-# Warhorse
+# Warhorse [![npm](https://img.shields.io/npm/v/warhorse.svg)]()
+
+![The ideal warhorse..!](/docs/img/warhorse_320.jpg)
 
 NOTE: THIS PROJECT WILL SHORTLY BE AT IT'S FIRST ALPHA RELEASE.  BUT IS STILL FAR TOO UNSTABLE AND INCOMPLETE FOR PRODUCTION PROJECTS AT PRESENT.
 
