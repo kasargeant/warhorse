@@ -653,7 +653,7 @@ class Warhorse {
     task(desc, name, options={}, args="", showOutput=true, useEqualsSign=false) {
         console.task(`TASK: ${desc}`);
 
-        let cmdLine = "./node_modules/.bin/" + name;
+        let cmdLine = this.moduleDirectory + "node_modules/.bin/" + name;
 
         let cmdLineArgs = "";
         if(args.constructor === Array) {

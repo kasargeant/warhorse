@@ -104,6 +104,7 @@
     "postcss-cli": "^4.0.0",
     "readline-sync": "^1.4.7",
     "shelljs": "^0.7.7",
+    "taffydb": "^2.7.3",
     "tinter": "^0.2.2",
     "uglify-es": "^3.0.3"
   }

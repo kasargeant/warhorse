@@ -51,15 +51,17 @@ function tasks(warhorse) {
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "fix": function() {
-                warhorse.task("Fix JavaScript code style", "jscs", "./test/data/client_src/js/", {
+                warhorse.task("Fix JavaScript code style", "jscs", {
                     config: "./conf/jscs.json",
                     fix: ""
-                });
+                }, "./test/data/client_src/js/");
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "lint": function() {
-                warhorse.task("Lint JavaScript code style", "jscs", {config: "./conf/jscs.json"}, "./test/data/client_src/js/");
+                warhorse.task("Lint JavaScript code style", "jscs", {
+                    config: "./conf/jscs.json"
+                }, "./test/data/client_src/js/");
 
                 warhorse.task("Lint JavaScript code quality", "jshint", {
                     config: "./conf/jshint.json",
