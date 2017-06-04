@@ -33,7 +33,11 @@ const packageSnippets = require("../conventions/package_snippets.json");
 // Setup console
 const Pageant = require("pageant");
 const console = new Pageant();
-const color = console.Color;
+// const color = console.Color;
+
+process.env.TINTER_TEST = "256";
+const color = require("tinter");
+
 // const color = {
 //     style: function(arg) {return arg;},
 //     inverse: function(arg) {return arg;},
@@ -45,11 +49,10 @@ const color = console.Color;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Warhorse specific
 console.cmd = function(value) {
-    // console.log(color.magentaBg(value));
-    console.log(color.blue(value));
+    console.log(color.style(value, "white", "navy", "italic"));
 };
 console.task = function(value) {
-    value = "  " + color.cyan(value);
+    value = "  " + color.style(value, "orange", "navy", "italic");
     console.log(value);
 };
 console.action = function(value) {
