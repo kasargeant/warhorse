@@ -14,7 +14,7 @@
   ],
   "author": "Kyle Alexis Sargeant",
   "email": "kasargeant@gmail.com",
-  "license": "GPL-3.0",
+  "license": "AGPL-3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/kasargeant/warhorse.git"
