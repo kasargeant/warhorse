@@ -145,17 +145,27 @@ function tasks(warhorse) {
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            "publish": function() {
+                // TODO - Implement 'publish' command functionality using module 'npm' for first case.
+                // warhorse
+                //     .execute("distribute")
+                //     .version("git", {
+                //      });
+            },
+
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "test": function() {
+
                 warhorse.test("js", {
                     tooling: "tape",
                     src: "test/data/client_test/js/tape.js",
+                });
+
+                warhorse.test("js", {
+                    config: "conf/jest.json",
+                    src: "./test/js/",
                     debug: true
                 });
-                // warhorse.test("js", {
-                //     config: "conf/jest.json",
-                //     src: "./test/js/",
-                //     debug: true
-                // });
             }
         },
 
