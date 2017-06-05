@@ -16,6 +16,7 @@ const path = require("path");
 const glob = require("glob");
 const merge = require("merge");
 const shell = require("shelljs");
+const tar = require("tar");
 
 // const browserify = require("browserify");
 const csso = require("csso");
@@ -182,7 +183,7 @@ class Warhorse {
     }
 
     /**
-     * Bundle action.
+     * Clean action.
      * @param {Array} paths - Array of paths or files to empty and delete.
      * @param {Object} options - Options to further configure this action.
      * @returns {Object} - Returns self for chaining.
@@ -192,6 +193,536 @@ class Warhorse {
         shell.rm("-rf", ...paths);
         console.stage(`Done.`);
     }
+
+    /////////////////////////////////
+    // NEW TASKS
+
+    /**
+     * Task for bundling and module resolution.
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.dst - The destination/target path for this task.
+     * @param {string} options.exclude - Exclude file(s) from the task.
+     * @param {string} options.include - Include file(s) for the task.
+     * @returns {Object} - Returns self for chaining.
+     */
+    bundle(type, options) {
+        if(type === "js") {
+            // Create a user-level config from defaults/options
+            let defaults = {
+                src: "src/index.js",
+                dst: "dist/index.js"
+            };
+            let config = Object.assign(defaults, options);
+
+            // Resolve tool-level arguments - with that user-level config
+            let toolArgs = [];
+            if(config.src !== undefined) {
+                toolArgs.push(config.src);
+            }
+
+            // Resolve tool-level options - with that user-level config
+            let toolOptions = {
+                config: config.conf,
+                outfile: config.dst,
+                exclude: config.exclude,
+                external: config.include,
+                recurse: true
+            };
+            // ...and add debug/source map options if appropriate.
+            if(config.debug) {
+                toolOptions.debug = true;
+            }
+            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
+
+            // Finally map configuration to tool args and options
+            this.task("Bundling JS...", "browserify", toolOptions, toolArgs, false, false);
+        } else {
+            console.error(`Error: Unrecognised type '${type}'.`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Task for automatically documenting project source code.
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.conf - The path to a separate configuration file for this task.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.dst - The destination/target path for this task.
+     * @returns {Object} - Returns self for chaining.
+     */
+    document(type, options) {
+        if(type === "js") {
+            // Create a user-level config from defaults/options
+            let defaults = {
+                conf: "conf/jsdoc.json",
+                src: "src/index.js",
+                dst: "docs/api/"
+            };
+            let config = Object.assign(defaults, options);
+
+            // Resolve tool-level arguments - with that user-level config
+            let toolArgs = [];
+            if(config.src !== undefined) {
+                toolArgs.push(config.src);
+            }
+
+            // Resolve tool-level options - with that user-level config
+            let toolOptions = {
+                configure: config.conf,
+                destination: config.dst,
+                recurse: true
+            };
+            // ...and add debug/source map options if appropriate.
+            if(config.debug) {
+                toolOptions.verbose = true;
+            }
+            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
+
+            // Finally map configuration to tool args and options
+            this.task("Documenting JS...", "jsdoc", toolOptions, toolArgs, false, false);
+        } else {
+            console.error(`Error: Unrecognised type '${type}'.`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Task for linting source and template code. e.g. JS, LESS, SASS.
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.dst - The destination/target path for this task.
+     * @param {string} options.exclude - Exclude file(s) from the task.
+     * @param {string} options.include - Include file(s) for the task.
+     * @returns {Object} - Returns self for chaining.
+     */
+    lint(type, options) {
+        if(type === "js" && options.type === "style") {
+            // Create a user-level config from defaults/options
+            let defaults = {
+                src: "src/js/"
+            };
+            let config = Object.assign(defaults, options);
+
+            // Resolve tool-level arguments - with that user-level config
+            let toolArgs = [];
+            if(config.src !== undefined) {
+                toolArgs.push(config.src);
+            }
+
+            // Resolve tool-level options - with that user-level config
+            let toolOptions = {
+                config: config.conf
+            };
+            // NOTE: THERE ARE NO DEBUG OPTIONS
+            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
+
+            // Finally map configuration to tool args and options
+            this.task("Linting JS(style)...", "jscs", toolOptions, toolArgs, true, true);
+
+        } else if(type === "js" && options.type !== "style") {
+            // Create a user-level config from defaults/options
+            let defaults = {
+                src: "src/js/"
+            };
+            let config = Object.assign(defaults, options);
+
+            // Resolve tool-level arguments - with that user-level config
+            let toolArgs = [];
+            if(config.src !== undefined) {
+                toolArgs.push(config.src);
+            }
+            if(config.dst !== undefined) {
+                toolArgs.push(config.dst);
+            }
+
+            // Resolve tool-level options - with that user-level config
+            let toolOptions = {
+                config: config.conf,
+                "exclude-path": config.exclude
+            };
+            // ...and add debug/source map options if appropriate.
+            if(config.debug) {
+                toolOptions["source-map"] = true;
+            }
+            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
+
+            // Finally map configuration to tool args and options
+            this.task("Linting JS...", "jshint", toolOptions, toolArgs, true, true);
+
+        } else {
+            console.error(`Error: Unrecognised type '${type}'.`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Task for minifying distributed code. e.g. JS, CSS.
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.dst - The destination/target path for this task.
+     * @param {string} options.exclude - Exclude a file from the output bundle. Can be globs.
+     * @param {string} options.include - Include a file from another bundle. Can be globs.
+     * @returns {Object} - Returns self for chaining.
+     */
+    minify(type, options) {
+        if(type === "js") {
+            // Create a user-level config from defaults/options
+            let defaults = {
+                src: "src/index.js",
+                dst: "dist/index.js"
+            };
+            let config = Object.assign(defaults, options);
+
+            // Resolve tool-level arguments - with that user-level config
+            let toolArgs = [];
+            if(config.src !== undefined) {
+                toolArgs.push(config.src);
+            }
+
+            // Resolve tool-level options - with that user-level config
+            let toolOptions = {
+                "config-file": config.conf,
+                output: config.dst,
+                compress: true,
+                mangle: true
+            };
+            // ...and add debug/source map options if appropriate.
+            if(config.debug) {
+                toolOptions.verbose = true;
+            }
+            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
+
+            // Finally map configuration to tool args and options
+            this.task("Minifying JS...", "uglifyjs", toolOptions, toolArgs, false, false);
+
+        } else if(type === "css") {
+            // Create user-level config from defaults/options
+            let defaults = {
+                src: "src/css/index.css",
+                dst: "dist/css/index.min.css"
+            };
+            let config = Object.assign(defaults, options);
+
+            // Resolve tool-level arguments - with that user-level config
+            let toolArgs = [];
+
+            // Resolve tool-level options - with that user-level config
+            let toolOptions = {
+                input: config.src,
+                output: config.dst
+            };
+            // ...and add debug/source map options if appropriate.
+            if(config.debug) {
+                toolOptions.debug = true;
+                toolOptions.map = true;
+            }
+            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
+
+            // Finally map configuration to tool args and options
+            this.task("Minifying CSS...", "csso", toolOptions, toolArgs, false, false);
+
+        } else {
+            console.error(`Error: Unrecognised type '${type}'.`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    // generic e.g. tar.gz
+    /**
+     * Task for compressing files of any type. e.g. JS, CSS, TXT. [NOTE: CURRENTLY OUTPUTS .tar.gz ONLY.]
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.dst - The destination/target path for this task.
+     * @returns {Object} - Returns self for chaining.
+     */
+    compress(type, options) {
+        if(type === "js") {
+            // Create a user-level config from defaults/options
+            let defaults = {
+                src: "dist/js/index.js",
+                dst: "dist/js/index.js.tar.gz"
+            };
+            let config = Object.assign(defaults, options);
+
+            // Resolve tool-level arguments - with that user-level config
+            let toolArgs = [];
+            if(config.src !== undefined) {
+                toolArgs.push(config.src);
+            }
+
+            // NOTE: There is no user->tool mapping necessary here.
+            // Directly execute the task.
+            tar.c({
+                sync: true,
+                gzip: true,
+                cwd: this.workingDirectory,
+                file: config.dst
+            }, [config.src]);
+
+        } else {
+            console.error(`Error: Unrecognised type '${type}'.`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Task for preprocessing template code. e.g. Handlebars, LESS, SASS.
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.dst - The destination/target path for this task.
+     * @param {string} options.exclude - Exclude file(s) from the task.
+     * @param {string} options.include - Include file(s) for the task.
+     * @returns {Object} - Returns self for chaining.
+     */
+    preprocess(type, options) {
+        if(type === "less") {
+            // Create a user-level config from defaults/options
+            let defaults = {
+                src: "src/index.js",
+                dst: "dist/index.js"
+            };
+            let config = Object.assign(defaults, options);
+
+            // Resolve tool-level arguments - with that user-level config
+            let toolArgs = [];
+            if(config.src !== undefined) {
+                toolArgs.push(config.src);
+            }
+            if(config.dst !== undefined) {
+                toolArgs.push(config.dst);
+            }
+
+            // Resolve tool-level options - with that user-level config
+            let toolOptions = {
+                "include-path": config.include,
+                "relative-urls": true
+            };
+            // ...and add debug/source map options if appropriate.
+            if(config.debug) {
+                toolOptions["source-map"] = true;
+            }
+            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
+
+            // Finally map configuration to tool args and options
+            this.task("Preprocessing LESS...", "lessc", toolOptions, toolArgs, true, true);
+
+        } else if(type === "sass") {
+            // Create a user-level config from defaults/options
+            let defaults = {
+                src: "src/css/index.css",
+                dst: "dist/css/index.min.css"
+            };
+            let config = Object.assign(defaults, options);
+
+            // Resolve tool-level arguments - with that user-level config
+            let toolArgs = [];
+            if(config.src !== undefined) {
+                toolArgs.push(config.src);
+            }
+            if(config.dst !== undefined) {
+                toolArgs.push(config.dst);
+            }
+
+            // Resolve tool-level options - with that user-level config
+            let toolOptions = {
+                "include-path": config.include,
+                "relative-urls": true
+            };
+            // ...and add debug/source map options if appropriate.
+            if(config.debug) {
+                toolOptions["source-map"] = true;
+            }
+            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
+
+            // Finally map configuration to tool args and options
+            this.task("Preprocessing SASS...", "node-sass", toolOptions, toolArgs, false, false);
+
+        } else {
+            console.error(`Error: Unrecognised type '${type}'.`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Task for packing (minifying) source assets. e.g. GIF, JPG, PNG, SVG.
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.dst - The destination/target path for this task.
+     * @returns {Object} - Returns self for chaining.
+     */
+    pack(type, options) {
+
+        // NOTE: This is different to every other task.  here we use the same task code for all the different
+        //       image types.
+        const plugins = {
+            "gif": "gifsicle",
+            "jpg": "jpegtran",
+            "png": "pngquant",
+            "svg": "svgo"
+        };
+        let plugin = plugins[type];
+        if(plugin !== undefined) {
+
+            // Create a user-level config from defaults/options
+            let defaults = {
+                src: `test/data/client_src/img/${type}/*.${type}`,
+                dst: `dist/img/${type}/`
+            };
+            let config = Object.assign(defaults, options);
+
+            // Resolve tool-level arguments - with that user-level config
+            let toolArgs = [];
+            if(config.src !== undefined) {
+                toolArgs.push(config.src);
+            }
+
+            // Resolve tool-level options - with that user-level config
+            let toolOptions = {
+                "out-dir": config.dst,
+                plugin: plugin
+            };
+            // ...and add debug/source map options if appropriate.
+            if(config.debug) {
+                toolOptions.map = true;
+            }
+            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
+
+            // Finally map configuration to tool args and options
+            this.task(`Packing ${type.toUpperCase()}...`, "imagemin", toolOptions, toolArgs, false, false);
+
+        } else {
+            console.error(`Error: Unrecognised type '${type}'.`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Task for post-processing source code. e.g. CSS.
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.dst - The destination/target path for this task.
+     * @returns {Object} - Returns self for chaining.
+     */
+    postprocess(type, options) {
+        if(type === "css") {
+            // Create a user-level config from defaults/options
+            let defaults = {
+                src: "src/css/index.css"
+            };
+            let config = Object.assign(defaults, options);
+
+            // Resolve tool-level arguments - with that user-level config
+            let toolArgs = [];
+            if(config.src !== undefined) {
+                toolArgs.push(config.src);
+            }
+            if(config.dst !== undefined) {
+                toolArgs.push(config.dst);
+            }
+
+            // Resolve tool-level options - with that user-level config
+            let toolOptions = {
+                config: config.conf,
+                replace: true
+            };
+            // ...and add debug/source map options if appropriate.
+            if(config.debug) {
+                toolOptions.map = true;
+            }
+            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
+
+            // Finally map configuration to tool args and options
+            this.task("Postprocessing CSS...", "postcss", toolOptions, toolArgs, false, false);
+
+        } else {
+            console.error(`Error: Unrecognised type '${type}'.`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    // For publishing the final distribution: NPM... JSPM???, Yarn???
+    publish(type, options) {}
+
+    /**
+     * Task for testing code. e.g. JS.
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.coverage - Report on unit coverage.
+     * @param {string} options.update - Update any test snapshots.
+     * @returns {Object} - Returns self for chaining.
+     */
+    test(type, options) {
+        if(type === "js") {
+            // Create a user-level config from defaults/options
+            let defaults = {
+                src: "test/js/*.test.js"
+            };
+            let config = Object.assign(defaults, options);
+
+            // Resolve tool-level arguments - with that user-level config
+            let toolArgs = [];
+            if(config.src !== undefined) {
+                toolArgs.push(config.src);
+            }
+
+            // Resolve tool-level options - with that user-level config
+            let toolOptions = {
+                config: config.conf
+            };
+            // ...and add debug/source map options if appropriate.
+            if(config.debug) {
+                toolOptions.verbose = true;
+            }
+            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
+
+            // Finally map configuration to tool args and options
+            this.task("Testing JS...", "jest", toolOptions, toolArgs, false, false);
+
+        } else {
+            console.error(`Error: Unrecognised type '${type}'.`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    // For scripting GIT and other VCSs
+    version(type, options) {}
 
     /**
      * Built-in 'build' command.
@@ -531,20 +1062,14 @@ class Warhorse {
 
         console.action(`Minifying JS from: ${this.file.path}`);
 
-        let config = Object.assign(this.settings.bundle, options);
+        let config = Object.assign(this.settings.minifyJS, options);
 
         // Process the data
-        let processed = uglify.minify(this.file.content);
-        this.file.content = processed.code;
-
-        // let processed = uglify.minify(this.file.content, {
-        //     sourceMap: {
-        //         filename: "out.js",
-        //         url: "out.js.map"
-        //     }
-        // });
-        // console.log(processed.map);  // source map
-        // console.log(processed.code); // minified output
+        warhorse.task("Minify JavaScript code", "uglifyjs", {
+            compress: "",
+            mangle: "",
+            output: "./test/data/client_dist/js/index.min.js"
+        }, "./test/data/client_dist/js/index.js");
 
 
         // Return self for chaining.

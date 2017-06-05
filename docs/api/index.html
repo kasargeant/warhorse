@@ -24,7 +24,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Warhorse.html">Warhorse</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#clean">clean</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#command">command</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#execute">execute</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#load">load</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#minifyJS">minifyJS</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#rename">rename</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#save">save</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#task">task</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#use">use</a></span></li>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Warhorse.html">Warhorse</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#bundle">bundle</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#clean">clean</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#command">command</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#compress">compress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#document">document</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#execute">execute</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#lint">lint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#load">load</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#minify">minify</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#minifyJS">minifyJS</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#pack">pack</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#postprocess">postprocess</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#preprocess">preprocess</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#rename">rename</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#save">save</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#task">task</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#test">test</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Warhorse.html#use">use</a></span></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#myObj">myObj</a></span></li>
 </nav>
 
 <div id="main">
@@ -49,7 +49,21 @@
 
     <section class="readme">
         <article><h1>Warhorse API Documentation</h1><h2>Overview</h2><p>This documentation describes in detail the various components that make up the Warhorse distribution.</p>
-<p>Additionally, the <a href="https://github.com/kasargeant/warhorse/wiki">Warhorse Wiki</a> contains a User's Guide as well as an overview of the conventions adhered to for the different forms of project creation.</p></article>
+<p>Additionally, the <a href="https://github.com/kasargeant/warhorse/wiki">Warhorse Wiki</a> contains a User's Guide as well as an overview of the conventions adhered to for the different forms of project creation.</p>
+<p>// bundling and module resolution for: JS
+bundle(type, options) {}</p>
+<p>// minifying distributed code: JS, CSS etc
+minify(type, options) {}</p>
+<p>// generic e.g. tar.gz
+compress(type, options) {}</p>
+<p>// templates e.g. handlebars, SASS, LESS
+preprocess(type, options) {}</p>
+<p>// existing assets e.g. css
+postprocess(type, options) {}</p>
+<p>// For publishing the final distribution: NPM... JSPM???, Yarn???
+publish(type, options) {}</p>
+<p>// For scripting GIT and other VCSs
+version(type, options) {}</p></article>
     </section>
 
 
@@ -668,7 +682,7 @@
 <br class="clear">
 
 <footer>
-    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Sun Jun 04 2017 22:20:07 GMT+0200 (CEST) using the Minami theme.
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Mon Jun 05 2017 05:30:06 GMT+0200 (CEST) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>
