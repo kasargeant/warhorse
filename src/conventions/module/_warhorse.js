@@ -1,28 +1,33 @@
 /**
  * @file _warhorse.js
- * @description The Warhorse tasks default configuration.
+ * @description The Warhorse command configuration file (default).
  * @license See LICENSE file included in this distribution.
  */
 
 // Warhorse task definitions
 function tasks(warhorse) {
-
     "use strict";
 
     return {
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // COMMANDS
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Commands are used to group together any arbitrary number of tasks.
         commands: {
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "build": function() {
-                warhorse.use("build-js", "./src/index.js", {});
+                warhorse.bundle("js", {
+                    src: "src/index.js",
+                    dst: "dist/index.js"
+                });
+                warhorse.minify("js", {
+                    src: "dist/index.js",
+                    dst: "dist/index.min.js"
+                });
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "distribute": function() {
                 warhorse
                     .execute("test")
@@ -31,64 +36,64 @@ function tasks(warhorse) {
                     .execute("document");
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "clean": function() {
                 warhorse.execute("clean-dist");
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "document": function() {
-                warhorse.use("document-js");
+                warhorse.document("js", {
+                    conf: "conf/jsdoc.json",
+                    src: "src/js/"
+                });
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            "fix": function() {
+                warhorse.fix("js", {
+                    type: "style",
+                    conf: "conf/jscs.json",
+                    src: "src/js/"
+                });
+            },
+
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "lint": function() {
-                warhorse.use("lint-js", "./src/js/*.js", {});
+
+                warhorse.lint("js", {
+                    conf: "conf/jshint.json",
+                    src: "src/js/",
+                    exclude: "conf/.jshintignore"
+                });
+                warhorse.lint("js", {
+                    type: "style",
+                    conf: "conf/jscs.json",
+                    src: "src/js/"
+                });
+
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "test": function() {
-                warhorse.use("test-js", "./test/js/", {});
+                warhorse.test("js", {
+                    config: "conf/jest.json",
+                    src: "./test/js/",
+                    debug: true
+                });
             }
         },
 
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // TASKS
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Each task describes a single 'pipeline' of actions upon a single file.
         tasks: {
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "build-js": function() {
-                warhorse
-                    .load()
-                    .bundle({standalone: "module.exports"})
-                    .minifyJS()
-                    .save("./dist/" + warhorse.file.name);
-            },
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "clean-dist": function() {
                 warhorse
                     .clean(["./dist/*"]);
-            },
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "document-js": function() {
-                warhorse.documentJS();
-            },
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "lint-js": function() {
-                warhorse
-                    .load()
-                    .lintJS();
-            },
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "test-js": function() {
-                warhorse
-                    .testJS();
             }
         }
     };

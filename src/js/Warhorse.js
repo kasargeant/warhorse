@@ -27,7 +27,7 @@ const Pageant = require("pageant");
 const console = new Pageant();
 // const color = console.Color;
 
-process.env.TINTER_TEST = "256";
+// process.env.TINTER_TEST = "256";
 const color = require("tinter");
 
 // const color = {

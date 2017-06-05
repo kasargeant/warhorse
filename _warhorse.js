@@ -59,10 +59,11 @@ function tasks(warhorse) {
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "fix": function() {
-                warhorse.task("Fix JavaScript code style", "jscs", {
-                    config: "./conf/jscs.json",
-                    fix: ""
-                }, "./test/data/client_src/js/");
+                warhorse.fix("js", {
+                    type: "style",
+                    conf: "conf/jscs.json",
+                    src: "test/data/client_src/js/"
+                });
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

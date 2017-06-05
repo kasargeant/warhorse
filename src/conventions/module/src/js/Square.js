@@ -17,6 +17,3 @@ class Square extends Polygon {
 
 // Exports
 module.exports = Square;
-
-let sq = new Square();
-console.log(sq.area);
