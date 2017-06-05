@@ -143,10 +143,15 @@ function tasks(warhorse) {
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "test": function() {
                 warhorse.test("js", {
-                    config: "conf/jest.json",
-                    src: "./test/js/",
+                    tooling: "tape",
+                    src: "test/data/client_test/js/tape.js",
                     debug: true
                 });
+                // warhorse.test("js", {
+                //     config: "conf/jest.json",
+                //     src: "./test/js/",
+                //     debug: true
+                // });
             }
         },
 

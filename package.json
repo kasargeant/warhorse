@@ -1,6 +1,6 @@
 {
   "name": "warhorse",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A simple, friendly and reliable JavaScript Task Runner... able to crush your enemies!",
   "keywords": [
     "javascript",
@@ -105,6 +105,7 @@
     "readline-sync": "^1.4.7",
     "shelljs": "^0.7.7",
     "taffydb": "^2.7.3",
+    "tape": "^4.6.3",
     "tar": "^3.1.5",
     "tinter": "^0.2.2",
     "uglify-es": "^3.0.3"
