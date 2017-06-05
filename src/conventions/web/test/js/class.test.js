@@ -7,20 +7,22 @@
 "use strict";
 
 // Imports
-const classExample = require.requireActual("../src/js/Square"); // The module entry point.
+const Square = require.requireActual("../../src/js/Square"); // The module entry point.
+
+const square = new Square();
 
 // Tests
 describe("Class: Square", function() {
 
     it("should exist", function() {
-        expect(classExample).toBeDefined();
+        expect(square).toBeDefined();
     });
 
     it("should be able to return it's name", function() {
-        expect(classExample.name).toBe("square");
+        expect(square.name).toBe("Square");
     });
 
     it("should be able calculate area", function() {
-        expect(classExample.area).toBe(1);
+        expect(square.area).toBe(100);
     });
 });

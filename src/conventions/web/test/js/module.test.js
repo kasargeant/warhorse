@@ -7,17 +7,13 @@
 "use strict";
 
 // Imports
-const moduleExample = require.requireActual("../src/index"); // The module entry point.
+const moduleExample = require.requireActual("../../src/index"); // The module entry point.
 
 // Tests
 describe("Module: Example", function() {
 
     it("should exist", function() {
         expect(moduleExample).toBeDefined();
-    });
-
-    it("should be able calculate something", function() {
-        expect(moduleExample.area).toBe(1);
     });
 
 });

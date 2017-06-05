@@ -94,8 +94,10 @@ You can find more information the specific Conventions that Warhorse offers in [
 
 ## A note on the license
 
-Warhorse currently uses the GPLv3 license.  
+Warhorse is distributed under the AGPL-3.0 license.  
 
 This may change in the future to the Apache License, Version 2.0.  
 
-Either way though, Warhorse **can be used freely and without restriction in any commercial or non-commercial** toolchain or project.
+Either way though, Warhorse **can be used freely and without restriction to build any individual commercial or non-commercial** project.  
+
+Your code is your code - and using Warhorse - doesn't change that. :)
