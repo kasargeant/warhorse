@@ -18,15 +18,6 @@ const merge = require("merge");
 const shell = require("shelljs");
 const tar = require("tar");
 
-// const browserify = require("browserify");
-const csso = require("csso");
-const jscs = require("jscs");
-const jshint = require("jshint").JSHINT;
-
-//const less = require("less");
-const sass = require("node-sass");
-const uglify = require("uglify-es");
-
 // Default templates
 const packageBase = require("../conventions/package_base.json");
 const packageSnippets = require("../conventions/package_snippets.json");
@@ -151,11 +142,7 @@ class Warhorse {
         this.settings = Object.assign(this.defaults, options);
         this.debug = useDebug;
 
-        this.linterJSStyle = new jscs();
-        this.linterJSStyle.registerDefaultRules();
-        // this.linterJSStyle.configure(confJSCS);
-        this.linterJSSyntax = jshint; // Note: JSHint is IFFY.
-        this.linterJSStats = {reports: [], errors: 0, warnings: 0};
+        this.lintStatsJS = {reports: [], errors: 0, warnings: 0};
 
         this.commands = ["build", "clean", "create", "distribute", "document", "init", "lint", "pack", "precompile", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
         this.conventions = ["module", "web"];
@@ -1048,29 +1035,6 @@ class Warhorse {
         console.action(`Loading file: ${this.file.path + this.file.name}`);
 
         this.file.content = fs.readFileSync(srcPath, config.encoding);
-
-        // Return self for chaining.
-        return this;
-    }
-
-    /**
-     * Minify JS action.  Minimisation for ES51/ES2015 JavaScript.
-     * @param {Object} options - Options to further configure this action.
-     * @returns {Object} - Returns self for chaining.
-     */
-    minifyJS(options = {}) {
-
-        console.action(`Minifying JS from: ${this.file.path}`);
-
-        let config = Object.assign(this.settings.minifyJS, options);
-
-        // Process the data
-        warhorse.task("Minify JavaScript code", "uglifyjs", {
-            compress: "",
-            mangle: "",
-            output: "./test/data/client_dist/js/index.min.js"
-        }, "./test/data/client_dist/js/index.js");
-
 
         // Return self for chaining.
         return this;

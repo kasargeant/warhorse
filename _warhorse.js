@@ -1,32 +1,23 @@
 /**
  * @file _warhorse.js
- * @description The Warhorse tasks default configuration.
+ * @description The Warhorse command configuration file (default).
  * @author Kyle Alexis Sargeant <kasargeant@gmail.com> {@link https://github.com/kasargeant https://github.com/kasargeant}.
  * @copyright Kyle Alexis Sargeant 2017
  * @license See LICENSE file included in this distribution.
  */
 
-// Warhorse Tool Configuration (Draft v0.0.2)
-// TODO = {
-//     src: "src/",
-//     dst: "dist/"
-//
-// };
-
 // Warhorse task definitions
 function tasks(warhorse) {
-
     "use strict";
 
     return {
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // COMMANDS
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Commands are used to group together any arbitrary number of tasks.
         commands: {
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "build": function() {
                 warhorse.bundle("js", {
                     src: "test/data/client_src/js/index.js",
@@ -43,7 +34,7 @@ function tasks(warhorse) {
                 });
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "distribute": function() {
                 warhorse
                     .execute("precompile")
@@ -53,12 +44,12 @@ function tasks(warhorse) {
                     .execute("document");
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "clean": function() {
                 warhorse.execute("clean-dist");
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "document": function() {
                 warhorse.document("js", {
                     conf: "conf/jsdoc.json",
@@ -66,7 +57,7 @@ function tasks(warhorse) {
                 });
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "fix": function() {
                 warhorse.task("Fix JavaScript code style", "jscs", {
                     config: "./conf/jscs.json",
@@ -74,7 +65,7 @@ function tasks(warhorse) {
                 }, "./test/data/client_src/js/");
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "lint": function() {
 
                 warhorse.lint("js", {
@@ -96,7 +87,7 @@ function tasks(warhorse) {
                 // });
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "pack": function() {
 
                 warhorse.pack("png", {
@@ -122,7 +113,7 @@ function tasks(warhorse) {
                 warhorse.use("copy-ico", "./test/data/client_src/img/ico/*.ico", {});
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "precompile": function() {
 
                 warhorse.preprocess("less", {
@@ -149,7 +140,7 @@ function tasks(warhorse) {
 
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "test": function() {
                 warhorse.test("js", {
                     config: "conf/jest.json",
@@ -159,22 +150,13 @@ function tasks(warhorse) {
             }
         },
 
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // TASKS
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Each task describes a single 'pipeline' of actions upon a single file.
         tasks: {
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "build-js": function() {
-                warhorse
-                    .load()
-                    .bundle({standalone: "module.exports"})
-                    .minifyJS()
-                    .save("./test/data/client_dist/js/" + warhorse.file.name, {compress: true});
-            },
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "clean-dist": function() {
                 warhorse
                     .clean([
@@ -188,79 +170,11 @@ function tasks(warhorse) {
                         "./test/data/client_dist/css/*"]);
             },
 
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "copy-ico": function() {
                 warhorse
                     .load({encoding: "binary"})
                     .save("./test/data/client_dist/img/ico/" + warhorse.file.name, {encoding: "binary"});
-            },
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "document-js": function() {
-                warhorse.documentJS();
-            },
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "lint-js": function() {
-                warhorse
-                    .load()
-                    .lintJS();
-            },
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "pack-gif": function() {
-                warhorse
-                    .load({encoding: "binary"})
-                    .packGIF()
-                    .save("./test/data/client_dist/img/gif/" + warhorse.file.name, {encoding: "binary"});
-            },
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "pack-jpg": function() {
-                warhorse
-                    .load({encoding: "binary"})
-                    .packJPG()
-                    .save("./test/data/client_dist/img/jpg/" + warhorse.file.name, {encoding: "binary"});
-            },
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "pack-png": function() {
-                warhorse
-                    .load({encoding: "binary"})
-                    .packPNG()
-                    .save("./test/data/client_dist/img/png/" + warhorse.file.name, {encoding: "binary"});
-            },
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "pack-svg": function() {
-                warhorse
-                    .load()
-                    .packSVG()
-                    .save("./test/data/client_dist/img/svg/" + warhorse.file.name);
-            },
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "precompile-less": function() {
-                warhorse
-                    .load()
-                    .compileLESS()
-                    .minifyCSS()
-                    .save("./test/data/client_dist/css/" + warhorse.file.name);
-            },
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "precompile-sass": function() {
-                warhorse
-                    .load()
-                    .compileSASS()
-                    .minifyCSS()
-                    .save("./test/data/client_dist/css/" + warhorse.file.name);
-            },
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "test-js": function() {
-                warhorse
-                    .testJS();
             }
         }
     };
