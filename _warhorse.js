@@ -81,11 +81,10 @@ function tasks(warhorse) {
                     src: "test/data/client_src/js/"
                 });
 
-                // warhorse.task("Lint SASS stylesheets", "sass-lint", "./test/data/client_src/js/", {
-                //     config: "./conf/.sass-lint.yml",
-                //     "no-exit": "",
-                //     verbose: ""
+                // warhorse.lint("sass", {
+                //     conf: "conf/.sass-lint.yml"
                 // });
+
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

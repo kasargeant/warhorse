@@ -1,6 +1,6 @@
 /**
  * @file _warhorse.js
- * @description The Warhorse command configuration file (default).
+ * @description The Warhorse command configuration file (module convention).
  * @license See LICENSE file included in this distribution.
  */
 
