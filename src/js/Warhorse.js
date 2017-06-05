@@ -675,31 +675,85 @@ class Warhorse {
      */
     test(type, options) {
         if(type === "js") {
-            // Create a user-level config from defaults/options
-            let defaults = {
-                src: "test/js/*.test.js"
-            };
-            let config = Object.assign(defaults, options);
+            if(options.tooling === "tape") {
+                // Create a user-level config from defaults/options
+                let defaults = {
+                    src: "test/js/*.test.js"
+                };
+                let config = Object.assign(defaults, options);
 
-            // Resolve tool-level arguments - with that user-level config
-            let toolArgs = [];
-            if(config.src !== undefined) {
-                toolArgs.push(config.src);
+                // Resolve tool-level arguments - with that user-level config
+                let toolArgs = "";
+                if(config.src !== undefined) {
+                    toolArgs += config.src;
+                }
+
+                // NOTE: THIS SCRIPT HAS NO OPTIONS
+                let toolOptions = {};
+
+                let cmdLine = `node ${this.moduleDirectory}src/js/tools/TapeRunner.js ${toolArgs}`;
+
+                // Finally map configuration to tool args and options
+                let stdout = "{}";
+                try {
+                    stdout = child.execSync(cmdLine);
+                } catch(ex) {
+                    stdout = ex.stdout;
+                }
+                // At this point, stdout should contain an array of 0 or more test report objects.
+                if(stdout !== null) {
+
+                    let reports = JSON.parse(stdout.toString());
+                    for(let testIdx = 0; testIdx < reports.length; testIdx++) {
+                        // Extract each report.
+                        let report = reports[testIdx];
+                        console.log(`Test Report: ${report.name}`);
+                        console.log(`    - has ${report.tests.length} tests.`);
+                        for(let i = 0; i < report.tests.length; i++) {
+                            let result = report.tests[i];
+                            if(result.ok === true) {
+                                // e.g. {"id":0,"ok":true,"name":"it should have assigned the right height.","operator":"equal","objectPrintDepth":5,"actual":210,"expected":210,"test":0,"type":"assert"}
+                                console.log(`\x1b[32m✓\x1b[0m it ${result.name} -> succeeded.`);
+                            } else {
+                                // e.g. {"id":2,"ok":false,"name":"it should have assigned the right area.","operator":"equal","objectPrintDepth":5,"actual":44100,"expected":441100,"error":{},"functionName":"Test.<anonymous>","file":"/Users/kasargeant/dev/projects/warhorse/test/data/client_test/js/tape.js:17:8","line":17,"column":"8","at":"Test.<anonymous> (/Users/kasargeant/dev/projects/warhorse/test/data/client_test/js/tape.js:17:8)","test":0,"type":"assert"}
+                                console.log(`\x1b[31m✕\x1b[0m it ${result.name} -> failed.`);
+                                console.log(` testing if: '${result.operator}'`);
+                                console.log(` expected: '${result.expected}'`);
+                                console.log(` actual  : '${result.actual}'`);
+                                console.log(` at line ${result.line}/${result.col}.`);
+                                console.log("");
+                            }
+                        }
+                    }
+                }
+
+
+            } else {
+                // Create a user-level config from defaults/options
+                let defaults = {
+                    src: "test/js/*.test.js"
+                };
+                let config = Object.assign(defaults, options);
+
+                // Resolve tool-level arguments - with that user-level config
+                let toolArgs = [];
+                if(config.src !== undefined) {
+                    toolArgs.push(config.src);
+                }
+
+                // Resolve tool-level options - with that user-level config
+                let toolOptions = {
+                    config: config.conf
+                };
+                // ...and add debug/source map options if appropriate.
+                if(config.debug) {
+                    toolOptions.verbose = true;
+                }
+                toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
+
+                // Finally map configuration to tool args and options
+                this.task("Testing JS...", "jest", toolOptions, toolArgs, false, false);
             }
-
-            // Resolve tool-level options - with that user-level config
-            let toolOptions = {
-                config: config.conf
-            };
-            // ...and add debug/source map options if appropriate.
-            if(config.debug) {
-                toolOptions.verbose = true;
-            }
-            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
-
-            // Finally map configuration to tool args and options
-            this.task("Testing JS...", "jest", toolOptions, toolArgs, false, false);
-
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
         }
