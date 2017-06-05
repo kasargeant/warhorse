@@ -18,6 +18,9 @@ const merge = require("merge");
 const shell = require("shelljs");
 const tar = require("tar");
 
+// Helpers
+const Git = require("./helpers/GitHelper");
+
 // Default templates
 const packageBase = require("../conventions/package_base.json");
 const packageSnippets = require("../conventions/package_snippets.json");
@@ -127,7 +130,7 @@ class Warhorse {
                 png: {},
                 svg: {}
             },
-            precompile: {
+            process: {
                 includePaths: ["./src/sass"]
             },
             rename: {},
@@ -144,7 +147,7 @@ class Warhorse {
 
         this.lintStatsJS = {reports: [], errors: 0, warnings: 0};
 
-        this.commands = ["build", "clean", "create", "distribute", "document", "init", "lint", "pack", "precompile", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
+        this.commands = ["build", "clean", "create", "distribute", "document", "init", "lint", "pack", "process", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
         this.conventions = ["module", "web"];
 
         this.cmds = {}; // Lookup for built-in commands.
@@ -762,8 +765,26 @@ class Warhorse {
         return this;
     }
 
-    // For scripting GIT and other VCSs
-    version(type, options) {}
+    /**
+     * Task for controlling VCSs. e.g. GIT
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.action - The versioning action to execute.
+     * @returns {Object} - Returns self for chaining.
+     */
+    version(type, options) {
+        switch(options.action) {
+            case "get-branch-name":
+                console.action("On branch: " + Git.getCurrentBranchName());
+                break;
+            case "update-master":
+                Git.updateMaster(options.release, options.comment);
+                break;
+            default:
+                console.error(`Error: Unrecognised versioning action '${type}'.`);
+        }
+    }
 
     /**
      * Built-in 'build' command.
@@ -1054,12 +1075,12 @@ class Warhorse {
     }
 
     /**
-     * Built-in 'precompile' command.
+     * Built-in 'process' command.
      * @returns {Object} - Returns self for chaining.
      * @private
      */
-    _cmdPrecompile() {
-        let cmd = this.cmds["precompile"];
+    _cmdProcess() {
+        let cmd = this.cmds["process"];
         if(cmd !== null) {cmd();}
         return this;    // Return self for chaining.
     }
@@ -1323,7 +1344,7 @@ class Warhorse {
             case "init": this._cmdInit(); break;
             case "lint": this._cmdLint(); break;
             case "pack": this._cmdPack(); break;
-            case "precompile": this._cmdPrecompile(); break;
+            case "process": this._cmdProcess(); break;
             case "test": this._cmdTest(); break;
             default:
                 console.error(`Error: Unrecognised command '${name}'.`);

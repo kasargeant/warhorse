@@ -37,7 +37,7 @@ function tasks(warhorse) {
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "distribute": function() {
                 warhorse
-                    .execute("precompile")
+                    .execute("process")
                     .execute("test")
                     .execute("lint")
                     .execute("build")
@@ -113,7 +113,7 @@ function tasks(warhorse) {
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "precompile": function() {
+            "process": function() {
 
                 // warhorse.preprocess("less", {
                 //     src: "src/less/index.less",
