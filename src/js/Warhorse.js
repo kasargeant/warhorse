@@ -228,7 +228,7 @@ class Warhorse {
             toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Bundling JS...", "browserify", toolOptions, toolArgs, false, false);
+            this.task("Bundling JS...", "browserify", toolOptions, toolArgs, "silent", false);
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
         }
@@ -276,7 +276,7 @@ class Warhorse {
             toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Documenting JS...", "jsdoc", toolOptions, toolArgs, false, false);
+            this.task("Documenting JS...", "jsdoc", toolOptions, toolArgs, "silent", false);
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
         }
@@ -312,13 +312,14 @@ class Warhorse {
 
             // Resolve tool-level options - with that user-level config
             let toolOptions = {
-                config: config.conf
+                config: config.conf,
+                reporter: "json"
             };
             // NOTE: THERE ARE NO DEBUG OPTIONS
             toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Linting JS(style)...", "jscs", toolOptions, toolArgs, true, true);
+            this.task("Linting JS(style)...", "jscs", toolOptions, toolArgs, "jscs", true);
 
         } else if(type === "js" && options.type !== "style") {
             // Create a user-level config from defaults/options
@@ -339,7 +340,8 @@ class Warhorse {
             // Resolve tool-level options - with that user-level config
             let toolOptions = {
                 config: config.conf,
-                "exclude-path": config.exclude
+                "exclude-path": config.exclude,
+                reporter: this.moduleDirectory + "node_modules/jshint-json/json.js"
             };
             // ...and add debug/source map options if appropriate.
             if(config.debug) {
@@ -348,7 +350,7 @@ class Warhorse {
             toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Linting JS...", "jshint", toolOptions, toolArgs, true, true);
+            this.task("Linting JS...", "jshint", toolOptions, toolArgs, "jshint", true);
 
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
@@ -398,7 +400,7 @@ class Warhorse {
             toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Minifying JS...", "uglifyjs", toolOptions, toolArgs, false, false);
+            this.task("Minifying JS...", "uglifyjs", toolOptions, toolArgs, "silent", false);
 
         } else if(type === "css") {
             // Create user-level config from defaults/options
@@ -424,7 +426,7 @@ class Warhorse {
             toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Minifying CSS...", "csso", toolOptions, toolArgs, false, false);
+            this.task("Minifying CSS...", "csso", toolOptions, toolArgs, "silent", false);
 
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
@@ -517,7 +519,7 @@ class Warhorse {
             toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Preprocessing LESS...", "lessc", toolOptions, toolArgs, true, true);
+            this.task("Preprocessing LESS...", "lessc", toolOptions, toolArgs, "less", true);
 
         } else if(type === "sass") {
             // Create a user-level config from defaults/options
@@ -548,7 +550,7 @@ class Warhorse {
             toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Preprocessing SASS...", "node-sass", toolOptions, toolArgs, false, false);
+            this.task("Preprocessing SASS...", "node-sass", toolOptions, toolArgs, "sass", false);
 
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
@@ -605,7 +607,7 @@ class Warhorse {
             toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task(`Packing ${type.toUpperCase()}...`, "imagemin", toolOptions, toolArgs, false, false);
+            this.task(`Packing ${type.toUpperCase()}...`, "imagemin", toolOptions, toolArgs, "silent", false);
 
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
@@ -653,7 +655,7 @@ class Warhorse {
             toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Postprocessing CSS...", "postcss", toolOptions, toolArgs, false, false);
+            this.task("Postprocessing CSS...", "postcss", toolOptions, toolArgs, "silent", false);
 
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
@@ -665,6 +667,259 @@ class Warhorse {
 
     // For publishing the final distribution: NPM... JSPM???, Yarn???
     publish(type, options) {}
+
+    _reportJSCS(reports) {
+        // { 'test/data/client_src/js/Circle.js':
+        //     [ { line: 9,
+        //         column: 21,
+        //         message: 'validateQuoteMarks: Invalid quote mark found' } ],
+        //         'test/data/client_src/js/Polygon.js': [],
+        //     'test/data/client_src/js/Square.js': [],
+        //     'test/data/client_src/js/index.js': [] }
+        // console.error(reports);
+
+        let issuesTotal = 0;
+        console.log("");
+        console.log(`  Lint Report (JS style):`);
+        console.log("");
+
+        for(let reportIdx in reports) {
+
+            // Extract each report.
+            let report = reports[reportIdx];
+            let filename = reportIdx;
+
+            if(report.length === 0) {
+                console.log(`    ${color.green("✓")} '${filename}' ok.`);
+            } else {
+                console.log(`    ${color.red("✕")} '${filename}' - ${report.length} issue(s):`);
+                for(let i = 0; i < report.length; i++) {
+                    let result = report[i];
+
+                    let line = result.line;
+                    let column = result.column;
+                    let msg = result.message;
+
+                    issuesTotal++;
+                    console.log(`        at line: ${line} col: ${column} - ${msg}.`);
+                }
+                console.log("");
+            }
+        }
+        // console.log(`Test Report Summary:`);
+        // console.log(`   \x1b[32mTests passed: (${testsPassed}/${testsTotal})\x1b[0m`);
+        // if(testsFailed) {
+        //     console.log(`   \x1b[31mTests failed: (${testsFailed}/${testsTotal})\x1b[0m`);
+        // }
+        // console.log("");
+    }
+
+    _reportJSHint(reports) {
+        // {
+        //     "result": [{
+        //     "file": "test.js",
+        //     "error": {
+        //         "id": "(error)",
+        //         "raw": "'{a}' is not defined.",
+        //         "code": "W117",
+        //         "evidence": "describe('jshint-json', function () {",
+        //         "line": 6,
+        //         "character": 1,
+        //         "scope": "(main)",
+        //         "a": "describe",
+        //         "reason": "'describe' is not defined."
+        //     }
+        // }, {
+        //     "file": "test.js",
+        //     "error": {
+        //         "id": "(error)",
+        //         "raw": "'{a}' is not defined.",
+        //         "code": "W117",
+        //         "evidence": "\tit('should be used by JSHint', function () {",
+        //         "line": 7,
+        //         "character": 5,
+        //         "scope": "(main)",
+        //         "a": "it",
+        //         "reason": "'it' is not defined."
+        //     }
+        // }],
+        //     "data": [{
+        //     "functions": [{
+        //         "name": "\"jshint-json\"",
+        //         "line": 6,
+        //         "character": 35,
+        //         "last": 26,
+        //         "lastcharacter": 2,
+        //         "metrics": {
+        //             "complexity": 1,
+        //             "parameters": 0,
+        //             "statements": 1
+        //         }
+        //     }, {
+        //         "name": "\"should be used by JSHint\"",
+        //         "line": 7,
+        //         "character": 46,
+        //         "last": 25,
+        //         "lastcharacter": 6,
+        //         "metrics": {
+        //             "complexity": 1,
+        //             "parameters": 0,
+        //             "statements": 5
+        //         }
+        //     }],
+        //     "options": {
+        //         "node": true,
+        //         "esnext": true,
+        //         "bitwise": true,
+        //         "camelcase": true,
+        //         "curly": true,
+        //         "eqeqeq": true,
+        //         "immed": true,
+        //         "indent": 4,
+        //         "(explicitIndent)": true,
+        //         "latedef": true,
+        //         "newcap": true,
+        //         "noarg": true,
+        //         "quotmark": "single",
+        //         "regexp": true,
+        //         "undef": true,
+        //         "unused": true,
+        //         "strict": true,
+        //         "trailing": true,
+        //         "smarttabs": true,
+        //         "maxerr": 50
+        //     },
+        //     "errors": [{
+        //         "id": "(error)",
+        //         "raw": "'{a}' is not defined.",
+        //         "code": "W117",
+        //         "evidence": "describe('jshint-json', function () {",
+        //         "line": 6,
+        //         "character": 1,
+        //         "scope": "(main)",
+        //         "a": "describe",
+        //         "reason": "'describe' is not defined."
+        //     }, {
+        //         "id": "(error)",
+        //         "raw": "'{a}' is not defined.",
+        //         "code": "W117",
+        //         "evidence": "\tit('should be used by JSHint', function () {",
+        //         "line": 7,
+        //         "character": 5,
+        //         "scope": "(main)",
+        //         "a": "it",
+        //         "reason": "'it' is not defined."
+        //     }],
+        //     "implieds": [{
+        //         "name": "describe",
+        //         "line": [
+        //             6
+        //         ]
+        //     }, {
+        //         "name": "it",
+        //         "line": [
+        //             7
+        //         ]
+        //     }],
+        //     "globals": [
+        //         "assert",
+        //         "require",
+        //         "jshint",
+        //         "jsonReporter",
+        //         "console"
+        //     ],
+        //     "member": {
+        //         "run": 1,
+        //         "reporter": 2,
+        //         "log": 2,
+        //         "args": 1
+        //     },
+        //     "file": "test.js"
+        // }]
+        // }
+
+        // reports = reports.results;
+        reports = reports.result;
+        //console.error(reports);
+
+        let issuesTotal = 0;
+        console.log("");
+        console.log(`  Lint Report (JS quality):`);
+        console.log("");
+
+        for(let reportIdx = 0; reportIdx < reports.length; reportIdx++) {
+
+            // Extract each report.
+            let result = reports[reportIdx];
+            let filename = result.file;
+
+            // if(report.length === 0) {
+            //     console.log(`    ${color.green("✓")} '${filename}' ok.`);
+            // } else {
+                console.log(`    ${color.red("✕")} '${filename}' has issue(s):`);
+                // for(let i = 0; i < report.length; i++) {
+                //     let result = report[i];
+
+                    let line = result.line;
+                    let column = result.character;
+                    let msg = result.reason;
+
+                    issuesTotal++;
+                    console.log(`        at line: ${line} col: ${column} - ${msg}.`);
+                // }
+                // console.log("");
+            // }
+        }
+        // console.log(`Test Report Summary:`);
+        // console.log(`   \x1b[32mTests passed: (${testsPassed}/${testsTotal})\x1b[0m`);
+        // if(testsFailed) {
+        //     console.log(`   \x1b[31mTests failed: (${testsFailed}/${testsTotal})\x1b[0m`);
+        // }
+        // console.log("");
+    }
+
+    _reportTape(reports) {
+        let testsTotal = 0;
+        let testsFailed = 0;
+        let testsPassed = 0;
+
+        for(let testIdx = 0; testIdx < reports.length; testIdx++) {
+            // Extract each report.
+            let report = reports[testIdx];
+            testsTotal += report.tests.length;
+
+            console.log("");
+            console.log(`  Test Report: ${report.name} (${report.tests.length} tests).`);
+            for(let i = 0; i < report.tests.length; i++) {
+                let result = report.tests[i];
+
+                let filename = result.file;
+                let line = result.line;
+                let column = result.column;
+
+                if(result.ok === true) {
+                    // e.g. {"id":0,"ok":true,"name":"it should have assigned the right height.","operator":"equal","objectPrintDepth":5,"actual":210,"expected":210,"test":0,"type":"assert"}
+                    testsPassed++;
+                    console.log(`    \x1b[32m✓\x1b[0m ${result.name}`);
+                } else {
+                    // e.g. {"id":2,"ok":false,"name":"it should have assigned the right area.","operator":"equal","objectPrintDepth":5,"actual":44100,"expected":441100,"error":{},"functionName":"Test.<anonymous>","file":"/Users/kasargeant/dev/projects/warhorse/test/data/client_test/js/tape.js:17:8","line":17,"column":"8","at":"Test.<anonymous> (/Users/kasargeant/dev/projects/warhorse/test/data/client_test/js/tape.js:17:8)","test":0,"type":"assert"}
+                    testsFailed++;
+                    console.log(`    \x1b[31m✕\x1b[0m FAILED: ${result.name}`);
+                    console.log(`        Testing: '${result.operator}'`);
+                    console.log(`        at line: ${line} col: ${column} in '${filename}'.`);
+                    console.log(`        - expected: '${result.expected}'`);
+                    console.log(`        - actual  : '${result.actual}'`);
+                    console.log("");
+                }
+            }
+        }
+        console.log(`Test Report Summary:`);
+        console.log(`   \x1b[32mTests passed: (${testsPassed}/${testsTotal})\x1b[0m`);
+        if(testsFailed) {
+            console.log(`   \x1b[31mTests failed: (${testsFailed}/${testsTotal})\x1b[0m`);
+        }
+        console.log("");
+    }
 
     /**
      * Task for testing code. e.g. JS.
@@ -694,7 +949,8 @@ class Warhorse {
                 // NOTE: THIS SCRIPT HAS NO OPTIONS
                 let toolOptions = {};
 
-                let cmdLine = `node ${this.moduleDirectory}src/js/tools/TapeRunner.js ${toolArgs}`;
+                // let cmdLine = `node ${this.moduleDirectory}src/js/tools/TapeRunner.js ${toolArgs}`;
+                let cmdLine = `node ${toolArgs}`;
 
                 // Finally map configuration to tool args and options
                 let stdout = "{}";
@@ -705,29 +961,43 @@ class Warhorse {
                 }
                 // At this point, stdout should contain an array of 0 or more test report objects.
                 if(stdout !== null) {
-
-                    let reports = JSON.parse(stdout.toString());
-                    for(let testIdx = 0; testIdx < reports.length; testIdx++) {
-                        // Extract each report.
-                        let report = reports[testIdx];
-                        console.log(`Test Report: ${report.name}`);
-                        console.log(`    - has ${report.tests.length} tests.`);
-                        for(let i = 0; i < report.tests.length; i++) {
-                            let result = report.tests[i];
-                            if(result.ok === true) {
-                                // e.g. {"id":0,"ok":true,"name":"it should have assigned the right height.","operator":"equal","objectPrintDepth":5,"actual":210,"expected":210,"test":0,"type":"assert"}
-                                console.log(`\x1b[32m✓\x1b[0m it ${result.name} -> succeeded.`);
-                            } else {
-                                // e.g. {"id":2,"ok":false,"name":"it should have assigned the right area.","operator":"equal","objectPrintDepth":5,"actual":44100,"expected":441100,"error":{},"functionName":"Test.<anonymous>","file":"/Users/kasargeant/dev/projects/warhorse/test/data/client_test/js/tape.js:17:8","line":17,"column":"8","at":"Test.<anonymous> (/Users/kasargeant/dev/projects/warhorse/test/data/client_test/js/tape.js:17:8)","test":0,"type":"assert"}
-                                console.log(`\x1b[31m✕\x1b[0m it ${result.name} -> failed.`);
-                                console.log(` testing if: '${result.operator}'`);
-                                console.log(` expected: '${result.expected}'`);
-                                console.log(` actual  : '${result.actual}'`);
-                                console.log(` at line ${result.line}/${result.col}.`);
-                                console.log("");
+                    let reportLines = stdout.toString().split("\n");
+                    let reports = [];
+                    let data = {
+                        name: "Untitled test",
+                        tests: []
+                    };
+                    let row = {};
+                    for(let i = 0; i < reportLines.length; i++) {
+                        try {
+                            console.log(">> " + reportLines[i]);
+                            row = JSON.parse(reportLines[i]);
+                            console.log("-> " + JSON.stringify(row));
+                            switch(row.type) {
+                                case "test":
+                                    data.id = row.id;
+                                    data.name = row.name;
+                                    break;
+                                case "assert":
+                                    data.tests.push(row);
+                                    break;
+                                case "end":
+                                    reports.push(data);
+                                    data = {
+                                        name: "Untitled test",
+                                        tests: []
+                                    };
+                                    break;
+                                default:
+                                    console.error(`Error: Unrecognised TAP message of type '${row.type}'.`);
                             }
+                        } catch(ex) {
+                            console.error(ex);
+console.log("IGNORING: " + reportLines[i]);
                         }
                     }
+
+                    this._reportTape(reports);
                 }
 
 
@@ -755,7 +1025,7 @@ class Warhorse {
                 toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
                 // Finally map configuration to tool args and options
-                this.task("Testing JS...", "jest", toolOptions, toolArgs, false, false);
+                this.task("Testing JS...", "jest", toolOptions, toolArgs, "silent", false);
             }
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
@@ -1116,11 +1386,11 @@ class Warhorse {
      * @param {string} name - Name of the task tool.
      * @param {Object} options - Options to further configure this task.
      * @param {string|Array} args - Argument(s) for this task.
-     * @param {boolean} showOutput - Flag indicating that task should display any output returned by the task.
+     * @param {boolean} useOutput - Flag indicating that task should display any output returned by the task.
      * @param {boolean} useEqualsSign - Use '=' sign between configuration key-values.
      * @returns {Object} - Returns self for chaining.
      */
-    task(desc, name, options={}, args="", showOutput=true, useEqualsSign=false) {
+    task(desc, name, options={}, args="", useOutput="silent", useEqualsSign=false) {
         console.task(`TASK: ${desc}`);
 
         let cmdLine = this.moduleDirectory + "node_modules/.bin/" + name;
@@ -1156,14 +1426,39 @@ class Warhorse {
 
         if(this.debug) {console.log("Executing: " + cmdLine);}
 
-        let stdout = "";
+        let stdout = null;
         try {
-            stdout = child.execSync(cmdLine, {stdio: "inherit"});
-            if(stdout !== null && showOutput === true) {
-                console.log(stdout.toString());
-            }
+            stdout = child.execSync(cmdLine);
         } catch(ex) {
-            console.error(ex.message);
+            //console.error(ex.message);
+            stdout = ex.stdout;
+        }
+
+        if(stdout !== null) {
+            let output = "";
+            switch(useOutput) {
+                case "silent":
+                    // console.log(">> SILENT");
+                    break;
+                case "jscs":
+                    // console.log(">> JSCS");
+                    output = JSON.parse(stdout.toString());
+                    this._reportJSCS(output);
+                    break;
+                case "jshint":
+                    // console.log(">> JSHINT");
+                    output = JSON.parse(stdout.toString());
+                    this._reportJSHint(output);
+                    break;
+                case "tape":
+                    // console.log(">> TAPE");
+                    this._reportTape(stdout.toString());
+                    break;
+                default:
+                    // console.log(">> STDOUT");
+                    console.warn(`Warning: Unrecognised useOutput format '${useOutput}'.  Falling back on stdout.`)
+                    console.log(stdout.toString());
+            }
         }
 
         // Return self for chaining.

@@ -158,14 +158,20 @@ function tasks(warhorse) {
 
                 warhorse.test("js", {
                     tooling: "tape",
-                    src: "test/data/client_test/js/tape.js",
+                    src: "test/data/client_test/js/Tinter256.test.js",
                 });
 
-                warhorse.test("js", {
-                    config: "conf/jest.json",
-                    src: "./test/js/",
-                    debug: true
-                });
+                // TAPE
+                // warhorse.test("js", {
+                //     tooling: "tape",
+                //     src: "test/data/client_test/js/Tinter16.test.js",
+                // });
+
+                // warhorse.test("js", {
+                //     config: "conf/jest.json",
+                //     src: "./test/js/",
+                //     debug: true
+                // });
             }
         },
 

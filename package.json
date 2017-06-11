@@ -41,7 +41,12 @@
     "document-api": "jsdoc -c ./conf/.jsdocrc -r",
     "document-forced-readme": "jsdoc -c ./conf/.jsdocrc -r --readme ./README.md",
     "jest": "jest --verbose",
-    "jest-update": "jest --updateSnapshot"
+    "jest-update": "jest --updateSnapshot",
+    "wtest": "tap ./test/data/client_test/js/*.js",
+    "wtest-cover": "tap ./test/data/client_test/js/*.js --coverage",
+    "report": "nyc report --reporter=lcov",
+    "test": "tap test/data/client_test/js/*.test.js",
+    "test-cover": "nyc tap test/data/client_test/js/*.test.js"
   },
   "babel": {
     "presets": [
@@ -93,6 +98,7 @@
     "jscs": "^3.0.7",
     "jsdoc": "^3.4.3",
     "jshint": "^2.9.4",
+    "jshint-json": "^1.0.0",
     "less": "^2.7.2",
     "merge": "^1.2.0",
     "minami": "^1.2.3",
@@ -100,14 +106,17 @@
     "node-fetch": "^1.6.3",
     "node-sass": "^4.5.2",
     "npm": "^4.2.0",
+    "nyc": "^11.0.2",
     "pageant": "0.0.15",
     "postcss-cli": "^4.0.0",
     "readline-sync": "^1.4.7",
     "shelljs": "^0.7.7",
     "taffydb": "^2.7.3",
+    "tap": "^10.3.3",
     "tape": "^4.6.3",
     "tar": "^3.1.5",
-    "tinter": "^0.2.2",
+    "tinter": "^0.3.1",
     "uglify-es": "^3.0.3"
-  }
+  },
+  "devDependencies": {}
 }
