@@ -838,37 +838,50 @@ class Warhorse {
         // }]
         // }
 
-        // reports = reports.results;
+        // First we need to reduce and collate JSHint's verbose output.
+        let reportsByFilename = {};
         reports = reports.result;
-        //console.error(reports);
+        for(let report of reports) {
+            //console.log(">>" + report);
+            if(reportsByFilename[report.file] === undefined) {
+                reportsByFilename[report.file] = [report.error];
+            } else {
+                reportsByFilename[report.file].push(report.error);
+            }
+        }
+        reports = reportsByFilename;
+        // console.error(reports);
 
-        let issuesTotal = 0;
         console.log("");
         console.log(`  Lint Report (JS quality):`);
         console.log("");
 
-        for(let reportIdx = 0; reportIdx < reports.length; reportIdx++) {
+        let reportFilenames = Object.keys(reports);
+        for(let i = 0; i < reportFilenames.length; i++) {
 
-            // Extract each report.
-            let result = reports[reportIdx];
-            let filename = result.file;
+            let filename = reportFilenames[i];
+            console.log(`    ${color.red("✕")} '${filename}' has issue(s):`);
 
-            // if(report.length === 0) {
-            //     console.log(`    ${color.green("✓")} '${filename}' ok.`);
-            // } else {
-                console.log(`    ${color.red("✕")} '${filename}' has issue(s):`);
-                // for(let i = 0; i < report.length; i++) {
-                //     let result = report[i];
-
-                    let line = result.line;
-                    let column = result.character;
-                    let msg = result.reason;
-
-                    issuesTotal++;
-                    console.log(`        at line: ${line} col: ${column} - ${msg}.`);
-                // }
-                // console.log("");
+            // Extract each issue report.
+            // {
+            //         "id": "(error)",
+            //         "raw": "'{a}' is not defined.",
+            //         "code": "W117",
+            //         "evidence": "describe('jshint-json', function () {",
+            //         "line": 6,
+            //         "character": 1,
+            //         "scope": "(main)",
+            //         "a": "describe",
+            //         "reason": "'describe' is not defined."
             // }
+            let report = reports[filename];
+            for(let j = 0; j < report.length; j++) {
+                let issue = report[j];
+                console.log(`        at line: ${issue.line} col: ${issue.character} - ${issue.reason}.`);
+            }
+
+
+
         }
         // console.log(`Test Report Summary:`);
         // console.log(`   \x1b[32mTests passed: (${testsPassed}/${testsTotal})\x1b[0m`);
@@ -900,11 +913,11 @@ class Warhorse {
                 if(result.ok === true) {
                     // e.g. {"id":0,"ok":true,"name":"it should have assigned the right height.","operator":"equal","objectPrintDepth":5,"actual":210,"expected":210,"test":0,"type":"assert"}
                     testsPassed++;
-                    console.log(`    \x1b[32m✓\x1b[0m ${result.name}`);
+                    console.log(`    [32m✓[0m ${result.name}`);
                 } else {
                     // e.g. {"id":2,"ok":false,"name":"it should have assigned the right area.","operator":"equal","objectPrintDepth":5,"actual":44100,"expected":441100,"error":{},"functionName":"Test.<anonymous>","file":"/Users/kasargeant/dev/projects/warhorse/test/data/client_test/js/tape.js:17:8","line":17,"column":"8","at":"Test.<anonymous> (/Users/kasargeant/dev/projects/warhorse/test/data/client_test/js/tape.js:17:8)","test":0,"type":"assert"}
                     testsFailed++;
-                    console.log(`    \x1b[31m✕\x1b[0m FAILED: ${result.name}`);
+                    console.log(`    [31m✕[0m FAILED: ${result.name}`);
                     console.log(`        Testing: '${result.operator}'`);
                     console.log(`        at line: ${line} col: ${column} in '${filename}'.`);
                     console.log(`        - expected: '${result.expected}'`);
@@ -914,9 +927,9 @@ class Warhorse {
             }
         }
         console.log(`Test Report Summary:`);
-        console.log(`   \x1b[32mTests passed: (${testsPassed}/${testsTotal})\x1b[0m`);
+        console.log(`   [32mTests passed: (${testsPassed}/${testsTotal})[0m`);
         if(testsFailed) {
-            console.log(`   \x1b[31mTests failed: (${testsFailed}/${testsTotal})\x1b[0m`);
+            console.log(`   [31mTests failed: (${testsFailed}/${testsTotal})[0m`);
         }
         console.log("");
     }
@@ -970,9 +983,9 @@ class Warhorse {
                     let row = {};
                     for(let i = 0; i < reportLines.length; i++) {
                         try {
-                            console.log(">> " + reportLines[i]);
+                            // console.log(">> " + reportLines[i]); // DEBUG ONLY
                             row = JSON.parse(reportLines[i]);
-                            console.log("-> " + JSON.stringify(row));
+                            //console.log("-> " + JSON.stringify(row));
                             switch(row.type) {
                                 case "test":
                                     data.id = row.id;
@@ -993,7 +1006,7 @@ class Warhorse {
                             }
                         } catch(ex) {
                             console.error(ex);
-console.log("IGNORING: " + reportLines[i]);
+                            //console.log("IGNORING: " + reportLines[i]);
                         }
                     }
 
@@ -1456,7 +1469,7 @@ console.log("IGNORING: " + reportLines[i]);
                     break;
                 default:
                     // console.log(">> STDOUT");
-                    console.warn(`Warning: Unrecognised useOutput format '${useOutput}'.  Falling back on stdout.`)
+                    console.warn(`Warning: Unrecognised useOutput format '${useOutput}'.  Falling back on stdout.`);
                     console.log(stdout.toString());
             }
         }
