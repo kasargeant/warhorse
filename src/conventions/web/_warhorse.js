@@ -37,7 +37,7 @@ function tasks(warhorse) {
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "distribute": function() {
                 warhorse
-                    .execute("precompile")
+                    .execute("process")
                     .execute("test")
                     .execute("lint")
                     .execute("build")
@@ -113,7 +113,7 @@ function tasks(warhorse) {
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "precompile": function() {
+            "process": function() {
 
                 // warhorse.preprocess("less", {
                 //     src: "src/less/index.less",
@@ -137,6 +137,15 @@ function tasks(warhorse) {
                 //     dst: "dist/css/index.min.css"
                 // });
 
+            },
+
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            "publish": function() {
+                // TODO - Implement 'publish' command functionality using module 'npm' for first case.
+                // warhorse
+                //     .execute("distribute")
+                //     .version("git", {
+                //      });
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

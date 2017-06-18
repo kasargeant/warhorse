@@ -11,6 +11,7 @@ class Circle extends Polygon {
 
     get area() {
         let useless = 10;
+        let also_useless = "hmmm";
         return this.height * this.width;
     }
 }

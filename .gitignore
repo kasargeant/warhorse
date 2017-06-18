@@ -11,6 +11,7 @@ node_modules/
 
 # TEMPORARY FOLDERS AND FILES
 scratch/
+scratch.*
 temp/
 /test/data/client_dist/
 

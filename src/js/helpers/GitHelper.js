@@ -18,7 +18,8 @@ const child = require("child_process");
 class GitHelper {
 
     static getCurrentBranchName() {
-        return child.execSync("git rev-parse --abbrev-ref HEAD");
+        let stdout = child.execSync("git rev-parse --abbrev-ref HEAD");
+        return stdout.toString();
     }
 
     static createBranch(name) {

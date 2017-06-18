@@ -15,17 +15,18 @@ const path = require("path");
 
 let argv = require("minimist")(process.argv.slice(2), {
     string: "task",
-    alias: {d: "debug", h: "help", v: "version"},
+    alias: {c: "conf", d: "debug", h: "help", s: "specialise", v: "version"},
     default: {task: "build"},
     "--": true
 });
-
+// console.log(JSON.stringify(argv, null, 2));
+// return;
 let workingDirectory = process.cwd() + "/";
 let moduleDirectory = path.join(__dirname, "..") + "/";
 
 const run = require("../src/index");
 
-const commands = ["build", "clean", "create", "distribute", "document", "init", "lint", "pack", "precompile", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
+const commands = ["build", "clean", "create", "distribute", "document", "help", "lint", "pack", "process", "publish", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
 
 const help = `
   ============================================================================
@@ -35,24 +36,25 @@ const help = `
 	  $ warhorse <flags> <command> <options>
 
 	Commands
-	  build,         Builds the project in the current directory.
-	  create,        Initialises and creates a new project interactively in a named sub-directory.
-	  distribute,    Makes a final distribution build of the project in the ./dist directory.
-	  document,      Documents the project in the current directory.
-	  lint,          Runs linters across the project - checking both code style and quality.
-	  precompile,    Precompiles and minimises all style and template assets.
-	  test           Test the project code - runs both unit and integration tests.
+	  build,        Builds the project in the current directory.
+	  create,       Initialises and creates a new project interactively in a named sub-directory.
+	  distribute,   Makes a final distribution build of the project in the ./dist directory.
+	  document,     Documents the project in the current directory.
+	  lint,         Runs linters across the project - checking both code style and quality.
+	  precompile,   Precompiles and minimises all style and template assets.
+	  test          Test the project code - runs both unit and integration tests.
 
 	Flags
-	  --config,  -c  Use a specific config file.
-	  --debug,   -d  Operate in verbose debug mode.
-	  --help,    -h  Shows this information.
-	  --project, -p  Use a specific project convention.
-	  --version, -v  Shows Warhorse CLI version.
+	  --conf,       -c  Use a specific configuration file.
+	  --debug,      -d  Operate in verbose debug mode.
+	  --help,       -h  Shows this information.
+	  --specialise, -s  Specialise the command (if option is available for that command).
+	  --version,    -v  Shows Warhorse CLI version.
 
 	Examples
 	  $ warhorse create module
-	     
+	  $ warhorse test
+	  $ warhorse test -- specific.test.js
 	  $ warhorse distribute 
 	     🌈 ...CRUSHING YOUR ENEMIES!!! 🌈
 

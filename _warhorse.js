@@ -19,6 +19,10 @@ function tasks(warhorse) {
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "build": function() {
+                warhorse.version("git", {
+                    action: "get-branch-name"
+                });
+
                 warhorse.bundle("js", {
                     src: "test/data/client_src/js/index.js",
                     dst: "test/data/client_dist/js/index.js"
@@ -37,7 +41,7 @@ function tasks(warhorse) {
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "distribute": function() {
                 warhorse
-                    .execute("precompile")
+                    .execute("process")
                     .execute("test")
                     .execute("lint")
                     .execute("build")
@@ -114,7 +118,7 @@ function tasks(warhorse) {
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "precompile": function() {
+            "process": function() {
 
                 warhorse.preprocess("less", {
                     src: "test/data/client_src/less/index.less",
@@ -141,12 +145,28 @@ function tasks(warhorse) {
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            "publish": function() {
+                // TODO - Implement 'publish' command functionality using module 'npm' for first case.
+                // warhorse
+                //     .execute("distribute")
+                //     .version("git", {
+                //      });
+            },
+
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "test": function() {
+
                 warhorse.test("js", {
                     tooling: "tape",
-                    src: "test/data/client_test/js/tape.js",
-                    debug: true
+                    src: "test/data/client_test/js/Tinter256.test.js",
                 });
+
+                // TAPE
+                // warhorse.test("js", {
+                //     tooling: "tape",
+                //     src: "test/data/client_test/js/Tinter16.test.js",
+                // });
+
                 // warhorse.test("js", {
                 //     config: "conf/jest.json",
                 //     src: "./test/js/",

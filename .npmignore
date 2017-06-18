@@ -5,6 +5,7 @@
 
 # TEMPORARY FOLDERS AND FILES
 scratch/
+scratch.*
 temp/
 
 # REPO FOLDERS NOT FOR NPM PUBLISHING
