@@ -1,6 +1,6 @@
-const test = require("tape");
+const test = require("test/data/client_test/js/tap/tape");
 
-const Square = require("../../client_src/js/Square");
+const Square = require("../../../client_src/js/Square");
 
 test("Square class.", function(is) {
 

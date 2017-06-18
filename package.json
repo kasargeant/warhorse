@@ -38,7 +38,7 @@
     "npm": "~3.10.10"
   },
   "scripts": {
-    "document-api": "jsdoc -c ./conf/.jsdocrc -r",
+    "document-api": "jsdoc -c ./conf/jsdoc.json -r",
     "document-forced-readme": "jsdoc -c ./conf/.jsdocrc -r --readme ./README.md",
     "jest": "jest --verbose",
     "jest-update": "jest --updateSnapshot",
@@ -82,7 +82,7 @@
     "babel-jest": "^20.0.3",
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^7.3.0",
-    "bayeux": "^0.5.0",
+    "bayeux": "^0.8.0",
     "browserify": "^14.1.0",
     "csso-cli": "^1.0.0",
     "eslint": "^3.19.0",
@@ -95,7 +95,7 @@
     "imagemin-svgo": "^5.2.2",
     "inuitcss": "^6.0.0-beta.4",
     "jest": "^20.0.3",
-    "jest-html-reporter": "^0.1.0",
+    "jest-html-reporter": "^0.3.0",
     "jscs": "^3.0.7",
     "jsdoc": "^3.4.3",
     "jshint": "^2.9.4",
@@ -113,11 +113,11 @@
     "readline-sync": "^1.4.7",
     "shelljs": "^0.7.8",
     "taffydb": "^2.7.3",
-    "tap": "^10.3.3",
+    "tap": "^10.4.0",
     "tape": "^4.6.3",
     "tar": "^3.1.5",
-    "tinter": "^0.4.3",
-    "uglify-es": "^3.0.3"
+    "tinter": "^0.4.5",
+    "uglify-es": "^3.0.18"
   },
   "devDependencies": {}
 }
