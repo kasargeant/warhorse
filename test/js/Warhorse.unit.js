@@ -28,24 +28,51 @@ unit("Class: Warhorse", function() {
 
     test("instantiation", function(done) {
 
-        // given("an instance with existance").expect(warhorse).toNotEqual(undefined);
-
+        given("an instance with existance").expect(warhorse).toNotEqual(undefined);
         given("an instance with default settings").expect(warhorse.defaults).toNotEqual(undefined);
-        given("an instance with default language settings of 'es51'").expect(warhorse.defaults.language).toEqual("ses51");
-
-
-        // given("plain").expect(Tinter.plain(DUMMY_STRING)).toEqual(`\x1b[0m${DUMMY_STRING}\x1b[0m`);
-        // given("bright").expect(Tinter.bright(DUMMY_STRING)).toEqual(`\x1b[1m${DUMMY_STRING}\x1b[0m`);
-        // given("dim").expect(Tinter.dim(DUMMY_STRING)).toEqual(`\x1b[2m${DUMMY_STRING}\x1b[0m`);
-        // given("italic").expect(Tinter.italic(DUMMY_STRING)).toEqual(`\x1b[3m${DUMMY_STRING}\x1b[0m`);
-        // given("underline").expect(Tinter.underline(DUMMY_STRING)).toEqual(`\x1b[4m${DUMMY_STRING}\x1b[0m`);
-        // given("blink").expect(Tinter.blink(DUMMY_STRING)).toEqual(`\x1b[5m${DUMMY_STRING}\x1b[0m`);
-        // given("blink2").expect(Tinter.blink2(DUMMY_STRING)).toEqual(`\x1b[6m${DUMMY_STRING}\x1b[0m`);
-        // given("inverse").expect(Tinter.inverse(DUMMY_STRING)).toEqual(`\x1b[7m${DUMMY_STRING}\x1b[0m`);
-        // given("hidden").expect(Tinter.hidden(DUMMY_STRING)).toEqual(`\x1b[8m${DUMMY_STRING}\x1b[0m`);
+        given("an instance with default language settings of 'es51'").expect(warhorse.defaults.language).toEqual("es51");
 
         done(); // Indicate the test is done.
     });
+
+    test("task: bundle JS", function(done) {
+
+        let type = "js";
+        let options = {
+            src: "test/data/client_src/js/index.js",
+            dst: "test/data/client_dist/js/index.js"
+        };
+
+        let testBlock = function() {return warhorse.bundle(type, options);};
+
+        //given("a valid JS source file path and destination").expect(testBlock).toNotThrow();
+
+        // given("an instance with default settings").expect(warhorse.defaults).toNotEqual(undefined);
+        // given("an instance with default language settings of 'es51'").expect(warhorse.defaults.language).toEqual("es51");
+
+        done(); // Indicate the test is done.
+    });
+
+
+    //     // Public functions
+    //     it("should be able to bundle JS code", function() {
+    //         warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_JS));
+    //         warhorse.bundle({});
+    //         expect(warhorse.file.content).toMatchSnapshot();
+    //     });
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     it("should be able to compile LESS", function() {
+    //         warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_LESS));
+    //         warhorse.compileLESS({});
+    //         expect(warhorse.file.content).toMatchSnapshot();
+    //     });
+    //
+    //     it("should be able to compile SASS", function() {
+    //         warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_SASS));
+    //         warhorse.compileSASS({});
+    //         expect(warhorse.file.content).toMatchSnapshot();
+    //     });
 
 
 });
