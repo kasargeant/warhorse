@@ -23,6 +23,7 @@
   },
   "scripts": {},
   "devDependencies": {
+    "bayeux": "^0.8.0",
     "minami": "^1.2.3"
   }
 }

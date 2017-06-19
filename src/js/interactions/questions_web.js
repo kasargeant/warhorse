@@ -79,15 +79,7 @@ function questions() {
     answers.license = licenses[licenseIdx];
     console.log(`license: ${answers.license}`);
 
-    // Project tooling: test
-    const testTools = ["Jasmine", "Jest", "Mocha"];
-    let testToolIdx = readlineSync.keyInSelect(testTools, "Which testing setup do you wish to use? ", {
-        cancel: false
-    });
-    answers.warhorse.toolingTest = testTools[testToolIdx].toLowerCase();
-    console.log(`testTool: ${answers.warhorse.toolingTest}`);
-
-    // Project tooling: test
+    // Project tooling: CSS preprocessing
     const styleTools = ["none", "LESS", "SASS"];
     let styleToolIdx = readlineSync.keyInSelect(styleTools, "Which CSS preprocessor do you wish to use? ", {
         cancel: false
@@ -96,7 +88,7 @@ function questions() {
     console.log(`styleTool: ${answers.warhorse.toolingStyle}`);
 
 
-    // Project tooling: test
+    // Project tooling: HTML templating
     const templateTools = ["none", "Handlebars"];
     let templateToolIdx = readlineSync.keyInSelect(templateTools, "Which template engine do you wish to use? ", {
         cancel: false
