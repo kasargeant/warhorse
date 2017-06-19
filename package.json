@@ -1,6 +1,6 @@
 {
   "name": "warhorse",
-  "version": "0.3.4",
+  "version": "0.4.0",
   "description": "A simple, friendly and reliable JavaScript Task Runner... able to crush your enemies!",
   "keywords": [
     "javascript",
@@ -38,51 +38,24 @@
     "npm": "~3.10.10"
   },
   "scripts": {
+    "docs": "npm run document-coverage",
     "document-api": "jsdoc -c ./conf/jsdoc.json -r",
     "document-forced-readme": "jsdoc -c ./conf/.jsdocrc -r --readme ./README.md",
-    "jest": "jest --verbose",
-    "jest-update": "jest --updateSnapshot",
-    "wtest": "tap ./test/data/client_test/js/*.js",
-    "wtest-cover": "tap ./test/data/client_test/js/*.js --coverage",
-    "report": "nyc report --reporter=lcov",
-    "test": "tap test/data/client_test/js/*.test.js",
-    "test-cover": "nyc tap test/data/client_test/js/*.test.js"
+    "document-coverage": "nyc report --reporter=lcov",
+    "test": "bayeux test/js/Warhorse.unit.js",
+    "test-cover": "nyc bayeux test/js/Warhorse.unit.js"
   },
   "babel": {
     "presets": [
       "es2015"
     ]
   },
-  "jest": {
-    "coverageDirectory": "./docs/coverage",
-    "coveragePathIgnorePatterns": [
-      "./conf/",
-      "./dist/",
-      "./src/",
-      "./test/data/",
-      "./test/shared/"
-    ],
-    "setupTestFrameworkScriptFile": "./test/shared/MockStorage.js",
-    "testResultsProcessor": "./node_modules/jest-html-reporter",
-    "testPathIgnorePatterns": [
-      "./conf/",
-      "./dist/",
-      "./src/",
-      "./test/data/",
-      "./test/shared/"
-    ]
-  },
-  "jest-html-reporter": {
-    "pageTitle": "Test Results",
-    "outputPath": "docs/tests/index.html",
-    "includeFailureMsg": false
-  },
   "dependencies": {
     "autoprefixer": "^7.1.1",
     "babel-jest": "^20.0.3",
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^7.3.0",
-    "bayeux": "^0.8.0",
+    "bayeux": "^0.8.1",
     "browserify": "^14.1.0",
     "csso-cli": "^1.0.0",
     "eslint": "^3.19.0",
@@ -94,8 +67,6 @@
     "imagemin-pngquant": "^5.0.1",
     "imagemin-svgo": "^5.2.2",
     "inuitcss": "^6.0.0-beta.4",
-    "jest": "^20.0.3",
-    "jest-html-reporter": "^0.3.0",
     "jscs": "^3.0.7",
     "jsdoc": "^3.4.3",
     "jshint": "^2.9.4",
@@ -113,11 +84,11 @@
     "readline-sync": "^1.4.7",
     "shelljs": "^0.7.8",
     "taffydb": "^2.7.3",
-    "tap": "^10.4.0",
-    "tape": "^4.6.3",
     "tar": "^3.1.5",
     "tinter": "^0.4.5",
     "uglify-es": "^3.0.18"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "coveralls": "^2.13.1"
+  }
 }

@@ -168,7 +168,7 @@ class Warhorse {
             this.tasks = userConfig.tasks;
         } catch(ex) {
             // fs.writeFileSync(workingDirectory + "/_warhorse.js", )
-            console.warn("Warning: This directory is missing a '_warhorse.js' file and is uninitialised.");
+            console.debug("Warning: This directory is missing a '_warhorse.js' file and is uninitialised.");
         }
     }
 
@@ -1116,27 +1116,6 @@ class Warhorse {
             this.commands.map(function(cmdName) {
                 packageNew.scripts[cmdName] = `warhorse ${cmdName}`;
             });
-
-            packageNew.warhorse.toolingTest = "jest";// FIXME - REMOVE THIS HACK AS SOON AS JASMINE/MOCHA FUNCTIONALITY IN PLACE!!!
-            switch(packageNew.warhorse.toolingTest) {
-                case "jasmine":
-                    console.warn("Jasmine testing unimplemented."); // TODO - Jasmine implementation
-                    // unlinkSync(projectPath + "/conf/jest.json");
-                    // unlinkSync(projectPath + "/conf/mocha.json");
-                    break;
-                case "jest":
-                    packageNew = merge.recursive(true, packageNew, packageSnippets.jest);
-                    unlinkSync(projectPath + "/conf/jasmine.json");
-                    // unlinkSync(projectPath + "/conf/mocha.json");
-                    break;
-                case "mocha":
-                    console.warn("Mocha testing unimplemented."); // TODO - Mocha implementation
-                    // unlinkSync(projectPath + "/conf/jasmine.json");
-                    // unlinkSync(projectPath + "/conf/jest.json");
-                    break;
-                default:
-                    console.warn("No test tool selected.");
-            }
 
             delete packageNew.warhorse;
 

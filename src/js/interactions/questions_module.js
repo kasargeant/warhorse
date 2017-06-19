@@ -79,14 +79,6 @@ function questions() {
     answers.license = licenses[licenseIdx];
     console.log(`license: ${answers.license}`);
 
-    // Project tooling: test
-    const testTools = ["Jasmine", "Jest", "Mocha"];
-    let testToolIdx = readlineSync.keyInSelect(testTools, "Which testing setup do you wish to use? ", {
-        cancel: false
-    });
-    answers.warhorse.toolingTest = testTools[testToolIdx].toLowerCase();
-    console.log(`testTool: ${answers.warhorse.toolingTest}`);
-
     // Return results
     return answers;
 }

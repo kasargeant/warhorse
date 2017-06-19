@@ -1,4 +1,5 @@
-# Warhorse [![npm](https://img.shields.io/npm/v/warhorse.svg)]()
+# Warhorse [![npm](https://img.shields.io/npm/v/warhorse.svg)]() [![Build Status](https://travis-ci.org/kasargeant/warhorse.svg?branch=master)](https://travis-ci.org/kasargeant/warhorse)  [![Coverage Status](https://coveralls.io/repos/github/kasargeant/warhorse/badge.svg?branch=master)](https://coveralls.io/github/kasargeant/warhorse?branch=master)
+
 
 ![The ideal warhorse..!](/docs/img/warhorse_320.jpg)
 

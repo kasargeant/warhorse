@@ -5,7 +5,7 @@
   "functions": 99,
   "branches": 99,
   "include": [
-    "test/data/client_test/js/*.js"
+    "src/js/*.js"
   ],
   "exclude": [
     "test/data/client_test/js/*.spec.js"
@@ -20,6 +20,6 @@
   ],
   "cache": true,
   "all": false,
-  "report-dir": "./alternative",
+  "report-dir": "./docs/coverage",
   "temp-directory": "./docs/coverage/.nyc_output"
 }
