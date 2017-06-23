@@ -20,6 +20,7 @@ const tar = require("tar");
 
 // Helpers
 const Git = require("./helpers/GitHelper");
+const Cli = require("./helpers/CliHelper");
 
 // Default templates
 const packageBase = require("../conventions/package_base.json");
@@ -99,11 +100,42 @@ class Warhorse {
             language: "es51", //"es51", "es2015", "es2015+JSX"
 
             bundle: {
+                debug: false,
+                useOutput: "stdout",
+                useEqualsSign: false,
+                src: "src/index.js",
+                dst: "dist/index.js"
             },
             clean: {},
-            document: {
-                src: "./src",
-                dst: "./docs/api"
+            compress: {
+                css: {
+                    src: "dist/css/index.min.css",
+                    dst: "dist/css/index.min.css.tar.gz"
+                },
+                js: {
+                    src: "dist/js/index.min.js",
+                    dst: "dist/js/index.min.js.tar.gz"
+                },
+                gif: {
+                    src: "./test/data/client_src/img/gif/*.gif",
+                    dst: "./dist/img/gif"
+                },
+                jpg: {
+                    src: "./test/data/client_src/img/jpg/*.jpg",
+                    dst: "./dist/img/jpg"
+                },
+                png: {
+                    src: "./test/data/client_src/img/png/*.png",
+                    dst: "./dist/img/png"
+                },
+                svg: {
+                    src: "./test/data/client_src/img/svg/*.svg",
+                    dst: "./dist/img/svg"
+                },
+                txt: {
+                    src: "dist/js/index.min.js",
+                    dst: "dist/js/index.js.tar.gz"
+                }
             },
             create: {
                 name: "Untitled",
@@ -114,21 +146,59 @@ class Warhorse {
                 email: "undefined@undefined.com",
                 license: "GPL-3.0"
             },
+            document: {
+                js: {
+                    conf: "./conf/jsdoc.json",
+                    src: "./src/index.js",
+                    dst: "./docs/api",
+                    useOutput: "stdout"
+                }
+            },
             lint: {
                 js: {
                     style: require("../../conf/jscs.json"),
-                    syntax: require("../../conf/jshint.json")
+                    quality: require("../../conf/jshint.json")
                 }
             },
             load: {
                 encoding: "utf8"
             },
-            minify: {},
+            minify: {
+                css: {
+                    debug: false,
+                    useOutput: "stdout",
+                    useEqualsSign: false,
+                    src: "src/css/index.css",
+                    dst: "dist/css/index.min.css"
+                },
+                js: {
+                    debug: false,
+                    useOutput: "stdout",
+                    useEqualsSign: false,
+                    src: "src/js/index.js",
+                    dst: "dist/js/index.js"
+                }
+            },
             pack: {
                 gif: {},
                 jpg: {},
                 png: {},
                 svg: {}
+            },
+            preprocess: {
+                less: {
+                    src: "src/index.less",
+                    dst: "dist/index.css"
+                },
+                sass: {
+                    src: "src/css/index.sass",
+                    dst: "dist/css/index.min.css"
+                }
+            },
+            postprocess: {
+                css: {
+                    src: "src/css/index.css"
+                }
             },
             process: {
                 includePaths: ["./src/sass"]
@@ -139,7 +209,14 @@ class Warhorse {
                 encoding: "utf8"
             },
             test: {
-                config: "./conf/jest.json"
+                js: {
+                    bayeux: {
+                        src: "test/js/*.test.js"
+                    },
+                    jest: {
+                        config: "./conf/jest.json"
+                    }
+                }
             }
         };
         this.settings = Object.assign(this.defaults, options);
@@ -153,9 +230,11 @@ class Warhorse {
         this.cmds = {}; // Lookup for built-in commands.
         this.tasks = {}; // Lookup for user-defined tasks.
 
-        this.moduleDirectory = moduleDirectory;
+        this.moduleDirectory = moduleDirectory;     // i.e. Warhorse's own directory
         this.conventionsDirectory = moduleDirectory + "src/conventions/";
-        this.workingDirectory = workingDirectory;
+
+        this.projectDirectory = ""; // i.e. root of user project and location of _warhorse.js
+        this.workingDirectory = workingDirectory;   // Current working directory... usually same as projectDirectory or a test directory.
 
         this.file = null; // Main arg passed from function to function - requires sync operation of course!
 
@@ -199,36 +278,97 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     bundle(type, options) {
+
+        // Log task execution
+        if(options.isSilent !== true) {console.task(`TASK: Bundling ${type.toUpperCase()}...`);}
+
+        // Select sub-task based on data type
         if(type === "js") {
+
             // Create a user-level config from defaults/options
-            let defaults = {
-                src: "src/index.js",
-                dst: "dist/index.js"
-            };
-            let config = Object.assign(defaults, options);
+            let config = Object.assign(this.defaults.bundle, options);
 
-            // Resolve tool-level arguments - with that user-level config
-            let toolArgs = [];
-            if(config.src !== undefined) {
-                toolArgs.push(config.src);
-            }
-
-            // Resolve tool-level options - with that user-level config
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            let toolArgs = [config.src];
             let toolOptions = {
+                debug: this.debug || config.debug,   // i.e. debug/source map options
                 config: config.conf,
                 outfile: config.dst,
                 exclude: config.exclude,
                 external: config.include,
                 recurse: true
             };
-            // ...and add debug/source map options if appropriate.
-            if(config.debug) {
-                toolOptions.debug = true;
-            }
-            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Bundling JS...", "browserify", toolOptions, toolArgs, "silent", false);
+            this._execute(this.moduleDirectory, "./node_modules/.bin/browserify", this.workingDirectory, toolArgs, toolOptions, config);
+
+        } else {
+            console.error(`Error: Unrecognised type '${type}'.`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Task for compressing files of any type. e.g. JS, CSS, TXT. [NOTE: CURRENTLY OUTPUTS .tar.gz ONLY.]
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.dst - The destination/target path for this task.
+     * @returns {Object} - Returns self for chaining.
+     */
+    compress(type, options) {
+
+        // Log task execution
+        if(options.isSilent !== true) {console.task(`TASK: Compressing ${type.toUpperCase()}...`);}
+
+        // Select sub-task based on data type
+        if(["css", "js", "txt"].includes(type)) {
+
+            // Create a user-level config from defaults/options
+            let config = Object.assign(this.defaults.compress[type], options);
+
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            let toolArgs = [config.src];
+            let toolOptions = {
+                sync: true,
+                gzip: true,
+                cwd: this.workingDirectory,
+                file: config.dst
+            };
+
+            // NOTE: There is no user->tool mapping necessary here.
+            // Directly execute the task.
+            tar.c(toolOptions, toolArgs);
+
+        } else if(["gif", "jpg", "png", "svg"].includes(type)) {
+            // NOTE: This is different to every other task.  here we use the same task code for all the different
+            //       image types.
+            const plugins = {
+                "gif": "gifsicle",
+                "jpg": "jpegtran",
+                "png": "pngquant",
+                "svg": "svgo"
+            };
+            let plugin = plugins[type];
+            if(plugin !== undefined) {
+
+                // Create a user-level config from defaults/options
+                let config = Object.assign(this.defaults.compress[type], options);
+
+                // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+                let toolArgs = [config.src];
+                let toolOptions = {
+                    map: this.debug || config.debug,   // i.e. debug/source map options
+                    "out-dir": config.dst,
+                    plugin: plugin
+                };
+
+                // Finally map configuration to tool args and options
+                this._execute(this.moduleDirectory, "./node_modules/.bin/imagemin", this.workingDirectory, toolArgs, toolOptions, config);
+            }
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
         }
@@ -248,35 +388,27 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     document(type, options) {
+        // Log task execution
+        if(options.isSilent !== true) {console.task(`TASK: Documenting ${type.toUpperCase()}...`);}
+
+        // Select sub-task based on data type
         if(type === "js") {
+
             // Create a user-level config from defaults/options
-            let defaults = {
-                conf: "conf/jsdoc.json",
-                src: "src/index.js",
-                dst: "docs/api/"
-            };
-            let config = Object.assign(defaults, options);
+            let config = Object.assign(this.defaults.document.js, options);
 
-            // Resolve tool-level arguments - with that user-level config
-            let toolArgs = [];
-            if(config.src !== undefined) {
-                toolArgs.push(config.src);
-            }
-
-            // Resolve tool-level options - with that user-level config
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            let toolArgs = [config.src];
             let toolOptions = {
+                verbose: this.debug || config.debug,   // i.e. debug/source map options
                 configure: config.conf,
                 destination: config.dst,
                 recurse: true
             };
-            // ...and add debug/source map options if appropriate.
-            if(config.debug) {
-                toolOptions.verbose = true;
-            }
-            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Documenting JS...", "jsdoc", toolOptions, toolArgs, "silent", false);
+            this._execute(this.moduleDirectory, "./node_modules/.bin/jsdoc", this.workingDirectory, toolArgs, toolOptions, config);
+
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
         }
@@ -297,60 +429,47 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     lint(type, options) {
+
+        // Log task execution
+        if(options.isSilent !== true) {console.task(`TASK: Bundling ${type.toUpperCase()}...`);}
+
+        // Select sub-task based on data type
         if(type === "js" && options.type === "style") {
+
             // Create a user-level config from defaults/options
-            let defaults = {
-                src: "src/js/"
-            };
-            let config = Object.assign(defaults, options);
+            let config = Object.assign(this.defaults.lint.js.style, options);
+            config.useOutput = "jscs";
+            config.useEqualsSign = true;
 
-            // Resolve tool-level arguments - with that user-level config
-            let toolArgs = [];
-            if(config.src !== undefined) {
-                toolArgs.push(config.src);
-            }
-
-            // Resolve tool-level options - with that user-level config
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            let toolArgs = [config.src];
             let toolOptions = {
+                // verbose: this.debug || config.debug,   // i.e. debug/source map options
                 config: config.conf,
                 reporter: "json"
             };
-            // NOTE: THERE ARE NO DEBUG OPTIONS
-            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Linting JS(style)...", "jscs", toolOptions, toolArgs, "jscs", true);
+            this._execute(this.moduleDirectory, "./node_modules/.bin/jscs", this.workingDirectory, toolArgs, toolOptions, config);
 
-        } else if(type === "js" && options.type !== "style") {
+        } else if(type === "js" && options.type === "quality") {
+
             // Create a user-level config from defaults/options
-            let defaults = {
-                src: "src/js/"
-            };
-            let config = Object.assign(defaults, options);
+            let config = Object.assign(this.defaults.lint.js.style, options);
+            config.useOutput = "jshint";
+            config.useEqualsSign = true;
 
-            // Resolve tool-level arguments - with that user-level config
-            let toolArgs = [];
-            if(config.src !== undefined) {
-                toolArgs.push(config.src);
-            }
-            if(config.dst !== undefined) {
-                toolArgs.push(config.dst);
-            }
-
-            // Resolve tool-level options - with that user-level config
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            let toolArgs = [config.src];
             let toolOptions = {
+                "source-map": this.debug || config.debug,   // i.e. debug/source map options
                 config: config.conf,
                 "exclude-path": config.exclude,
-                reporter: this.moduleDirectory + "node_modules/jshint-json/json.js"
+                reporter: path.resolve(this.moduleDirectory, "./node_modules/jshint-json/json.js")
             };
-            // ...and add debug/source map options if appropriate.
-            if(config.debug) {
-                toolOptions["source-map"] = true;
-            }
-            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Linting JS...", "jshint", toolOptions, toolArgs, "jshint", true);
+            this._execute(this.moduleDirectory, "./node_modules/.bin/jshint", this.workingDirectory, toolArgs, toolOptions, config);
 
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
@@ -372,61 +491,45 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     minify(type, options) {
+
+        // Log task execution
+        if(options.isSilent !== true) {console.task(`TASK: Minifying ${type.toUpperCase()}...`);}
+
+        // Select sub-task based on data type
         if(type === "js") {
+
             // Create a user-level config from defaults/options
-            let defaults = {
-                src: "src/index.js",
-                dst: "dist/index.js"
-            };
-            let config = Object.assign(defaults, options);
+            let config = Object.assign(this.defaults.minify.js, options);
 
-            // Resolve tool-level arguments - with that user-level config
-            let toolArgs = [];
-            if(config.src !== undefined) {
-                toolArgs.push(config.src);
-            }
-
-            // Resolve tool-level options - with that user-level config
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            let toolArgs = [config.src];
             let toolOptions = {
+                verbose: this.debug || config.debug,   // i.e. debug/source map options
                 "config-file": config.conf,
                 output: config.dst,
                 compress: true,
                 mangle: true
             };
-            // ...and add debug/source map options if appropriate.
-            if(config.debug) {
-                toolOptions.verbose = true;
-            }
-            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Minifying JS...", "uglifyjs", toolOptions, toolArgs, "silent", false);
+            this._execute(this.moduleDirectory, "./node_modules/.bin/uglifyjs", this.workingDirectory, toolArgs, toolOptions, config);
 
         } else if(type === "css") {
-            // Create user-level config from defaults/options
-            let defaults = {
-                src: "src/css/index.css",
-                dst: "dist/css/index.min.css"
-            };
-            let config = Object.assign(defaults, options);
 
-            // Resolve tool-level arguments - with that user-level config
-            let toolArgs = [];
+            // Create a user-level config from defaults/options
+            let config = Object.assign(this.defaults.minify.css, options);
 
-            // Resolve tool-level options - with that user-level config
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            let toolArgs = [config.src];
             let toolOptions = {
+                debug: this.debug || config.debug,   // i.e. debug/source map options
+                map: this.debug || config.debug,   // i.e. debug/source map options
                 input: config.src,
                 output: config.dst
             };
-            // ...and add debug/source map options if appropriate.
-            if(config.debug) {
-                toolOptions.debug = true;
-                toolOptions.map = true;
-            }
-            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Minifying CSS...", "csso", toolOptions, toolArgs, "silent", false);
+            this._execute(this.moduleDirectory, "./node_modules/.bin/csso", this.workingDirectory, toolArgs, toolOptions, config);
 
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
@@ -434,48 +537,7 @@ class Warhorse {
 
         // Return self for chaining.
         return this;
-    }
 
-    // generic e.g. tar.gz
-    /**
-     * Task for compressing files of any type. e.g. JS, CSS, TXT. [NOTE: CURRENTLY OUTPUTS .tar.gz ONLY.]
-     * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
-     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
-     * @param {string} options.src - The source path for this task.
-     * @param {string} options.dst - The destination/target path for this task.
-     * @returns {Object} - Returns self for chaining.
-     */
-    compress(type, options) {
-        if(type === "js") {
-            // Create a user-level config from defaults/options
-            let defaults = {
-                src: "dist/js/index.js",
-                dst: "dist/js/index.js.tar.gz"
-            };
-            let config = Object.assign(defaults, options);
-
-            // Resolve tool-level arguments - with that user-level config
-            let toolArgs = [];
-            if(config.src !== undefined) {
-                toolArgs.push(config.src);
-            }
-
-            // NOTE: There is no user->tool mapping necessary here.
-            // Directly execute the task.
-            tar.c({
-                sync: true,
-                gzip: true,
-                cwd: this.workingDirectory,
-                file: config.dst
-            }, [config.src]);
-
-        } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
-        }
-
-        // Return self for chaining.
-        return this;
     }
 
     /**
@@ -490,67 +552,42 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     preprocess(type, options) {
+
+        // Log task execution
+        if(options.isSilent !== true) {console.task(`TASK: Preprocessing ${type.toUpperCase()}...`);}
+
+        // Select sub-task based on data type
         if(type === "less") {
+
             // Create a user-level config from defaults/options
-            let defaults = {
-                src: "src/index.js",
-                dst: "dist/index.js"
-            };
-            let config = Object.assign(defaults, options);
+            let config = Object.assign(this.defaults.preprocess.less, options);
 
-            // Resolve tool-level arguments - with that user-level config
-            let toolArgs = [];
-            if(config.src !== undefined) {
-                toolArgs.push(config.src);
-            }
-            if(config.dst !== undefined) {
-                toolArgs.push(config.dst);
-            }
-
-            // Resolve tool-level options - with that user-level config
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            let toolArgs = [config.src, config.dst];
             let toolOptions = {
+                "source-map": this.debug || config.debug,   // i.e. debug/source map options
                 "include-path": config.include,
                 "relative-urls": true
             };
-            // ...and add debug/source map options if appropriate.
-            if(config.debug) {
-                toolOptions["source-map"] = true;
-            }
-            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Preprocessing LESS...", "lessc", toolOptions, toolArgs, "less", true);
+            this._execute(this.moduleDirectory, "./node_modules/.bin/lessc", this.workingDirectory, toolArgs, toolOptions, config);
 
         } else if(type === "sass") {
+
             // Create a user-level config from defaults/options
-            let defaults = {
-                src: "src/css/index.css",
-                dst: "dist/css/index.min.css"
-            };
-            let config = Object.assign(defaults, options);
+            let config = Object.assign(this.defaults.preprocess.sass, options);
 
-            // Resolve tool-level arguments - with that user-level config
-            let toolArgs = [];
-            if(config.src !== undefined) {
-                toolArgs.push(config.src);
-            }
-            if(config.dst !== undefined) {
-                toolArgs.push(config.dst);
-            }
-
-            // Resolve tool-level options - with that user-level config
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            let toolArgs = [config.src, config.dst];
             let toolOptions = {
+                "source-map": this.debug || config.debug,   // i.e. debug/source map options
                 "include-path": config.include,
                 "relative-urls": true
             };
-            // ...and add debug/source map options if appropriate.
-            if(config.debug) {
-                toolOptions["source-map"] = true;
-            }
-            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Preprocessing SASS...", "node-sass", toolOptions, toolArgs, "sass", false);
+            this._execute(this.moduleDirectory, "./node_modules/.bin/node-sass", this.workingDirectory, toolArgs, toolOptions, config);
 
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
@@ -628,34 +665,20 @@ class Warhorse {
      */
     postprocess(type, options) {
         if(type === "css") {
+
             // Create a user-level config from defaults/options
-            let defaults = {
-                src: "src/css/index.css"
-            };
-            let config = Object.assign(defaults, options);
+            let config = Object.assign(this.defaults.preprocess.less, options);
 
-            // Resolve tool-level arguments - with that user-level config
-            let toolArgs = [];
-            if(config.src !== undefined) {
-                toolArgs.push(config.src);
-            }
-            if(config.dst !== undefined) {
-                toolArgs.push(config.dst);
-            }
-
-            // Resolve tool-level options - with that user-level config
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            let toolArgs = [config.src, config.dst];
             let toolOptions = {
+                map: this.debug || config.debug,   // i.e. debug/source map options
                 config: config.conf,
                 replace: true
             };
-            // ...and add debug/source map options if appropriate.
-            if(config.debug) {
-                toolOptions.map = true;
-            }
-            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
             // Finally map configuration to tool args and options
-            this.task("Postprocessing CSS...", "postcss", toolOptions, toolArgs, "silent", false);
+            this._execute(this.moduleDirectory, "./node_modules/.bin/postcss", this.workingDirectory, toolArgs, toolOptions, config);
 
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
@@ -945,8 +968,30 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     test(type, options) {
+
+        // Log task execution
+        if(options.isSilent !== true) {console.task(`TASK: Bundling ${type.toUpperCase()}...`);}
+
+        // Select sub-task based on data type
         if(type === "js") {
-            if(options.tooling === "tape") {
+
+            // Select test framework to use
+            if(options.tooling === "bayeux") {
+
+                // Create a user-level config from defaults/options
+                let config = Object.assign(this.defaults.test.js.bayeux, options);
+
+                // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+                let toolArgs = [config.src];
+                let toolOptions = {
+                    verbose: this.debug || config.debug,   // i.e. debug/source map options
+                    config: config.conf
+                };
+
+                // Finally map configuration to tool args and options
+                this._execute(this.moduleDirectory, "./node_modules/.bin/bayeux", this.workingDirectory, toolArgs, toolOptions, config);
+
+            } else if(options.tooling === "tape") {
                 // Create a user-level config from defaults/options
                 let defaults = {
                     src: "test/js/*.test.js"
@@ -1014,31 +1059,20 @@ class Warhorse {
                 }
 
 
-            } else {
+            } else if(options.tooling === "jest") {
+
                 // Create a user-level config from defaults/options
-                let defaults = {
-                    src: "test/js/*.test.js"
-                };
-                let config = Object.assign(defaults, options);
+                let config = Object.assign(this.defaults.test.js.jest, options);
 
-                // Resolve tool-level arguments - with that user-level config
-                let toolArgs = [];
-                if(config.src !== undefined) {
-                    toolArgs.push(config.src);
-                }
-
-                // Resolve tool-level options - with that user-level config
+                // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+                let toolArgs = [config.src];
                 let toolOptions = {
+                    verbose: this.debug || config.debug,   // i.e. debug/source map options
                     config: config.conf
                 };
-                // ...and add debug/source map options if appropriate.
-                if(config.debug) {
-                    toolOptions.verbose = true;
-                }
-                toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
 
                 // Finally map configuration to tool args and options
-                this.task("Testing JS...", "jest", toolOptions, toolArgs, "silent", false);
+                this._execute(this.moduleDirectory, "./node_modules/.bin/jest", this.workingDirectory, toolArgs, toolOptions, config);
             }
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
@@ -1378,12 +1412,15 @@ class Warhorse {
      * @param {string} name - Name of the task tool.
      * @param {Object} options - Options to further configure this task.
      * @param {string|Array} args - Argument(s) for this task.
-     * @param {boolean} useOutput - Flag indicating that task should display any output returned by the task.
+     * @param {string} useOutput - Flag indicating that task should display any output returned by the task.
      * @param {boolean} useEqualsSign - Use '=' sign between configuration key-values.
      * @returns {Object} - Returns self for chaining.
      */
-    task(desc, name, options={}, args="", useOutput="silent", useEqualsSign=false) {
-        console.task(`TASK: ${desc}`);
+    task(desc, name, options={}, args="", useOutput="stdout", useEqualsSign=false) {
+
+        if(useOutput !== "silent") {
+            console.task(`TASK: ${desc}`);
+        }
 
         let cmdLine = this.moduleDirectory + "node_modules/.bin/" + name;
 
@@ -1432,6 +1469,9 @@ class Warhorse {
                 case "silent":
                     // console.log(">> SILENT");
                     break;
+                case "stdout":
+                    console.log(stdout.toString());
+                    break;
                 case "jscs":
                     // console.log(">> JSCS");
                     output = JSON.parse(stdout.toString());
@@ -1448,7 +1488,6 @@ class Warhorse {
                     break;
                 default:
                     // console.log(">> STDOUT");
-                    console.warn(`Warning: Unrecognised useOutput format '${useOutput}'.  Falling back on stdout.`);
                     console.log(stdout.toString());
             }
         }
@@ -1456,6 +1495,80 @@ class Warhorse {
         // Return self for chaining.
         return this;
     }
+
+
+    /**
+     * Task 'wrapper' function (used exclusively in '_warhorse.js' file).  Wraps an action, or list of actions, to be followed by the named task.
+     * @param {string} desc - Title or description of the task.
+     * @param {string} name - Name of the task tool.
+     * @param {Object} options - Options to further configure this task.
+     * @param {string|Array} args - Argument(s) for this task.
+     * @param {string} useOutput - Flag indicating that task should display any output returned by the task.
+     * @param {boolean} useEqualsSign - Use '=' sign between configuration key-values.
+     * @returns {Object} - Returns self for chaining.
+     */
+    _execute(warhorseDirectory, relativeExecutablePath, workingDirectory, args=[], argOptions={}, options={debug: false, useOutput: "stdout", useEqualsSign: false}) {
+
+        workingDirectory = path.resolve(workingDirectory);
+        if(workingDirectory !== process.cwd()) {
+            console.log("Current working directory was: >>" + process.cwd() + "<<");
+            try {
+                process.chdir(workingDirectory);
+                console.log("Changed working directory to: >>" + process.cwd() + "<<");
+            }
+            catch(err) {
+                throw err;
+            }
+        }
+
+        // Construct final cmdLine.
+        let executablePath = path.resolve(this.moduleDirectory, relativeExecutablePath);
+        let cmdLine = Cli._compileCmdLine(executablePath, args, argOptions, options);
+        if(options.debug) {console.log("Executing: " + cmdLine);}
+        // if(true) {console.log("Executing: " + cmdLine);}
+
+        let stdout = null; let stderr = null;
+        try {
+            stdout = child.execSync(cmdLine);
+        } catch(ex) {
+            //console.error(ex.message);
+            stdout = ex.stdout;
+            stderr = ex.stderr;
+        }
+
+        if(stdout !== null) {
+            let output = "";
+            switch(options.useOutput) {
+                case "silent":
+                    // console.log(">> SILENT");
+                    break;
+                case "stdout":
+                    console.log(stdout.toString());
+                    break;
+                case "jscs":
+                    // console.log(">> JSCS");
+                    output = JSON.parse(stdout.toString());
+                    this._reportJSCS(output);
+                    break;
+                case "jshint":
+                    // console.log(">> JSHINT");
+                    output = JSON.parse(stdout.toString());
+                    this._reportJSHint(output);
+                    break;
+                case "tape":
+                    // console.log(">> TAPE");
+                    this._reportTape(stdout.toString());
+                    break;
+                default:
+                    // console.log(">> STDOUT");
+                    console.log(stdout.toString());
+            }
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
 
     /**
      * Private helper for load().

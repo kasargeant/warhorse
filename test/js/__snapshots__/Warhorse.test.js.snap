@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Class: Warhorse Actions should be able to parse a filepath 1`] = `
+Object {
+  "config": false,
+  "extension": ".js",
+  "name": "index.js",
+  "original": "./test/data/client_src/index.js",
+  "path": "./test/data/client_src/",
+  "stem": "index",
+}
+`;
+
+exports[`Class: Warhorse Instantiation should be able to parse a filepath 1`] = `
+Object {
+  "config": false,
+  "extension": ".js",
+  "name": "index.js",
+  "original": "./test/data/client_src/index.js",
+  "path": "./test/data/client_src/",
+  "stem": "index",
+}
+`;
