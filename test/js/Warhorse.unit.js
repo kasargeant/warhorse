@@ -54,8 +54,8 @@ unit("Class: Warhorse", function() {
 
         let type = "js";
         let options = {
-            src: "test/data/client_src/js/index.js",
-            dst: "test/data/client_dist/js/index.js"
+            src: "./test/data/client_src/js/index.js",
+            dst: "./test/data/client_dist/js/index.js"
         };
 
         // Before test: Remove any existing dst file
