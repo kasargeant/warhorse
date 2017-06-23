@@ -157,14 +157,14 @@ function tasks(warhorse) {
             "test": function() {
 
                 warhorse.test("js", {
-                    tooling: "tape",
-                    src: "test/data/client_test/js/Tinter256.test.js",
+                    tooling: "bayeux",
+                    src: "test/data/client_test/js/bayeux/*.unit.js",
                 });
 
-                // TAPE
+                // // TAPE
                 // warhorse.test("js", {
                 //     tooling: "tape",
-                //     src: "test/data/client_test/js/Tinter16.test.js",
+                //     src: "test/data/client_test/js/tap/Tinter16.test.js",
                 // });
 
                 // warhorse.test("js", {

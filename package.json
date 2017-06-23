@@ -55,10 +55,10 @@
     "babel-jest": "^20.0.3",
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^7.3.0",
-    "bayeux": "^0.8.1",
+    "bayeux": "^0.9.0",
     "browserify": "^14.1.0",
     "csso-cli": "^1.0.0",
-    "eslint": "^3.19.0",
+    "eslint": "^4.0.0",
     "glob": "^7.1.1",
     "handlebars": "^4.0.10",
     "imagemin-cli": "^3.0.0",
@@ -69,7 +69,7 @@
     "inuitcss": "^6.0.0-beta.4",
     "jscs": "^3.0.7",
     "jsdoc": "^3.4.3",
-    "jshint": "^2.9.4",
+    "jshint": "^2.9.5",
     "jshint-json": "^1.0.0",
     "less": "^2.7.2",
     "merge": "^1.2.0",
@@ -86,7 +86,7 @@
     "taffydb": "^2.7.3",
     "tar": "^3.1.5",
     "tinter": "^0.4.5",
-    "uglify-es": "^3.0.18"
+    "uglify-es": "^3.0.19"
   },
   "devDependencies": {
     "coveralls": "^2.13.1"

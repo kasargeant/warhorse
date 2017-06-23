@@ -493,8 +493,8 @@ class Warhorse {
         if(type === "less") {
             // Create a user-level config from defaults/options
             let defaults = {
-                src: "src/index.js",
-                dst: "dist/index.js"
+                src: "src/index.less",
+                dst: "dist/index.css"
             };
             let config = Object.assign(defaults, options);
 
@@ -524,7 +524,7 @@ class Warhorse {
         } else if(type === "sass") {
             // Create a user-level config from defaults/options
             let defaults = {
-                src: "src/css/index.css",
+                src: "src/css/index.sass",
                 dst: "dist/css/index.min.css"
             };
             let config = Object.assign(defaults, options);
@@ -946,7 +946,33 @@ class Warhorse {
      */
     test(type, options) {
         if(type === "js") {
-            if(options.tooling === "tape") {
+            if(options.tooling === "bayeux") {
+                // Create a user-level config from defaults/options
+                let defaults = {
+                    src: "test/js/*.test.js"
+                };
+                let config = Object.assign(defaults, options);
+
+                // Resolve tool-level arguments - with that user-level config
+                let toolArgs = [];
+                if(config.src !== undefined) {
+                    toolArgs.push(config.src);
+                }
+
+                // Resolve tool-level options - with that user-level config
+                let toolOptions = {
+                    config: config.conf
+                };
+                // ...and add debug/source map options if appropriate.
+                if(config.debug) {
+                    toolOptions.verbose = true;
+                }
+                toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
+
+                // Finally map configuration to tool args and options
+                this.task("Testing JS...", "bayeux", toolOptions, toolArgs, "stdout", false);
+
+            } else if(options.tooling === "tape") {
                 // Create a user-level config from defaults/options
                 let defaults = {
                     src: "test/js/*.test.js"
@@ -1378,12 +1404,15 @@ class Warhorse {
      * @param {string} name - Name of the task tool.
      * @param {Object} options - Options to further configure this task.
      * @param {string|Array} args - Argument(s) for this task.
-     * @param {boolean} useOutput - Flag indicating that task should display any output returned by the task.
+     * @param {string} useOutput - Flag indicating that task should display any output returned by the task.
      * @param {boolean} useEqualsSign - Use '=' sign between configuration key-values.
      * @returns {Object} - Returns self for chaining.
      */
-    task(desc, name, options={}, args="", useOutput="silent", useEqualsSign=false) {
-        console.task(`TASK: ${desc}`);
+    task(desc, name, options={}, args="", useOutput="stdout", useEqualsSign=false) {
+
+        if(useOutput !== "silent") {
+            console.task(`TASK: ${desc}`);
+        }
 
         let cmdLine = this.moduleDirectory + "node_modules/.bin/" + name;
 
@@ -1431,6 +1460,9 @@ class Warhorse {
             switch(useOutput) {
                 case "silent":
                     // console.log(">> SILENT");
+                    break;
+                case "stdout":
+                    console.log(stdout.toString());
                     break;
                 case "jscs":
                     // console.log(">> JSCS");
