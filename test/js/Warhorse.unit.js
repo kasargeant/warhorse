@@ -14,6 +14,7 @@ const {given, test, unit} = Bayeux.TDD();
 
 // Import utilities
 const fs = require("fs");
+const path = require("path");
 
 // Import Unit
 const Warhorse = require("../../src/js/Warhorse");
@@ -22,7 +23,7 @@ const Warhorse = require("../../src/js/Warhorse");
 process.chdir("../..");
 
 // Constants
-const moduleDirectory = "/Users/kasargeant/dev/projects/warhorse/";
+const moduleDirectory = process.cwd() + "/";
 const workingDirectory = process.cwd();
 const options = {};
 const useDebug = false;
