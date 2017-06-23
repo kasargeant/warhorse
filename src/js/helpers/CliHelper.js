@@ -33,7 +33,6 @@ class CliHelper {
         // Firstly flush undefined options the cheap way...
         argOptions = JSON.parse(JSON.stringify(argOptions)); // i.e. remove undefined keys.
 
-
         // Convert argOptions object to string
         let cmdLineOpts = "";
         let keyValDel = (options.useEqualsSign === true) ? "=" : " ";

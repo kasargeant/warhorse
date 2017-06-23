@@ -249,17 +249,42 @@ class Warhorse {
             // fs.writeFileSync(workingDirectory + "/_warhorse.js", )
             console.debug("Warning: This directory is missing a '_warhorse.js' file and is uninitialised.");
         }
+        // Finally, finally, slip built-in 'create' into cmds
+        this.cmds.create = this._cmdCreate;
     }
 
     /**
-     * Clean action.
+     * Clean task.
      * @param {Array} paths - Array of paths or files to empty and delete.
      * @param {Object} options - Options to further configure this action.
      * @returns {Object} - Returns self for chaining.
      */
     clean(paths, options = {}) {
-        console.action(`Cleaning project of generated files.`);
+        // Log task execution
+        if(options.isSilent !== true) {console.task(`TASK: Cleaning project...`);}
+
         shell.rm("-rf", ...paths);
+        console.stage(`Done.`);
+    }
+
+    /**
+     * Copy file(s) task.
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.dst - The destination/target path for this task.
+     * @returns {Object} - Returns self for chaining.
+     */
+    copy(type, options = {}) {
+
+        // Log task execution
+        if(options.isSilent !== true) {console.task(`TASK: Bundling ${type.toUpperCase()}...`);}
+
+        if(options.recurse === true) {
+            shell.cp("-R", options.src, options.dst);
+        } else {
+            shell.cp(options.src, options.dst);
+        }
         console.stage(`Done.`);
     }
 
@@ -607,48 +632,7 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     pack(type, options) {
-
-        // NOTE: This is different to every other task.  here we use the same task code for all the different
-        //       image types.
-        const plugins = {
-            "gif": "gifsicle",
-            "jpg": "jpegtran",
-            "png": "pngquant",
-            "svg": "svgo"
-        };
-        let plugin = plugins[type];
-        if(plugin !== undefined) {
-
-            // Create a user-level config from defaults/options
-            let defaults = {
-                src: `test/data/client_src/img/${type}/*.${type}`,
-                dst: `dist/img/${type}/`
-            };
-            let config = Object.assign(defaults, options);
-
-            // Resolve tool-level arguments - with that user-level config
-            let toolArgs = [];
-            if(config.src !== undefined) {
-                toolArgs.push(config.src);
-            }
-
-            // Resolve tool-level options - with that user-level config
-            let toolOptions = {
-                "out-dir": config.dst,
-                plugin: plugin
-            };
-            // ...and add debug/source map options if appropriate.
-            if(config.debug) {
-                toolOptions.map = true;
-            }
-            toolOptions = JSON.parse(JSON.stringify(toolOptions)); // Cheap way to remove undefined keys.
-
-            // Finally map configuration to tool args and options
-            this.task(`Packing ${type.toUpperCase()}...`, "imagemin", toolOptions, toolArgs, "silent", false);
-
-        } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
-        }
+        // TODO - Reuse or remove 'pack' command.
 
         // Return self for chaining.
         return this;
@@ -970,7 +954,7 @@ class Warhorse {
     test(type, options) {
 
         // Log task execution
-        if(options.isSilent !== true) {console.task(`TASK: Bundling ${type.toUpperCase()}...`);}
+        if(options.isSilent !== true) {console.task(`TASK: Testing ${type.toUpperCase()} with '${options.tooling}'...`);}
 
         // Select sub-task based on data type
         if(type === "js") {
@@ -1103,28 +1087,6 @@ class Warhorse {
         }
     }
 
-    /**
-     * Built-in 'build' command.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    _cmdBuild() {
-        let cmd = this.cmds["build"];
-        if(cmd !== null) {cmd();}
-        return this;    // Return self for chaining.
-    }
-
-    /**
-     * Built-in 'clean' command.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    _cmdClean() {
-        let cmd = this.cmds["clean"];
-        if(cmd !== null) {cmd();}
-        return this;    // Return self for chaining.
-    }
-
     _cmdCreateInner(convention, answers) {
 
         if(answers.warhorse === undefined) {
@@ -1208,94 +1170,6 @@ class Warhorse {
         if(stdout) {
             console.log(stdout.toString());
         }
-    }
-
-    /**
-     * Built-in 'distribute' command.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    _cmdDistribute() {
-        let cmd = this.cmds["distribute"];
-        if(cmd !== null) {cmd();}
-        return this;    // Return self for chaining.
-    }
-
-    /**
-     * Built-in 'document' command.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    _cmdDocument() {
-        let cmd = this.cmds["document"];
-        if(cmd !== null) {cmd();}
-        return this;    // Return self for chaining.
-    }
-
-    /**
-     * Built-in 'fix' command.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    _cmdFix() {
-        let cmd = this.cmds["fix"];
-        if(cmd !== null) {cmd();}
-        return this;    // Return self for chaining.
-    }
-
-    /**
-     * Built-in 'lint' command.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    _cmdLint() {
-        let cmd = this.cmds["lint"];
-        if(cmd !== null) {cmd();}
-        return this;    // Return self for chaining.
-    }
-
-    /**
-     * Built-in 'pack' command.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    _cmdPack() {
-        let cmd = this.cmds["pack"];
-        if(cmd !== null) {cmd();}
-        return this;    // Return self for chaining.
-    }
-
-    /**
-     * Built-in 'process' command.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    _cmdProcess() {
-        let cmd = this.cmds["process"];
-        if(cmd !== null) {cmd();}
-        return this;    // Return self for chaining.
-    }
-
-    /**
-     * Built-in 'publish' command.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    _cmdPublish() {
-        let cmd = this.cmds["publish"];
-        if(cmd !== null) {cmd();}
-        return this;    // Return self for chaining.
-    }
-
-    /**
-     * Built-in 'test' command.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    _cmdTest() {
-        let cmd = this.cmds["test"];
-        if(cmd !== null) {cmd();}
-        return this;    // Return self for chaining.
     }
 
     /**
@@ -1405,97 +1279,6 @@ class Warhorse {
     command(name, cmdFn) {
         this.cmds[name] = cmdFn;
     }
-
-    /**
-     * Task 'wrapper' function (used exclusively in '_warhorse.js' file).  Wraps an action, or list of actions, to be followed by the named task.
-     * @param {string} desc - Title or description of the task.
-     * @param {string} name - Name of the task tool.
-     * @param {Object} options - Options to further configure this task.
-     * @param {string|Array} args - Argument(s) for this task.
-     * @param {string} useOutput - Flag indicating that task should display any output returned by the task.
-     * @param {boolean} useEqualsSign - Use '=' sign between configuration key-values.
-     * @returns {Object} - Returns self for chaining.
-     */
-    task(desc, name, options={}, args="", useOutput="stdout", useEqualsSign=false) {
-
-        if(useOutput !== "silent") {
-            console.task(`TASK: ${desc}`);
-        }
-
-        let cmdLine = this.moduleDirectory + "node_modules/.bin/" + name;
-
-        let cmdLineArgs = "";
-        if(args.constructor === Array) {
-            for(let argc = 0; argc < args.length; argc++) {
-                cmdLineArgs += " " + args[argc];
-            }
-        } else {
-            cmdLineArgs = " " + args;
-        }
-
-        // Convert options object to string
-        let cmdLineOpts = "";
-        let keyValDel = (useEqualsSign === true) ? "=" : " ";
-        for(let key in options) {
-            let value = options[key];
-            if(value === false) {
-                // We have a config without value - to be ignored
-                // cmdLineOpts += "";
-            } else if(value === true) {
-                // We have a config without value - to be set
-                cmdLineOpts += ` --${key}${keyValDel}`;
-            } else {
-                // We have config value
-                cmdLineOpts += ` --${key}${keyValDel}${value}`;
-            }
-        }
-
-        // Concatenate all cmdLine parts
-        cmdLine += cmdLineArgs + cmdLineOpts;
-
-        if(this.debug) {console.log("Executing: " + cmdLine);}
-
-        let stdout = null;
-        try {
-            stdout = child.execSync(cmdLine);
-        } catch(ex) {
-            //console.error(ex.message);
-            stdout = ex.stdout;
-        }
-
-        if(stdout !== null) {
-            let output = "";
-            switch(useOutput) {
-                case "silent":
-                    // console.log(">> SILENT");
-                    break;
-                case "stdout":
-                    console.log(stdout.toString());
-                    break;
-                case "jscs":
-                    // console.log(">> JSCS");
-                    output = JSON.parse(stdout.toString());
-                    this._reportJSCS(output);
-                    break;
-                case "jshint":
-                    // console.log(">> JSHINT");
-                    output = JSON.parse(stdout.toString());
-                    this._reportJSHint(output);
-                    break;
-                case "tape":
-                    // console.log(">> TAPE");
-                    this._reportTape(stdout.toString());
-                    break;
-                default:
-                    // console.log(">> STDOUT");
-                    console.log(stdout.toString());
-            }
-        }
-
-        // Return self for chaining.
-        return this;
-    }
-
 
     /**
      * Task 'wrapper' function (used exclusively in '_warhorse.js' file).  Wraps an action, or list of actions, to be followed by the named task.
@@ -1640,20 +1423,12 @@ class Warhorse {
      * @private
      */
     _executeCmd(name) {
-        switch(name) {
-            case "build": this._cmdBuild(); break;
-            case "clean": this._cmdClean(); break;
-            case "create": this._cmdCreate(); break;
-            case "distribute": this._cmdDistribute(); break;
-            case "document": this._cmdDocument(); break;
-            case "fix": this._cmdFix(); break;
-            case "lint": this._cmdLint(); break;
-            case "pack": this._cmdPack(); break;
-            case "process": this._cmdProcess(); break;
-            case "publish": this._cmdPublish(); break;
-            case "test": this._cmdTest(); break;
-            default:
-                console.error(`Error: Unrecognised command '${name}'.`);
+        if(this.commands.includes(name)) {
+            let cmd = this.cmds[name];
+            if(cmd !== null) {cmd();}
+            return this;    // Return self for chaining.
+        } else {
+            console.error(`Error: Unrecognised command '${name}'.`);
         }
 
         // Return self for chaining.
