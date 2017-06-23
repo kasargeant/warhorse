@@ -24,8 +24,8 @@ function tasks(warhorse) {
                 });
 
                 warhorse.bundle("js", {
-                    src: "test/data/client_src/js/index.js",
-                    dst: "test/data/client_dist/js/index.js"
+                    src: "./test/data/client_src/js/index.js",
+                    dst: "./test/data/client_dist/js/index.js"
                 });
                 warhorse.minify("js", {
                     src: "test/data/client_dist/js/index.js",
@@ -33,8 +33,7 @@ function tasks(warhorse) {
                 });
                 warhorse.compress("js", {
                     src: "test/data/client_dist/js/index.min.js",
-                    dst: "test/data/client_dist/js/index.tar.gz",
-                    method: "tar.gz"
+                    dst: "test/data/client_dist/js/index.tar.gz"
                 });
             },
 
@@ -56,8 +55,7 @@ function tasks(warhorse) {
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "document": function() {
                 warhorse.document("js", {
-                    conf: "conf/jsdoc.json",
-                    src: "test/data/client_src/js/"
+                    conf: "conf/jsdoc.json"
                 });
             },
 
@@ -74,6 +72,7 @@ function tasks(warhorse) {
             "lint": function() {
 
                 warhorse.lint("js", {
+                    type: "quality",
                     conf: "conf/jshint.json",
                     src: "test/data/client_src/js/",
                     exclude: "conf/.jshintignore"
@@ -94,22 +93,22 @@ function tasks(warhorse) {
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "pack": function() {
 
-                warhorse.pack("png", {
+                warhorse.compress("png", {
                     src: "test/data/client_src/img/png/*.png",
                     dst: "test/data/client_dist/img/png/",
                 });
 
-                warhorse.pack("gif", {
+                warhorse.compress("gif", {
                     src: "test/data/client_src/img/gif/*.gif",
                     dst: "test/data/client_dist/img/gif/"
                 });
 
-                warhorse.pack("jpg", {
+                warhorse.compress("jpg", {
                     src: "test/data/client_src/img/jpg/*.jpg",
                     dst: "test/data/client_dist/img/jpg/"
                 });
 
-                warhorse.pack("svg", {
+                warhorse.compress("svg", {
                     src: "test/data/client_src/img/svg/*.svg",
                     dst: "test/data/client_dist/img/svg/"
                 });
@@ -156,10 +155,10 @@ function tasks(warhorse) {
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "test": function() {
 
-                warhorse.test("js", {
-                    tooling: "bayeux",
-                    src: "test/data/client_test/js/bayeux/*.unit.js",
-                });
+                // warhorse.test("js", {
+                //     tooling: "bayeux",
+                //     src: "test/data/client_test/js/bayeux/*.unit.js",
+                // });
 
                 // // TAPE
                 // warhorse.test("js", {
@@ -167,11 +166,12 @@ function tasks(warhorse) {
                 //     src: "test/data/client_test/js/tap/Tinter16.test.js",
                 // });
 
-                // warhorse.test("js", {
-                //     config: "conf/jest.json",
-                //     src: "./test/js/",
-                //     debug: true
-                // });
+                warhorse.test("js", {
+                    tooling: "jest",
+                    debug: true,
+                    config: "conf/jest.json",
+                    src: "./test/js/"
+                });
             }
         },
 

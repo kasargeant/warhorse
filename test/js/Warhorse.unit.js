@@ -20,7 +20,7 @@ const path = require("path");
 const Warhorse = require("../../src/js/Warhorse");
 
 // Change working directory to project root
-process.chdir("../..");
+// process.chdir("../..");
 
 // Constants
 const moduleDirectory = process.cwd() + "/";
@@ -67,7 +67,7 @@ unit("Class: Warhorse", function() {
         given("a valid JS bundle destination").expectFile(options.dst).toEqual(`(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require==\"function\"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error(\"Cannot find module '\"+o+\"'\");throw f.code=\"MODULE_NOT_FOUND\",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require==\"function\"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){\n// Component\nclass Polygon {\n    constructor(height, width) { //class constructor\n        this.name = \"Polygon\";\n        this.height = height;\n        this.width = width;\n    }\n\n    sayName() {\n        console.log(\"Name:\", this.name);\n    }\n}\n\n// Exports\nmodule.exports = Polygon;\n\n\n},{}],2:[function(require,module,exports){\nconst Polygon = require(\"./Polygon\");\n\nclass Square extends Polygon {\n    constructor(length=10) { // ES6 features Default Parameters\n        super(length, length); //call the parent method with super\n        this.name = \"Square\";\n    }\n\n    get area() { //calculated attribute getter\n        return this.height * this.width;\n    }\n}\n\n// Exports\nmodule.exports = Square;\n\n},{\"./Polygon\":1}],3:[function(require,module,exports){\n// Imports\nconst Square = require(\"./Square\");\n\nlet sq = new Square(30);\n\nconsole.log(sq.area);\n\n},{\"./Square\":2}]},{},[3]);\n`);
 
         // After test: Remove any existing dst file
-        unlinkSync(options.dst);
+        //unlinkSync(options.dst);
 
         done(); // Indicate the test is done.
     });
@@ -76,12 +76,9 @@ unit("Class: Warhorse", function() {
 
         let type = "js";
         let options = {
-            src: "test/data/client_src/js/index.js",
-            dst: "test/data/client_dist/js/index.min.js"
+            src: "./test/data/client_src/js/index.js",
+            dst: "./test/data/client_dist/js/index.min.js"
         };
-
-        // Before test: Remove any existing dst file
-        unlinkSync(options.dst);
 
         let testBlock = function() {warhorse.minify(type, options);};
 

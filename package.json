@@ -42,13 +42,21 @@
     "document-api": "jsdoc -c ./conf/jsdoc.json -r",
     "document-forced-readme": "jsdoc -c ./conf/.jsdocrc -r --readme ./README.md",
     "document-coverage": "nyc report --reporter=lcov",
-    "test": "bayeux test/js/Warhorse.unit.js",
-    "test-cover": "nyc bayeux test/js/Warhorse.unit.js"
+    "bayeux": "bayeux test/js/Warhorse.unit.js",
+    "bayeux-cover": "nyc bayeux test/js/Warhorse.unit.js",
+    "test": "jest --config ./conf/jest.json --verbose",
+    "test-cover": "jest --config ./conf/jest.json --coverage",
+    "test-update": "jest --config ./conf/jest.json --updateSnapshot"
   },
   "babel": {
     "presets": [
       "es2015"
     ]
+  },
+  "jest-html-reporter": {
+    "pageTitle": "Test Results",
+    "outputPath": "docs/tests/index.html",
+    "includeFailureMsg": false
   },
   "dependencies": {
     "autoprefixer": "^7.1.1",
@@ -67,6 +75,8 @@
     "imagemin-pngquant": "^5.0.1",
     "imagemin-svgo": "^5.2.2",
     "inuitcss": "^6.0.0-beta.4",
+    "jest": "^20.0.3",
+    "jest-html-reporter": "^0.1.0",
     "jscs": "^3.0.7",
     "jsdoc": "^3.4.3",
     "jshint": "^2.9.5",
