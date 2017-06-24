@@ -3,6 +3,9 @@ node_js:
   - "6"
   - "7"
   - "8"
+cache:
+  directories:
+    - "node_modules"
 script: "npm run-script test-cover"
 # Send coverage data to Coveralls
 after_script: "cat ./docs/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"

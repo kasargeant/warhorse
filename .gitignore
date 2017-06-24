@@ -13,7 +13,6 @@ node_modules/
 scratch/
 scratch.*
 temp/
-/test/data/client_dist/
 
 # FIXME - KEEP OUT OF DISTRO UNTIL A MORE STABLE VERSION...
 /docs/coverage/
