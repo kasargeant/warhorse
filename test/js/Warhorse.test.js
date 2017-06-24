@@ -10,79 +10,21 @@
 
 // Imports
 const fs = require.requireActual("fs");
+const path = require.requireActual("path");
 const Warhorse = require.requireActual("../../src/js/Warhorse");
 
+// Helpers
+// Failure-tolerant version of fs.readFileSync(filePath) - won't error if file missing.
+const readSync = function(filePath) {
+    try {
+        return fs.readFileSync(filePath);
+    } catch(err) {
+        return null;
+    }
+};
+
 // Constants
-let fileDummy;
-
-// Setup dummy CSS file
-fileDummy = {
-    original: "./test/data/client_src/css/index.css",
-    path: "./test/data/client_src/css/",
-    name: "index.css",
-    stem: "index",
-    extension: ".css",
-    config: false,
-    content: null
-};
-fileDummy.content = fs.readFileSync(fileDummy.original).toString();
-const FILE_DUMMY_CSS = Object.freeze(fileDummy);
-
-// Setup dummy LESS file
-fileDummy = {
-    original: "./test/data/client_src/less/index.less",
-    path: "./test/data/client_src/less/",
-    name: "index.less",
-    stem: "index",
-    extension: ".less",
-    config: false,
-    content: null
-};
-fileDummy.content = fs.readFileSync(fileDummy.original).toString();
-const FILE_DUMMY_LESS = Object.freeze(fileDummy);
-
-// Setup dummy JS file
-fileDummy = {
-    original: "./test/data/client_src/js/index.js",
-    path: "./test/data/client_src/js/",
-    name: "index.js",
-    stem: "index",
-    extension: ".js",
-    config: false,
-    content: null
-};
-fileDummy.content = fs.readFileSync(fileDummy.original).toString();
-const FILE_DUMMY_JS = Object.freeze(fileDummy);
-
-// Setup dummy JS file (Linting - FAIL CASE)
-fileDummy = {
-    original: "./test/data/client_src/js/Circle.js",
-    path: "./test/data/client_src/js/",
-    name: "Circle.js",
-    stem: "Circle",
-    extension: ".js",
-    config: false,
-    content: null
-};
-fileDummy.content = fs.readFileSync(fileDummy.original).toString();
-const FILE_DUMMY_JS_LINT_FAIL = Object.freeze(fileDummy);
-
-
-// Setup dummy SASS file
-fileDummy = {
-    original: "./test/data/client_src/sass/index.scss",
-    path: "./test/data/client_src/sass/",
-    name: "index.scss",
-    stem: "index",
-    extension: ".scss",
-    config: false,
-    content: null
-};
-fileDummy.content = fs.readFileSync(fileDummy.original).toString();
-const FILE_DUMMY_SASS = Object.freeze(fileDummy);
-
-
-let warhorse = new Warhorse();
+const warhorse = new Warhorse(process.cwd(), process.cwd(), {}, false);
 
 // Tests
 describe("Class: Warhorse", function() {
@@ -108,26 +50,78 @@ describe("Class: Warhorse", function() {
             expect(path).toMatchSnapshot();
         });
 
+        it("should know it's (home) directory location", function() {
+            expect(warhorse.moduleDirectory).toBe(process.cwd());
+        });
     });
 
-    describe("Actions", function() {
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TASKS
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    describe("Tasks", function() {
 
-        // Private functions (Only the critical 'building blocks'.)
-        it("should be able to parse a filepath", function() {
-            warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_JS));
-            let path = warhorse._splitPath("./test/data/client_src/index.js");
-            expect(path.name).toBe("index.js"); // Sanity test - don't rely just on snapshots!!!
-            expect(path).toMatchSnapshot();
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: BUNDLE
+        it("should be able to bundle JS code", function() {
+
+            // Preparation
+            const options = {
+                debug: false, //i.e. turn off source-mapping.
+                src: "./test/data/client_src/js/index.js",
+                dst: "./test/data/client_dist/js/index.js"
+            };
+
+            // Test
+            warhorse.bundle("js", options);
+
+            // Evaluation
+            let fileContent = readSync(path.resolve(options.dst)).toString();
+            expect(fileContent).toMatchSnapshot();
+
         });
-        //
-        // // Public functions
-        // it("should be able to bundle JS code", function() {
-        //
-        //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_JS));
-        //     warhorse.bundle({});
-        //     expect(warhorse.file.content).toMatchSnapshot();
-        // });
-        //
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: COMPRESS
+
+        
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: MINIFY
+        it("should be able to minify JS code", function() {
+
+            // Preparation
+            const options = {
+                debug: false, //i.e. turn off source-mapping.
+                src: "./test/data/client_src/js/index.js",
+                dst: "./test/data/client_dist/js/index.min.js"
+            };
+
+            // Test
+            warhorse.minify("js", options);
+
+            // Evaluation
+            let fileContent = readSync(path.resolve(options.dst)).toString();
+            expect(fileContent).toMatchSnapshot();
+        });
+
+        it("should be able to minify CSS code", function() {
+
+            // Preparation
+            const options = {
+                debug: false, //i.e. turn off source-mapping.
+                src: "./test/data/client_src/css/index.css",
+                dst: "./test/data/client_dist/css/index.min.css"
+            };
+
+            // Test
+            warhorse.minify("css", options);
+
+            // Evaluation
+            let fileContent = readSync(path.resolve(options.dst)).toString();
+            expect(fileContent).toMatchSnapshot();
+            // expect(fileContent).toBe("");
+
+        });
+
         // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // it("should be able to compile LESS", function() {
         //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_LESS));

@@ -241,8 +241,7 @@ class Warhorse {
         try {
             // const configureTasks = require(workingDirectory + "/_warhorse.js");
             // configureTasks(this);
-            const userConfig = require(workingDirectory + "/_warhorse.js")(this);
-            this.cmds = userConfig.commands;
+            this.cmds = require(workingDirectory + "/_warhorse.js")(this);
         } catch(ex) {
             // fs.writeFileSync(workingDirectory + "/_warhorse.js", )
             console.debug("Warning: This directory is missing a '_warhorse.js' file and is uninitialised.");
