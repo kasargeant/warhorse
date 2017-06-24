@@ -91,10 +91,7 @@ function tasks(warhorse) {
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         "pack": function() {
-            warhorse.compress("png", {
-                src: "src/img/png/*.png",
-                dst: "dist/img/png/",
-            });
+
             warhorse.compress("gif", {
                 src: "src/img/gif/*.gif",
                 dst: "dist/img/gif/"
@@ -103,11 +100,15 @@ function tasks(warhorse) {
                 src: "src/img/jpg/*.jpg",
                 dst: "dist/img/jpg/"
             });
+            warhorse.compress("png", {
+                src: "src/img/png/*.png",
+                dst: "dist/img/png/",
+            });
             warhorse.compress("svg", {
                 src: "src/img/svg/*.svg",
                 dst: "dist/img/svg/"
             });
-            warhorse.copy("svg", {
+            warhorse.copy("binary", {
                 src: "./test/data/client_src/img/ico/*.ico",
                 dst: "./test/data/client_dist/img/ico/"
             });

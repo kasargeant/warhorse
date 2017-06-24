@@ -1,6 +1,6 @@
 /**
- * @file _warhorse.js
- * @description The Warhorse command configuration file (test).
+ * @file _warhorse.default.js
+ * @description The Warhorse command configuration file (default).
  * @author Kyle Alexis Sargeant <kasargeant@gmail.com> {@link https://github.com/kasargeant https://github.com/kasargeant}.
  * @copyright Kyle Alexis Sargeant 2017
  * @license See LICENSE file included in this distribution.

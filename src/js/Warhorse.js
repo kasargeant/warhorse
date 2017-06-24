@@ -241,10 +241,12 @@ class Warhorse {
         try {
             // const configureTasks = require(workingDirectory + "/_warhorse.js");
             // configureTasks(this);
-            this.cmds = require(workingDirectory + "/_warhorse.js")(this);
+            this.cmds = require(this.workingDirectory + "/_warhorse.js")(this);
         } catch(ex) {
             // fs.writeFileSync(workingDirectory + "/_warhorse.js", )
-            console.debug("Warning: This directory is missing a '_warhorse.js' file and is uninitialised.");
+            // console.debug("Warning: This directory is missing a '_warhorse.js' file and is uninitialised.");
+            // Otherwise, fall-back on default conventions
+            this.cmds = require(this.moduleDirectory + "/_warhorse.js")(this);
         }
         // Finally, finally, slip built-in 'create' into cmds
         this.cmds.create = this._cmdCreate;
@@ -1390,7 +1392,7 @@ class Warhorse {
 
         console.cmd(`COMMAND ${cmdName}`);
 
-        // Handle built-ins
+        // Handle the 'create' built-in separately
         if(cmdName === "create") {
             if(this.conventions.includes(convention)) {
                 this._cmdCreate(convention);
@@ -1398,16 +1400,13 @@ class Warhorse {
                 console.error(`Error: Unrecognised project convention: '${convention}'.`);
             }
             return null; // Success or fail - nothing to return.
-        } else if(cmdName === "lint") {
-            this._cmdLint();
-            return null; // Success or fail - nothing to return.
-        }
-
-        // Handle user-definables
-        let cmd = this.cmds[cmdName];
-        if(cmd !== null) {
-            //console.log("Executing command type: " + typeof cmd);
-            cmd();
+        } else {
+            // Handle standard built-ins
+            let cmd = this.cmds[cmdName];
+            if(cmd !== null) {
+                //console.log("Executing command type: " + typeof cmd);
+                cmd();
+            }
         }
 
         console.log(color.inverse(`WARHORSE done.`));
