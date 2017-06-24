@@ -8,6 +8,10 @@
 
 "use strict";
 
+// Environment
+const IS_CI = process.env.CI;
+const IS_TRAVIS = process.env.TRAVIS;
+
 // Imports
 const fs = require.requireActual("fs");
 const CliHelper = require.requireActual("../../src/js/helpers/CliHelper");

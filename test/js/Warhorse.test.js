@@ -8,81 +8,50 @@
 
 "use strict";
 
+// Environment
+const IS_CI = process.env.CI;
+const IS_TRAVIS = process.env.TRAVIS;
+// console.log("IS_CI: " + IS_CI);
+// console.log("IS_TRAVIS: " + IS_TRAVIS);
+// console.log("CWD: " + process.cwd());
+// console.log("TRAVIS_BUILD_DIR: " + process.env.TRAVIS_BUILD_DIR);
+// console.log("__dirname: " + __dirname);
+// console.log("__filename: " + __dirname);
+
 // Imports
 const fs = require.requireActual("fs");
+const path = require.requireActual("path");
 const Warhorse = require.requireActual("../../src/js/Warhorse");
+// let resolvedFilePath = path.resolve("./test/data/client_dist/js/index.js");
+// console.log("RESOLVED: " + resolvedFilePath);
+// console.log("FILE_EXISTS?: " + fs.existsSync(resolvedFilePath));
+
+// Helpers
+// Failure-tolerant version of fs.readFileSync(filePath) - won't error if file missing.
+const readSync = function(filePath) {
+    try {
+        return fs.readFileSync(filePath);
+    } catch(err) {
+        return null;
+    }
+};
+
+
+// Failure-tolerant version of fs.unlinkSync(filePath) - won't crash if no file already exists!!!
+const deleteSync = function(filePath) {
+    try {
+        fs.unlinkSync(filePath);
+    } catch(err) {
+        console.error(err.code);
+    }
+};
 
 // Constants
-let fileDummy;
+let warhorseDirectory = process.cwd();
+if(IS_TRAVIS) {warhorseDirectory = process.env.TRAVIS_BUILD_DIR;} // Usually: "/home/travis/build/kasargeant/warhorse"
 
-// Setup dummy CSS file
-fileDummy = {
-    original: "./test/data/client_src/css/index.css",
-    path: "./test/data/client_src/css/",
-    name: "index.css",
-    stem: "index",
-    extension: ".css",
-    config: false,
-    content: null
-};
-fileDummy.content = fs.readFileSync(fileDummy.original).toString();
-const FILE_DUMMY_CSS = Object.freeze(fileDummy);
-
-// Setup dummy LESS file
-fileDummy = {
-    original: "./test/data/client_src/less/index.less",
-    path: "./test/data/client_src/less/",
-    name: "index.less",
-    stem: "index",
-    extension: ".less",
-    config: false,
-    content: null
-};
-fileDummy.content = fs.readFileSync(fileDummy.original).toString();
-const FILE_DUMMY_LESS = Object.freeze(fileDummy);
-
-// Setup dummy JS file
-fileDummy = {
-    original: "./test/data/client_src/js/index.js",
-    path: "./test/data/client_src/js/",
-    name: "index.js",
-    stem: "index",
-    extension: ".js",
-    config: false,
-    content: null
-};
-fileDummy.content = fs.readFileSync(fileDummy.original).toString();
-const FILE_DUMMY_JS = Object.freeze(fileDummy);
-
-// Setup dummy JS file (Linting - FAIL CASE)
-fileDummy = {
-    original: "./test/data/client_src/js/Circle.js",
-    path: "./test/data/client_src/js/",
-    name: "Circle.js",
-    stem: "Circle",
-    extension: ".js",
-    config: false,
-    content: null
-};
-fileDummy.content = fs.readFileSync(fileDummy.original).toString();
-const FILE_DUMMY_JS_LINT_FAIL = Object.freeze(fileDummy);
-
-
-// Setup dummy SASS file
-fileDummy = {
-    original: "./test/data/client_src/sass/index.scss",
-    path: "./test/data/client_src/sass/",
-    name: "index.scss",
-    stem: "index",
-    extension: ".scss",
-    config: false,
-    content: null
-};
-fileDummy.content = fs.readFileSync(fileDummy.original).toString();
-const FILE_DUMMY_SASS = Object.freeze(fileDummy);
-
-
-let warhorse = new Warhorse();
+// Unit
+const warhorse = new Warhorse(warhorseDirectory, process.cwd(), {}, false);
 
 // Tests
 describe("Class: Warhorse", function() {
@@ -108,72 +77,169 @@ describe("Class: Warhorse", function() {
             expect(path).toMatchSnapshot();
         });
 
+        it("should know it's (home) directory location", function() {
+            expect(warhorse.moduleDirectory).toBe(process.cwd());
+        });
     });
 
-    describe("Actions", function() {
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TASKS
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    describe("Tasks", function() {
 
-        // Private functions (Only the critical 'building blocks'.)
-        it("should be able to parse a filepath", function() {
-            warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_JS));
-            let path = warhorse._splitPath("./test/data/client_src/index.js");
-            expect(path.name).toBe("index.js"); // Sanity test - don't rely just on snapshots!!!
-            expect(path).toMatchSnapshot();
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: BUNDLE
+        it("should be able to bundle JS code", function() {
+
+            // Preparation
+            const options = {
+                debug: false, //i.e. turn off source-mapping.
+                src: "./test/data/client_src/js/index.js",
+                dst: "./test/data/client_dist/js/index.js"
+            };
+
+            // Test
+            warhorse.bundle("js", options);
+
+            // Evaluation
+            expect(fs.existsSync(options.dst)).toBe(true);
+
+            let fileContent = readSync(options.dst);
+            deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
+
+            expect(fileContent.toString()).toMatchSnapshot();
+
         });
-        //
-        // // Public functions
-        // it("should be able to bundle JS code", function() {
-        //
-        //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_JS));
-        //     warhorse.bundle({});
-        //     expect(warhorse.file.content).toMatchSnapshot();
-        // });
-        //
-        // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // it("should be able to compile LESS", function() {
-        //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_LESS));
-        //     warhorse.compileLESS({});
-        //     expect(warhorse.file.content).toMatchSnapshot();
-        // });
-        //
-        // it("should be able to compile SASS", function() {
-        //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_SASS));
-        //     warhorse.compileSASS({});
-        //     expect(warhorse.file.content).toMatchSnapshot();
-        // });
-        //
-        // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // it("should be able to document JS code", function() {
-        //     // TODO - implement test: document JS
-        // });
-        //
-        // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // it("should be able to lint JS code", function() {
-        //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_JS_LINT_FAIL));
-        //     warhorse.lintJS();
-        //     console.log(warhorse.linterJSStats);
-        //     expect(warhorse.linterJSStats.errors).toBe(1);
-        //     expect(warhorse.linterJSStats.warnings).toBe(1);
-        // });
-        //
-        // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // it("should be able to load a file", function() {
-        //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_JS));
-        //     warhorse.load({});
-        //     expect(warhorse.file.content).toBe(FILE_DUMMY_JS.content);
-        // });
-        //
-        // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // it("should be able to minify CSS", function() {
-        //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_CSS));
-        //     warhorse.minifyCSS({});
-        //     expect(warhorse.file.content).toMatchSnapshot();
-        // });
-        //
-        // it("should be able to minify JS code", function() {
-        //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_JS));
-        //     warhorse.minifyJS({});
-        //     expect(warhorse.file.content).toMatchSnapshot();
-        // });
+
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: COMPRESS
+
+        it("should be able to compress JS code", function() {
+
+            // Preparation
+            const options = {
+                src: "./test/data/client_src/js/index.js",
+                dst: "./test/data/client_dist/js/index.js.tar.gz"
+            };
+
+            // Test
+            warhorse.compress("js", options);
+
+            // Evaluation
+            expect(fs.existsSync(options.dst)).toBe(true);
+
+            let fileContent = readSync(options.dst);
+            deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
+
+            // // TODO - Output is too variable to use these - need better option
+            // expect(fileContent.length).toBeGreaterThan(205);
+            // expect(fileContent.length).toBeLessThan(225);
+
+        });
+
+        it("should be able to compress CSS code", function() {
+
+            // Preparation
+            const options = {
+                src: "./test/data/client_src/css/index.css",
+                dst: "./test/data/client_dist/css/index.css.tar.gz"
+            };
+
+            // Test
+            warhorse.compress("css", options);
+
+            // Evaluation
+            expect(fs.existsSync(options.dst)).toBe(true);
+
+            let fileContent = readSync(options.dst);
+            deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
+
+            // // TODO - Output is too variable to use these - need better option
+            // expect(fileContent.length).toBeGreaterThan(840);
+            // expect(fileContent.length).toBeLessThan(870);
+
+        });
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: COPY
+
+        it("should be able to copy a text file", function() {
+
+            // Preparation
+            const options = {
+                src: "./test/data/client_src/css/index.css",
+                dst: "./test/data/client_dist/css/index.css"
+            };
+
+            // Test
+            warhorse.copy("text", options);
+
+            // Evaluation
+            expect(fs.existsSync(options.dst)).toBe(true);
+
+            let fileContentSrc = readSync(path.resolve(options.src)).toString();
+            let fileContentDst = readSync(path.resolve(options.dst)).toString();
+            deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
+            expect(fileContentDst).toBe(fileContentSrc);
+
+        });
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: DOCUMENT
+        //TODO - unit test: lint
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: LINT
+        //TODO - unit test: lint
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: MINIFY
+        it("should be able to minify JS code", function() {
+
+            // Preparation
+            const options = {
+                debug: false, //i.e. turn off source-mapping.
+                src: "./test/data/client_src/js/index.js",
+                dst: "./test/data/client_dist/js/index.min.js"
+            };
+
+            // Test
+            warhorse.minify("js", options);
+
+            // Evaluation
+            let fileContent = readSync(options.dst);
+            deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
+            expect(fileContent.toString()).toMatchSnapshot();
+        });
+
+        it("should be able to minify CSS code", function() {
+
+            // Preparation
+            const options = {
+                debug: false, //i.e. turn off source-mapping.
+                src: "./test/data/client_src/css/index.css",
+                dst: "./test/data/client_dist/css/index.min.css"
+            };
+
+            // Test
+            warhorse.minify("css", options);
+
+            // Evaluation
+            let fileContent = readSync(options.dst);
+            deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
+            expect(fileContent.toString()).toMatchSnapshot();
+
+        });
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: PREPROCESS
+        //TODO - unit test: preprocess
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: POSTPROCESS
+        //TODO - unit test: postprocess
+        
         //
         // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // // TODO - Implement asset packing tests
@@ -200,12 +266,7 @@ describe("Class: Warhorse", function() {
         // //     warhorse.packSVG({});
         // //     expect(warhorse.file.content).toMatchSnapshot();
         // // });
-        //
-        // // TODO -> tests for:-
-        // // rename
-        // // save
-        // // task
-        // // use
+
 
     });
 
