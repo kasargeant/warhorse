@@ -17,6 +17,9 @@ function tasks(warhorse) {
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "build": function() {
+                warhorse.version("git", {
+                    action: "get-branch-name"
+                });
                 warhorse.bundle("js", {
                     src: "src/index.js",
                     dst: "dist/index.js"
@@ -30,22 +33,23 @@ function tasks(warhorse) {
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "distribute": function() {
                 warhorse
-                    .execute("test")
+                    .execute("clean")
                     .execute("lint")
+                    .execute("test")
                     .execute("build")
                     .execute("document");
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "clean": function() {
-                warhorse.execute("clean-dist");
+                warhorse
+                    .clean(["./dist/*"]);
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "document": function() {
                 warhorse.document("js", {
-                    conf: "conf/jsdoc.json",
-                    src: "src/js/"
+                    conf: "conf/jsdoc.json"
                 });
             },
 
@@ -62,6 +66,7 @@ function tasks(warhorse) {
             "lint": function() {
 
                 warhorse.lint("js", {
+                    type: "quality",
                     conf: "conf/jshint.json",
                     src: "src/js/",
                     exclude: "conf/.jshintignore"
@@ -86,23 +91,11 @@ function tasks(warhorse) {
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "test": function() {
                 warhorse.test("js", {
+                    tooling: "jest",
+                    debug: true,
                     config: "conf/jest.json",
-                    src: "./test/js/",
-                    debug: true
+                    src: "./test/js/"
                 });
-            }
-        },
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASKS
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Each task describes a single 'pipeline' of actions upon a single file.
-        tasks: {
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "clean-dist": function() {
-                warhorse
-                    .clean(["./dist/*"]);
             }
         }
     };

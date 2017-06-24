@@ -30,30 +30,37 @@ function tasks(warhorse) {
                 warhorse.compress("js", {
                     src: "dist/index.min.js",
                     dst: "dist/index.tar.gz",
-                    method: "tar.gz"
                 });
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "distribute": function() {
                 warhorse
+                    .execute("clean")
                     .execute("process")
-                    .execute("test")
                     .execute("lint")
+                    .execute("test")
                     .execute("build")
                     .execute("document");
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "clean": function() {
-                warhorse.execute("clean-dist");
+                warhorse.clean([
+                    "./dist/img/ico/*",
+                    "./dist/img/gif/*",
+                    "./dist/img/jpg/*",
+                    "./dist/img/png/*",
+                    "./dist/img/svg/*",
+                    "./dist/css/*",
+                    "./dist/js/*",
+                    "./dist/css/*"]);
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "document": function() {
                 warhorse.document("js", {
-                    conf: "conf/jsdoc.json",
-                    src: "src/js/"
+                    conf: "conf/jsdoc.json"
                 });
             },
 
@@ -70,6 +77,7 @@ function tasks(warhorse) {
             "lint": function() {
 
                 warhorse.lint("js", {
+                    type: "quality",
                     conf: "conf/jshint.json",
                     src: "src/js/",
                     exclude: "conf/.jshintignore"
@@ -89,27 +97,30 @@ function tasks(warhorse) {
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "pack": function() {
 
-                warhorse.pack("png", {
+                warhorse.compress("png", {
                     src: "src/img/png/*.png",
                     dst: "dist/img/png/",
                 });
 
-                warhorse.pack("gif", {
+                warhorse.compress("gif", {
                     src: "src/img/gif/*.gif",
                     dst: "dist/img/gif/"
                 });
 
-                warhorse.pack("jpg", {
+                warhorse.compress("jpg", {
                     src: "src/img/jpg/*.jpg",
                     dst: "dist/img/jpg/"
                 });
 
-                warhorse.pack("svg", {
+                warhorse.compress("svg", {
                     src: "src/img/svg/*.svg",
                     dst: "dist/img/svg/"
                 });
 
-                warhorse.use("copy-ico", "src/img/ico/*.ico", {});
+                warhorse.copy("svg", {
+                    src: "./test/data/client_src/img/ico/*.ico",
+                    dst: "./test/data/client_dist/img/ico/"
+                });
             },
 
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -151,38 +162,12 @@ function tasks(warhorse) {
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             "test": function() {
                 warhorse.test("js", {
+                    tooling: "jest",
+                    debug: true,
                     config: "conf/jest.json",
-                    src: "./test/js/",
-                    debug: true
+                    src: "./test/js/"
+
                 });
-            }
-        },
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASKS
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Each task describes a single 'pipeline' of actions upon a single file.
-        tasks: {
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "clean-dist": function() {
-                warhorse
-                    .clean([
-                        "./dist/img/ico/*",
-                        "./dist/img/gif/*",
-                        "./dist/img/jpg/*",
-                        "./dist/img/png/*",
-                        "./dist/img/svg/*",
-                        "./dist/css/*",
-                        "./dist/js/*",
-                        "./dist/css/*"]);
-            },
-
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            "copy-ico": function() {
-                warhorse
-                    .load({encoding: "binary"})
-                    .save("./dist/img/ico/" + warhorse.file.name, {encoding: "binary"});
             }
         }
     };

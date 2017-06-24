@@ -228,7 +228,6 @@ class Warhorse {
         this.conventions = ["module", "web"];
 
         this.cmds = {}; // Lookup for built-in commands.
-        this.tasks = {}; // Lookup for user-defined tasks.
 
         this.moduleDirectory = moduleDirectory;     // i.e. Warhorse's own directory
         this.conventionsDirectory = moduleDirectory + "src/conventions/";
@@ -244,7 +243,6 @@ class Warhorse {
             // configureTasks(this);
             const userConfig = require(workingDirectory + "/_warhorse.js")(this);
             this.cmds = userConfig.commands;
-            this.tasks = userConfig.tasks;
         } catch(ex) {
             // fs.writeFileSync(workingDirectory + "/_warhorse.js", )
             console.debug("Warning: This directory is missing a '_warhorse.js' file and is uninitialised.");
@@ -254,7 +252,7 @@ class Warhorse {
     }
 
     /**
-     * Clean task.
+     * Clean/ delete file(s) task.
      * @param {Array} paths - Array of paths or files to empty and delete.
      * @param {Object} options - Options to further configure this action.
      * @returns {Object} - Returns self for chaining.
@@ -287,9 +285,6 @@ class Warhorse {
         }
         console.stage(`Done.`);
     }
-
-    /////////////////////////////////
-    // NEW TASKS
 
     /**
      * Task for bundling and module resolution.
@@ -1192,7 +1187,7 @@ class Warhorse {
     }
     
     /**
-     * Rename action.  Allows modification/replacement/injection of file details into the sequence of actions.
+     * Rename task.  Allows modification/replacement/injection of file details into the sequence of actions.
      * @param {Object} options - Options to further configure this action.
      * @returns {Object} - Returns self for chaining.
      */
@@ -1268,16 +1263,6 @@ class Warhorse {
 
         // Return self for chaining.
         return this;
-    }
-
-    /**
-     * Command 'wrapper' function (used exclusively in '_warhorse.js' file).  Wraps a task, or list of tasks, to be executed by the named command.
-     * @param {string} name - Name of the task.
-     * @param {string} cmdFn - A function containing the tasks executed for this command.
-     * @returns {void}
-     */
-    command(name, cmdFn) {
-        this.cmds[name] = cmdFn;
     }
 
     /**
@@ -1377,92 +1362,17 @@ class Warhorse {
     }
 
     /**
-     * Use function identfies which files are to be used with which task
-     * @param {string} taskName - The name of the task to be executed for every batch item.
-     * @param {string} filePath - File path (globs/wildcards allowed) to be processed by this action.
-     * @param {Object} options - Options are propagated to all task actions.
-     * @returns {Object} - Returns self for chaining.
-     */
-    use(taskName, filePath, options = {}) {
-
-        console.task(`TASK: ${taskName}`);
-
-        // Retrieve task from the taskName
-        let task = this.tasks[taskName];
-
-        // If there are is no filePath to be sourced...
-        if(filePath === undefined) {
-            task();
-        }
-
-        // If it is a batch of filePaths...
-        else if(filePath.constructor === Array) {
-            filePath.map(function(filePathItem) {
-                this._use(filePathItem, task, options);}.bind(this)
-            );
-        }
-
-        // Else if it is single filePath.
-        else if(typeof filePath === "string") {
-            this._use(filePath, task, options);
-        }
-        // Otherwise...
-        else {
-            console.error(`Error: Unrecognisable or null filepath: ${filePath}`);
-        }
-
-        // Return self for chaining.
-        return this;
-    }
-
-
-    /**
-     * Execute command from the CLI.
-     * @param {string} name - Name of the command to execute.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    _executeCmd(name) {
-        if(this.commands.includes(name)) {
-            let cmd = this.cmds[name];
-            if(cmd !== null) {cmd();}
-            return this;    // Return self for chaining.
-        } else {
-            console.error(`Error: Unrecognised command '${name}'.`);
-        }
-
-        // Return self for chaining.
-        return this;
-    }
-
-    /**
-     * Execute task function.
-     * @param {string} name - Name of the task to execute.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    _executeTask(name) {
-        console.task(`TASK ${name}`);
-        let task = this.tasks[name];
-        if(task !== null) {
-            //console.log("Executing command: " + typeof task);
-            task();
-        }
-
-        // Return self for chaining.
-        return this;
-    }
-
-    /**
      * Executes the named command or task.
      * @param {string} name - Name of the command or task to execute.
      * @returns {Object} - Returns self for chaining.
      */
     execute(name) {
         if(this.commands.includes(name)) {
-            this._executeCmd(name);
-        } else if(Object.keys(this.tasks).includes(name)) {
-            this._executeTask(name);
+            let cmd = this.cmds[name];
+            if(cmd !== null) {cmd();}
+            return this;    // Return self for chaining.
+        } else {
+            console.error(`Error: Unrecognised command '${name}'.`);
         }
 
         // Return self for chaining.

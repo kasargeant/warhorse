@@ -186,14 +186,6 @@ function tasks(warhorse) {
                     src: "./test/js/"
                 });
             }
-        },
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASKS
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Each task describes a single 'pipeline' of actions upon a single file.
-        tasks: {
-
         }
     };
 }
