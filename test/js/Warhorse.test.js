@@ -8,6 +8,10 @@
 
 "use strict";
 
+// Environment
+const IS_CI = process.env.CI;
+const IS_TRAVIS = process.env.TRAVIS;
+
 // Imports
 const fs = require.requireActual("fs");
 const path = require.requireActual("path");
@@ -24,7 +28,11 @@ const readSync = function(filePath) {
 };
 
 // Constants
-const warhorse = new Warhorse(process.cwd(), process.cwd(), {}, false);
+let warhorseDirectory = process.cwd();
+if(IS_TRAVIS) {warhorseDirectory = "/home/travis/build/kasargeant/warhorse/";}
+
+// Unit
+const warhorse = new Warhorse(warhorseDirectory, process.cwd(), {}, false);
 
 // Tests
 describe("Class: Warhorse", function() {
