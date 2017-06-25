@@ -14,6 +14,9 @@ scratch/
 scratch.*
 temp/
 
-# FIXME - KEEP OUT OF DISTRO UNTIL A MORE STABLE VERSION...
+# REPO FOLDERS NOT FOR GIT VERSIONING
+/dist/
+#/docs/api/
 /docs/coverage/
 /docs/tests/
+/docs/index.html

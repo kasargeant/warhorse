@@ -29,22 +29,9 @@ const packageSnippets = require("../conventions/package_snippets.json");
 // Setup console
 const Pageant = require("pageant");
 const console = new Pageant();
-// const color = console.Color;
-
-// process.env.TINTER_TEST = "256";
 const color = require("tinter");
 
-// const color = {
-//     style: function(arg) {return arg;},
-//     inverse: function(arg) {return arg;},
-//     cyan: function(arg) {return arg;},
-//     red: function(arg) {return arg;},
-//     yellow: function(arg) {return arg;}
-// }; // Create alias
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Helpers (internal)
-
 // Failure-tolerant version of fs.mkdirSync(dirPath) - won't overwrite existing dirs!!!
 const mkdirSync = function(dirPath) {
     try {
@@ -221,16 +208,14 @@ class Warhorse {
 
         this.file = null; // Main arg passed from function to function - requires sync operation of course!
 
-        // Finally add user-defined tasks.
+        // Finally add user-defined tasks...
         try {
-            // const configureTasks = require(workingDirectory + "/_warhorse.js");
-            // configureTasks(this);
+            // ...from a user-defined file
             this.cmds = require(this.workingDirectory + "/_warhorse.js")(this);
         } catch(ex) {
-            // fs.writeFileSync(workingDirectory + "/_warhorse.js", )
-            // console.debug("Warning: This directory is missing a '_warhorse.js' file and is uninitialised.");
-            // Otherwise, fall-back on default conventions
+            // ...or otherwise, fall-back on default
             this.cmds = require(this.moduleDirectory + "/_warhorse.js")(this);
+            // console.debug("Warning: This directory is missing a '_warhorse.js' file and is uninitialised.");
         }
         // Finally, finally, slip built-in 'create' into cmds
         this.cmds.create = this._cmdCreate;
@@ -403,13 +388,22 @@ class Warhorse {
             let config = Object.assign(this.defaults.document.js, options);
 
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            let toolArgs = [config.src];
-            let toolOptions = {
-                verbose: this.debug || config.debug,   // i.e. debug/source map options
-                configure: config.conf,
-                destination: config.dst,
-                recurse: true
-            };
+            // NOTE: IF an external configuration file is provided - ALL other configurations (except debug) are ignored.
+            let toolArgs, toolOptions;
+            if(config.conf === undefined) {
+                toolArgs = [config.src];
+                toolOptions = {
+                    verbose: this.debug || config.debug,   // i.e. debug/source map options
+                    destination: config.dst,
+                    recurse: true
+                };
+            } else {
+                toolArgs = [];
+                toolOptions = {
+                    verbose: this.debug || config.debug,   // i.e. debug/source map options
+                    configure: config.conf
+                };
+            }
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/jsdoc", this.workingDirectory, toolArgs, toolOptions, config);
@@ -436,7 +430,7 @@ class Warhorse {
     lint(type, options) {
 
         // Log task execution
-        if(options.isSilent !== true) {console.h2(`TASK: Bundling ${type.toUpperCase()}...`);}
+        if(options.isSilent !== true) {console.h2(`TASK: Linting ${type.toUpperCase()}...`);}
 
         // Select sub-task based on data type
         if(type === "js" && options.type === "style") {
@@ -652,9 +646,23 @@ class Warhorse {
         return this;
     }
 
-    // For publishing the final distribution: NPM... JSPM???, Yarn???
+    /**
+     * TODO: IMPLEMENT Task for publishing the distribution to cloud services. e.g. NPM.
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.dst - The destination/target path for this task.
+     * @returns {Object} - Returns self for chaining.
+     */
     publish(type, options) {}
 
+    /**
+     *
+     * @param {Object} reports - Lint style reports to be displayed.
+     * @returns {void}
+     * @private
+     */
     _reportJSCS(reports) {
         // { 'test/data/client_src/js/Circle.js':
         //     [ { line: 9,
@@ -701,6 +709,12 @@ class Warhorse {
         // console.log("");
     }
 
+    /**
+     *
+     * @param {Object} reports - Lint quality reports to be displayed.
+     * @returns {void}
+     * @private
+     */
     _reportJSHint(reports) {
         // {
         //     "result": [{
@@ -1027,13 +1041,29 @@ class Warhorse {
 
                 // Create a user-level config from defaults/options
                 let config = Object.assign(this.defaults.test.js.jest, options);
+                config.useInherit = true;
 
                 // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-                let toolArgs = [config.src];
-                let toolOptions = {
-                    verbose: this.debug || config.debug,   // i.e. debug/source map options
-                    config: config.conf
-                };
+                // let toolArgs = [config.src];
+                // let toolOptions = {
+                //     verbose: this.debug || config.debug,   // i.e. debug/source map options
+                //     config: config.conf
+                // };
+                // NOTE: IF an external configuration file is provided - ALL other configurations (except debug) are ignored.
+                let toolArgs, toolOptions;
+                if(config.conf === undefined) {
+                    toolArgs = [config.src];
+                    toolOptions = {
+                        verbose: this.debug || config.debug,   // i.e. debug/source map options
+                        coverage: true
+                    };
+                } else {
+                    toolArgs = [];
+                    toolOptions = {
+                        verbose: this.debug || config.debug,   // i.e. debug/source map options
+                        config: config.conf
+                    };
+                }
 
                 // Finally map configuration to tool args and options
                 this._execute(this.moduleDirectory, "./node_modules/.bin/jest", this.workingDirectory, toolArgs, toolOptions, config);
@@ -1259,6 +1289,7 @@ class Warhorse {
      * @param {string} useOutput - Flag indicating that task should display any output returned by the task.
      * @param {boolean} useEqualsSign - Use '=' sign between configuration key-values.
      * @returns {Object} - Returns self for chaining.
+     * @private
      */
     _execute(warhorseDirectory, relativeExecutablePath, workingDirectory, args=[], argOptions={}, options={debug: false, useOutput: "stdout", useEqualsSign: false}) {
 
@@ -1282,7 +1313,7 @@ class Warhorse {
 
         let stdout = null; let stderr = null;
         try {
-            stdout = child.execSync(cmdLine);
+            stdout = child.execSync(cmdLine, {cwd: workingDirectory, stdio: "inherit"});
         } catch(ex) {
             //console.error(ex.message);
             stdout = ex.stdout;

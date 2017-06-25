@@ -169,7 +169,7 @@ function tasks(warhorse) {
             warhorse.test("js", {
                 tooling: "jest",
                 debug: true,
-                config: "conf/jest.json",
+                conf: "./conf/jest.json",
                 src: "./test/js/"
             });
         }
