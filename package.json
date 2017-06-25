@@ -1,6 +1,6 @@
 {
   "name": "warhorse",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "A simple, friendly and reliable JavaScript Task Runner... able to crush your enemies!",
   "keywords": [
     "javascript",
@@ -66,7 +66,7 @@
     "bayeux": "^0.9.1",
     "browserify": "^14.1.0",
     "csso-cli": "^1.0.0",
-    "eslint": "^4.0.0",
+    "eslint": "^4.1.0",
     "glob": "^7.1.1",
     "handlebars": "^4.0.10",
     "imagemin-cli": "^3.0.0",
@@ -89,7 +89,7 @@
     "node-sass": "^4.5.2",
     "npm": "^4.2.0",
     "nyc": "^11.0.2",
-    "pageant": "0.0.15",
+    "pageant": "^0.1.2",
     "postcss-cli": "^4.1.0",
     "readline-sync": "^1.4.7",
     "shelljs": "^0.7.8",

@@ -129,7 +129,7 @@ describe("Class: Warhorse", function() {
             // Evaluation
             expect(fs.existsSync(options.dst)).toBe(true);
 
-            let fileContent = readSync(options.dst);
+            //let fileContent = readSync(options.dst);
             deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
 
             // // TODO - Output is too variable to use these - need better option
@@ -152,7 +152,7 @@ describe("Class: Warhorse", function() {
             // Evaluation
             expect(fs.existsSync(options.dst)).toBe(true);
 
-            let fileContent = readSync(options.dst);
+            //let fileContent = readSync(options.dst);
             deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
 
             // // TODO - Output is too variable to use these - need better option
