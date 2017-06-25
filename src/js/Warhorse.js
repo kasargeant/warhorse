@@ -18,7 +18,7 @@ const merge = require("merge");
 const shell = require("shelljs");
 const tar = require("tar");
 
-// Helpers
+// Helpers (external)
 const Git = require("./helpers/GitHelper");
 const Cli = require("./helpers/CliHelper");
 
@@ -43,23 +43,7 @@ const color = require("tinter");
 // }; // Create alias
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Warhorse specific
-console.cmd = function(value) {
-    console.log(color.style(value, "white", "navy", "italic"));
-};
-console.task = function(value) {
-    value = "  " + color.style(value, "orange", "navy", "italic");
-    console.log(value);
-};
-console.action = function(value) {
-    // value = "  - " + color.redBg(value);
-    value = "  - " + color.gray(value);
-    console.log(value);
-};
-console.stage = function(value) {
-    value = "    -> " + color.green(value);
-    console.log(value);
-};
+// Helpers (internal)
 
 // Failure-tolerant version of fs.mkdirSync(dirPath) - won't overwrite existing dirs!!!
 const mkdirSync = function(dirPath) {
@@ -260,10 +244,10 @@ class Warhorse {
      */
     clean(paths, options = {}) {
         // Log task execution
-        if(options.isSilent !== true) {console.task(`TASK: Cleaning project...`);}
+        if(options.isSilent !== true) {console.h2(`TASK: Cleaning project...`);}
 
         shell.rm("-rf", ...paths);
-        console.stage(`Done.`);
+        console.h4(`Done.`);
     }
 
     /**
@@ -277,14 +261,14 @@ class Warhorse {
     copy(type, options = {}) {
 
         // Log task execution
-        if(options.isSilent !== true) {console.task(`TASK: Bundling ${type.toUpperCase()}...`);}
+        if(options.isSilent !== true) {console.h2(`TASK: Bundling ${type.toUpperCase()}...`);}
 
         if(options.recurse === true) {
             shell.cp("-R", options.src, options.dst);
         } else {
             shell.cp(options.src, options.dst);
         }
-        console.stage(`Done.`);
+        console.h4(`Done.`);
     }
 
     /**
@@ -301,7 +285,7 @@ class Warhorse {
     bundle(type, options) {
 
         // Log task execution
-        if(options.isSilent !== true) {console.task(`TASK: Bundling ${type.toUpperCase()}...`);}
+        if(options.isSilent !== true) {console.h2(`TASK: Bundling ${type.toUpperCase()}...`);}
 
         // Select sub-task based on data type
         if(type === "js") {
@@ -343,7 +327,7 @@ class Warhorse {
     compress(type, options) {
 
         // Log task execution
-        if(options.isSilent !== true) {console.task(`TASK: Compressing ${type.toUpperCase()}...`);}
+        if(options.isSilent !== true) {console.h2(`TASK: Compressing ${type.toUpperCase()}...`);}
 
         // Select sub-task based on data type
         if(["css", "js", "txt"].includes(type)) {
@@ -410,7 +394,7 @@ class Warhorse {
      */
     document(type, options) {
         // Log task execution
-        if(options.isSilent !== true) {console.task(`TASK: Documenting ${type.toUpperCase()}...`);}
+        if(options.isSilent !== true) {console.h2(`TASK: Documenting ${type.toUpperCase()}...`);}
 
         // Select sub-task based on data type
         if(type === "js") {
@@ -452,7 +436,7 @@ class Warhorse {
     lint(type, options) {
 
         // Log task execution
-        if(options.isSilent !== true) {console.task(`TASK: Bundling ${type.toUpperCase()}...`);}
+        if(options.isSilent !== true) {console.h2(`TASK: Bundling ${type.toUpperCase()}...`);}
 
         // Select sub-task based on data type
         if(type === "js" && options.type === "style") {
@@ -514,7 +498,7 @@ class Warhorse {
     minify(type, options) {
 
         // Log task execution
-        if(options.isSilent !== true) {console.task(`TASK: Minifying ${type.toUpperCase()}...`);}
+        if(options.isSilent !== true) {console.h2(`TASK: Minifying ${type.toUpperCase()}...`);}
 
         // Select sub-task based on data type
         if(type === "js") {
@@ -575,7 +559,7 @@ class Warhorse {
     preprocess(type, options) {
 
         // Log task execution
-        if(options.isSilent !== true) {console.task(`TASK: Preprocessing ${type.toUpperCase()}...`);}
+        if(options.isSilent !== true) {console.h2(`TASK: Preprocessing ${type.toUpperCase()}...`);}
 
         // Select sub-task based on data type
         if(type === "less") {
@@ -950,7 +934,7 @@ class Warhorse {
     test(type, options) {
 
         // Log task execution
-        if(options.isSilent !== true) {console.task(`TASK: Testing ${type.toUpperCase()} with '${options.tooling}'...`);}
+        if(options.isSilent !== true) {console.h2(`TASK: Testing ${type.toUpperCase()} with '${options.tooling}'...`);}
 
         // Select sub-task based on data type
         if(type === "js") {
@@ -1073,7 +1057,7 @@ class Warhorse {
     version(type, options) {
         switch(options.action) {
             case "get-branch-name":
-                console.action("On branch: " + Git.getCurrentBranchName());
+                console.h3("On branch: " + Git.getCurrentBranchName());
                 break;
             case "update-master":
                 Git.updateMaster(options.release, options.comment);
@@ -1098,7 +1082,7 @@ class Warhorse {
         if(this.conventions.includes(convention)) {
 
             // Create convention infrastructure
-            console.task(`Creating infrastructure for convention '${convention}'.`);
+            console.h2(`Creating infrastructure for convention '${convention}'.`);
             let projectPath = this.workingDirectory + config.name + "/";
             shell.cp("-R", `${this.conventionsDirectory}${convention}/`, projectPath);
 
@@ -1179,7 +1163,7 @@ class Warhorse {
 
         // Accepts a single filepath only.
         let srcPath = this.file.path + this.file.name;
-        console.action(`Loading file: ${this.file.path + this.file.name}`);
+        console.h3(`Loading file: ${this.file.path + this.file.name}`);
 
         this.file.content = fs.readFileSync(srcPath, config.encoding);
 
@@ -1194,7 +1178,7 @@ class Warhorse {
      */
     rename(options = {}) {
 
-        console.action(`Renaming file: ${this.file.path}`);
+        console.h3(`Renaming file: ${this.file.path}`);
 
         let config = Object.assign(this.settings.save, options);
 
@@ -1216,7 +1200,7 @@ class Warhorse {
         // Sanity check
         if(!filePath) {return null;}
 
-        //console.stage(`Splitting file path: ${filePath}`); // e.g. /docs/index.html  // DEBUG ONLY
+        //console.h4(`Splitting file path: ${filePath}`); // e.g. /docs/index.html  // DEBUG ONLY
 
         let name = path.posix.basename(filePath);           // e.g. index.html
         let directory = path.dirname(filePath) + "/";       // e.g. /docs/
@@ -1253,7 +1237,7 @@ class Warhorse {
 
         let config = Object.assign(this.settings.save, options);
 
-        console.action(`Saving file to: ${dstPath}`);
+        console.h3(`Saving file to: ${dstPath}`);
 
         if(config.compress === true) {
             fs.writeFileSync(dstPath, this.file.content, config.encoding);
@@ -1348,7 +1332,7 @@ class Warhorse {
      * @private
      */
     _use(globPath, task, options) {
-        //console.action(`Parsing: ${globPath}`);
+        //console.h3(`Parsing: ${globPath}`);
 
         // Sync filesystem check
         let filePaths = glob.sync(globPath);
@@ -1390,7 +1374,7 @@ class Warhorse {
         console.log(color.inverse(`WARHORSE active.`));
         let [cmdName, convention="module"] = args;
 
-        console.cmd(`COMMAND ${cmdName}`);
+        console.h1(`COMMAND ${cmdName}`);
 
         // Handle the 'create' built-in separately
         if(cmdName === "create") {
