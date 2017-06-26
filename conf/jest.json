@@ -1,5 +1,6 @@
 {
   "rootDir": "../",
+  "collectCoverage": true,
   "coverageDirectory": "./docs/coverage",
   "coveragePathIgnorePatterns": [
     "conf/",
