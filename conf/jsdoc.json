@@ -3,10 +3,10 @@
     "allowUnknownTags": true
   },
   "source": {
-      "include": ["./src/README.md", "./src/"],
-      "exclude": ["./src/conventions/", "./test/", "scratch/"],
-      "includePattern": ".+\\.js(doc)?$",
-      "excludePattern": "(^|\\/|\\\\)_"
+    "include": ["./src/README.md", "./src"],
+    "exclude": ["./dist", "./src/conventions", "./test", "scratch"],
+    "includePattern": ".+\\.js(doc)?$",
+    "excludePattern": "(^|\\/|\\\\)_"
   },
   "opts": {
     "destination": "./docs/api",
