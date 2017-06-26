@@ -439,6 +439,7 @@ class Warhorse {
             let config = Object.assign(this.defaults.lint.js.style, options);
             config.useOutput = "jscs";
             config.useEqualsSign = true;
+            config.stdio = "pipe"; // Needed to return raw data
 
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
             let toolArgs = [config.src];
@@ -457,6 +458,7 @@ class Warhorse {
             let config = Object.assign(this.defaults.lint.js.style, options);
             config.useOutput = "jshint";
             config.useEqualsSign = true;
+            config.stdio = "pipe"; // Needed to return raw data
 
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
             let toolArgs = [config.src];
@@ -1291,8 +1293,13 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      * @private
      */
-    _execute(warhorseDirectory, relativeExecutablePath, workingDirectory, args=[], argOptions={}, options={debug: false, useOutput: "stdout", useEqualsSign: false}) {
+    _execute(warhorseDirectory, relativeExecutablePath, workingDirectory, args=[], argOptions={}, options={}) {
 
+        // First make sure that certain default options are set for sucessful command line operation.
+        let defaults = {debug: false, useOutput: "stdout", stdio: "inherit", useEqualsSign: false};
+        options = Object.assign(defaults, options);
+
+        // Next, define working directory TODO - Maybe this can be removed... as we now pass CWD directly the child process?
         workingDirectory = path.resolve(workingDirectory);
         if(workingDirectory !== process.cwd()) {
             console.log("Current working directory was: >>" + process.cwd() + "<<");
@@ -1313,7 +1320,7 @@ class Warhorse {
 
         let stdout = null; let stderr = null;
         try {
-            stdout = child.execSync(cmdLine, {cwd: workingDirectory, stdio: "inherit"});
+            stdout = child.execSync(cmdLine, {cwd: workingDirectory, stdio: options.stdio});
         } catch(ex) {
             //console.error(ex.message);
             stdout = ex.stdout;
