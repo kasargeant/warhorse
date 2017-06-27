@@ -372,12 +372,56 @@ class Warhorse {
      * @param {string} type - Type of source file.
      * @param {Object=} options - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
-     * @param {string} options.conf - The path to a separate configuration file for this task.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
      */
     document(type, options) {
+        // Log task execution
+        if(options.isSilent !== true) {console.h2(`TASK: Documenting ${type.toUpperCase()}...`);}
+
+        // Select sub-task based on data type
+        if(type === "js") {
+
+            // Create a user-level config from defaults/options
+            let config = Object.assign(this.defaults.document.js, options);
+
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            // NOTE: We always use Warhorse conf file.
+            let src = path.resolve(this.workingDirectory, config.src);
+            let dst = path.resolve(this.workingDirectory, config.dst);
+            let configPath = path.resolve(this.moduleDirectory, "./conf/jsdoc.json");
+            let toolArgs = [src];
+            let toolOptions = {
+                verbose: this.debug || config.debug,   // i.e. debug/source map options
+                configure: configPath,
+                destination: dst,
+                recurse: true
+            };
+
+            // Finally map configuration to tool args and options
+            this._execute(this.moduleDirectory, "./node_modules/.bin/jsdoc", this.moduleDirectory, toolArgs, toolOptions, config);
+
+        } else {
+            console.error(`Error: Unrecognised type '${type}'.`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Task for automatically documenting project source code.
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.conf - The path to a separate configuration file for this task.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.dst - The destination/target path for this task.
+     * @returns {Object} - Returns self for chaining.
+     * @private
+     */
+    documentLocal(type, options) {
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Documenting ${type.toUpperCase()}...`);}
 
@@ -1337,14 +1381,22 @@ class Warhorse {
                     console.log(stdout.toString());
                     break;
                 case "jscs":
-                    // console.log(">> JSCS");
-                    output = JSON.parse(stdout.toString());
-                    this._reportJSCS(output);
+                    output = stdout.toString();
+                    if(output) {
+                        output = JSON.parse(stdout.toString());
+                        this._reportJSCS(output);
+                    } else {
+                        console.log("Nothing to report.");
+                    }
                     break;
                 case "jshint":
-                    // console.log(">> JSHINT");
-                    output = JSON.parse(stdout.toString());
-                    this._reportJSHint(output);
+                    output = stdout.toString();
+                    if(output) {
+                        output = JSON.parse(stdout.toString());
+                        this._reportJSHint(output);
+                    } else {
+                        console.log("Nothing to report.");
+                    }
                     break;
                 case "tape":
                     // console.log(">> TAPE");
