@@ -1381,18 +1381,24 @@ class Warhorse {
                     console.log(stdout.toString());
                     break;
                 case "jscs":
-                    output = stdout.toString();
-                    if(output) {
+                    try {
                         output = JSON.parse(stdout.toString());
+                    } catch(err) {
+                        console.debug("Could not parse (or lacking) JS style lint data.");
+                    }
+                    if(output !== "") {
                         this._reportJSCS(output);
                     } else {
                         console.log("Nothing to report.");
                     }
                     break;
                 case "jshint":
-                    output = stdout.toString();
-                    if(output) {
+                    try {
                         output = JSON.parse(stdout.toString());
+                    } catch(err) {
+                        console.debug("Could not parse (or lacking) JS quality lint data.");
+                    }
+                    if(output.result.length) {
                         this._reportJSHint(output);
                     } else {
                         console.log("Nothing to report.");
