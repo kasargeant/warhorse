@@ -184,9 +184,7 @@ class Warhorse {
                     bayeux: {
                         src: "test/js/*.test.js"
                     },
-                    jest: {
-                        config: "./conf/jest.json"
-                    }
+                    jest: {}
                 }
             }
         };
@@ -196,7 +194,7 @@ class Warhorse {
         this.lintStatsJS = {reports: [], errors: 0, warnings: 0};
 
         this.commands = ["build", "clean", "create", "distribute", "document", "lint", "pack", "process", "publish", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
-        this.conventions = ["module", "web"];
+        this.conventions = ["client", "library", "module", "server"]; //TODO "fullstack" convention,
 
         this.cmds = {}; // Lookup for built-in commands.
 
@@ -267,7 +265,7 @@ class Warhorse {
      * @param {string} options.include - Include file(s) for the task.
      * @returns {Object} - Returns self for chaining.
      */
-    bundle(type, options) {
+    bundle(type, options={}) {
 
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Bundling ${type.toUpperCase()}...`);}
@@ -309,7 +307,7 @@ class Warhorse {
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
      */
-    compress(type, options) {
+    compress(type, options={}) {
 
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Compressing ${type.toUpperCase()}...`);}
@@ -376,7 +374,7 @@ class Warhorse {
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
      */
-    document(type, options) {
+    document(type, options={}) {
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Documenting ${type.toUpperCase()}...`);}
 
@@ -421,7 +419,7 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      * @private
      */
-    documentLocal(type, options) {
+    documentLocal(type, options={}) {
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Documenting ${type.toUpperCase()}...`);}
 
@@ -471,7 +469,7 @@ class Warhorse {
      * @param {string} options.include - Include file(s) for the task.
      * @returns {Object} - Returns self for chaining.
      */
-    lint(type, options) {
+    lint(type, options={}) {
 
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Linting ${type.toUpperCase()}...`);}
@@ -539,7 +537,7 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      * @private
      */
-    lintLOCAL(type, options) {
+    lintLOCAL(type, options={}) {
 
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Linting ${type.toUpperCase()}...`);}
@@ -603,7 +601,7 @@ class Warhorse {
      * @param {string} options.include - Include a file from another bundle. Can be globs.
      * @returns {Object} - Returns self for chaining.
      */
-    minify(type, options) {
+    minify(type, options={}) {
 
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Minifying ${type.toUpperCase()}...`);}
@@ -664,7 +662,7 @@ class Warhorse {
      * @param {string} options.include - Include file(s) for the task.
      * @returns {Object} - Returns self for chaining.
      */
-    preprocess(type, options) {
+    preprocess(type, options={}) {
 
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Preprocessing ${type.toUpperCase()}...`);}
@@ -719,7 +717,7 @@ class Warhorse {
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
      */
-    pack(type, options) {
+    pack(type, options={}) {
         // TODO - Reuse or remove 'pack' command.
 
         // Return self for chaining.
@@ -735,7 +733,7 @@ class Warhorse {
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
      */
-    postprocess(type, options) {
+    postprocess(type, options={}) {
         if(type === "css") {
 
             // Create a user-level config from defaults/options
@@ -769,7 +767,7 @@ class Warhorse {
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
      */
-    publish(type, options) {}
+    publish(type, options={}) {}
 
     /**
      *
@@ -1059,7 +1057,7 @@ class Warhorse {
      * @param {string} options.update - Update any test snapshots.
      * @returns {Object} - Returns self for chaining.
      */
-    test(type, options) {
+    test(type, options={}) {
 
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Testing ${type.toUpperCase()} with '${options.tooling}'...`);}
@@ -1213,7 +1211,7 @@ class Warhorse {
      * @param {string} options.action - The versioning action to execute.
      * @returns {Object} - Returns self for chaining.
      */
-    version(type, options) {
+    version(type, options={}) {
         switch(options.action) {
             case "get-branch-name":
                 console.h3("On branch: " + Git.getCurrentBranchName());
@@ -1225,6 +1223,57 @@ class Warhorse {
                 console.error(`Error: Unrecognised versioning action '${type}'.`);
         }
     }
+
+    // _cmdCreateInner(convention, answers) {
+    //
+    //     if(answers.warhorse === undefined) {
+    //         console.error("Error: Create command failed.");
+    //         return;
+    //     }
+    //
+    //     // console.log("\nProject construction summary:");
+    //     console.log(JSON.stringify(answers, null, "  "));
+    //
+    //     let config = Object.assign(packageBase, answers);
+    //
+    //     if(this.conventions.includes(convention)) {
+    //
+    //         // Create convention infrastructure
+    //         console.h2(`Creating infrastructure for convention '${convention}'.`);
+    //         let projectPath = this.workingDirectory + config.name + "/";
+    //         shell.cp("-R", `${this.conventionsDirectory}${convention}/`, projectPath);
+    //
+    //         // Create a package.json for the new project
+    //         let packageNew = Object.assign(packageBase, config);
+    //
+    //         this.commands.map(function(cmdName) {
+    //             packageNew.scripts[cmdName] = `warhorse ${cmdName}`;
+    //         });
+    //
+    //         delete packageNew.warhorse;
+    //
+    //         let str = JSON.stringify(packageNew, null, 2); // spacing level = 2
+    //         fs.writeFileSync(projectPath + "package.json", str);
+    //
+    //         // Create a license for the project
+    //         let license = config.license;
+    //         let licensePath = `${this.conventionsDirectory}_licenses/${license}.txt`;
+    //         fs.writeFileSync(projectPath + "LICENSE", fs.readFileSync(licensePath));
+    //
+    //         // Move into the new project directory
+    //         this.workingDirectory = projectPath;
+    //         process.chdir(this.workingDirectory);
+    //
+    //         // Install dependencies with a standard NPM install
+    //         let stdout = child.execSync(`npm install`);
+    //         if(stdout) {
+    //             console.log(stdout.toString());
+    //         }
+    //
+    //     } else {
+    //         console.warn("Warning: No Convention selected.  Exiting.");
+    //     }
+    // }
 
     _cmdCreateInner(convention, answers) {
 
@@ -1242,25 +1291,39 @@ class Warhorse {
 
             // Create convention infrastructure
             console.h2(`Creating infrastructure for convention '${convention}'.`);
-            let projectPath = this.workingDirectory + config.name + "/";
-            shell.cp("-R", `${this.conventionsDirectory}${convention}/`, projectPath);
+
+            let archiveName = `warhorse_${convention}.tar.gz`;
+            shell.cp("-R", `${this.conventionsDirectory}/${archiveName}`, this.workingDirectory);
+            tar.x({
+                file: archiveName,
+                sync: true,
+                cwd: this.workingDirectory
+            });
+            shell.mv(`warhorse_${convention}`, config.name);
+            shell.rm(archiveName);
+
+            let projectPath = path.resolve(this.workingDirectory, config.name);
 
             // Create a package.json for the new project
-            let packageNew = Object.assign(packageBase, config);
+            let packageFile = fs.readFileSync(projectPath + "/package.json");
+            let packageObj = JSON.parse(packageFile);
+
+            // Create a package.json for the new project
+            packageObj = Object.assign(packageObj, config);
 
             this.commands.map(function(cmdName) {
-                packageNew.scripts[cmdName] = `warhorse ${cmdName}`;
+                packageObj.scripts[cmdName] = `warhorse ${cmdName}`;
             });
 
-            delete packageNew.warhorse;
+            delete packageObj.warhorse;
 
-            let str = JSON.stringify(packageNew, null, 2); // spacing level = 2
-            fs.writeFileSync(projectPath + "package.json", str);
+            let packageStr = JSON.stringify(packageObj, null, 2); // spacing level = 2
+            fs.writeFileSync(projectPath + "/package.json", packageStr);
 
             // Create a license for the project
             let license = config.license;
             let licensePath = `${this.conventionsDirectory}_licenses/${license}.txt`;
-            fs.writeFileSync(projectPath + "LICENSE", fs.readFileSync(licensePath));
+            fs.writeFileSync(projectPath + "/LICENSE", fs.readFileSync(licensePath));
 
             // Move into the new project directory
             this.workingDirectory = projectPath;
@@ -1292,23 +1355,6 @@ class Warhorse {
 
         // Return self for chaining.
         return this;
-
-    }
-
-    /**
-     * Create project (using the defined convention) action.
-     * @param {Object} options - Options to further configure this action.
-     * @returns {void}
-     * @private
-     */
-    _initModule(options = {}) {
-
-        let srcPath = this.conventionsDirectory + "module/*";
-        shell.cp("-R", srcPath, "./");
-        let stdout = child.execSync(`npm install`);
-        if(stdout) {
-            console.log(stdout.toString());
-        }
     }
 
     /**

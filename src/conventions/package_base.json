@@ -22,8 +22,6 @@
     "npm": "~3.10.10"
   },
   "scripts": {},
-  "devDependencies": {
-    "bayeux": "^0.8.0",
-    "minami": "^1.2.3"
-  }
+  "devDependencies": {},
+  "dependencies": {}
 }
