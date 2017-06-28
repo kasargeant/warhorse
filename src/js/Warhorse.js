@@ -184,9 +184,7 @@ class Warhorse {
                     bayeux: {
                         src: "test/js/*.test.js"
                     },
-                    jest: {
-                        config: "./conf/jest.json"
-                    }
+                    jest: {}
                 }
             }
         };
@@ -196,7 +194,7 @@ class Warhorse {
         this.lintStatsJS = {reports: [], errors: 0, warnings: 0};
 
         this.commands = ["build", "clean", "create", "distribute", "document", "lint", "pack", "process", "publish", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
-        this.conventions = ["module", "web"];
+        this.conventions = ["client", "library", "module", "server"]; //TODO "fullstack" convention,
 
         this.cmds = {}; // Lookup for built-in commands.
 
@@ -267,7 +265,7 @@ class Warhorse {
      * @param {string} options.include - Include file(s) for the task.
      * @returns {Object} - Returns self for chaining.
      */
-    bundle(type, options) {
+    bundle(type, options={}) {
 
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Bundling ${type.toUpperCase()}...`);}
@@ -309,7 +307,7 @@ class Warhorse {
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
      */
-    compress(type, options) {
+    compress(type, options={}) {
 
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Compressing ${type.toUpperCase()}...`);}
@@ -372,12 +370,56 @@ class Warhorse {
      * @param {string} type - Type of source file.
      * @param {Object=} options - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
-     * @param {string} options.conf - The path to a separate configuration file for this task.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
      */
-    document(type, options) {
+    document(type, options={}) {
+        // Log task execution
+        if(options.isSilent !== true) {console.h2(`TASK: Documenting ${type.toUpperCase()}...`);}
+
+        // Select sub-task based on data type
+        if(type === "js") {
+
+            // Create a user-level config from defaults/options
+            let config = Object.assign(this.defaults.document.js, options);
+
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            // NOTE: We always use Warhorse conf file.
+            let src = path.resolve(this.workingDirectory, config.src);
+            let dst = path.resolve(this.workingDirectory, config.dst);
+            let configPath = path.resolve(this.moduleDirectory, "./conf/jsdoc.json");
+            let toolArgs = [src];
+            let toolOptions = {
+                verbose: this.debug || config.debug,   // i.e. debug/source map options
+                configure: configPath,
+                destination: dst,
+                recurse: true
+            };
+
+            // Finally map configuration to tool args and options
+            this._execute(this.moduleDirectory, "./node_modules/.bin/jsdoc", this.moduleDirectory, toolArgs, toolOptions, config);
+
+        } else {
+            console.error(`Error: Unrecognised type '${type}'.`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Task for automatically documenting project source code.
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.conf - The path to a separate configuration file for this task.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.dst - The destination/target path for this task.
+     * @returns {Object} - Returns self for chaining.
+     * @private
+     */
+    documentLocal(type, options={}) {
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Documenting ${type.toUpperCase()}...`);}
 
@@ -427,7 +469,75 @@ class Warhorse {
      * @param {string} options.include - Include file(s) for the task.
      * @returns {Object} - Returns self for chaining.
      */
-    lint(type, options) {
+    lint(type, options={}) {
+
+        // Log task execution
+        if(options.isSilent !== true) {console.h2(`TASK: Linting ${type.toUpperCase()}...`);}
+
+        // Select sub-task based on data type
+        if(type === "js" && options.type === "style") {
+
+            // Create a user-level config from defaults/options
+            let config = Object.assign(this.defaults.lint.js.style, options);
+            config.useOutput = "jscs";
+            config.useEqualsSign = true;
+            config.stdio = "pipe"; // Needed to return raw data
+
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            // NOTE: We always use Warhorse conf file.
+            let src = path.resolve(this.workingDirectory, config.src);
+            let configPath = path.resolve(this.moduleDirectory, "./conf/jscs.json");
+            let toolArgs = [src];
+            let toolOptions = {
+                config: configPath,
+                reporter: "json"
+            };
+
+            // Finally map configuration to tool args and options
+            this._execute(this.moduleDirectory, "./node_modules/.bin/jscs", this.moduleDirectory, toolArgs, toolOptions, config);
+
+        } else if(type === "js" && options.type === "quality") {
+
+            // Create a user-level config from defaults/options
+            let config = Object.assign(this.defaults.lint.js.quality, options);
+            config.useOutput = "jshint";
+            config.useEqualsSign = true;
+            config.stdio = "pipe"; // Needed to return raw data
+
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            // NOTE: We always use Warhorse conf file.
+            let src = path.resolve(this.workingDirectory, config.src);
+            let configPath = path.resolve(this.moduleDirectory, "./conf/jshint.json");
+            let toolArgs = [src];
+            let toolOptions = {
+                config: configPath,
+                reporter: path.resolve(this.moduleDirectory, "./node_modules/jshint-json/json.js")
+            };
+
+            // Finally map configuration to tool args and options
+            this._execute(this.moduleDirectory, "./node_modules/.bin/jshint", this.moduleDirectory, toolArgs, toolOptions, config);
+
+        } else {
+            console.error(`Error: Unrecognised type '${type}'.`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Task for linting source and template code. e.g. JS, LESS, SASS.
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.dst - The destination/target path for this task.
+     * @param {string} options.exclude - Exclude file(s) from the task.
+     * @param {string} options.include - Include file(s) for the task.
+     * @returns {Object} - Returns self for chaining.
+     * @private
+     */
+    lintLOCAL(type, options={}) {
 
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Linting ${type.toUpperCase()}...`);}
@@ -455,7 +565,7 @@ class Warhorse {
         } else if(type === "js" && options.type === "quality") {
 
             // Create a user-level config from defaults/options
-            let config = Object.assign(this.defaults.lint.js.style, options);
+            let config = Object.assign(this.defaults.lint.js.quality, options);
             config.useOutput = "jshint";
             config.useEqualsSign = true;
             config.stdio = "pipe"; // Needed to return raw data
@@ -491,7 +601,7 @@ class Warhorse {
      * @param {string} options.include - Include a file from another bundle. Can be globs.
      * @returns {Object} - Returns self for chaining.
      */
-    minify(type, options) {
+    minify(type, options={}) {
 
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Minifying ${type.toUpperCase()}...`);}
@@ -552,7 +662,7 @@ class Warhorse {
      * @param {string} options.include - Include file(s) for the task.
      * @returns {Object} - Returns self for chaining.
      */
-    preprocess(type, options) {
+    preprocess(type, options={}) {
 
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Preprocessing ${type.toUpperCase()}...`);}
@@ -607,7 +717,7 @@ class Warhorse {
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
      */
-    pack(type, options) {
+    pack(type, options={}) {
         // TODO - Reuse or remove 'pack' command.
 
         // Return self for chaining.
@@ -623,7 +733,7 @@ class Warhorse {
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
      */
-    postprocess(type, options) {
+    postprocess(type, options={}) {
         if(type === "css") {
 
             // Create a user-level config from defaults/options
@@ -657,7 +767,7 @@ class Warhorse {
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
      */
-    publish(type, options) {}
+    publish(type, options={}) {}
 
     /**
      *
@@ -947,7 +1057,7 @@ class Warhorse {
      * @param {string} options.update - Update any test snapshots.
      * @returns {Object} - Returns self for chaining.
      */
-    test(type, options) {
+    test(type, options={}) {
 
         // Log task execution
         if(options.isSilent !== true) {console.h2(`TASK: Testing ${type.toUpperCase()} with '${options.tooling}'...`);}
@@ -1038,7 +1148,6 @@ class Warhorse {
                     this._reportTape(reports);
                 }
 
-
             } else if(options.tooling === "jest") {
 
                 // Create a user-level config from defaults/options
@@ -1046,30 +1155,46 @@ class Warhorse {
                 config.useInherit = true;
 
                 // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-                // let toolArgs = [config.src];
-                // let toolOptions = {
-                //     verbose: this.debug || config.debug,   // i.e. debug/source map options
-                //     config: config.conf
-                // };
-                // NOTE: IF an external configuration file is provided - ALL other configurations (except debug) are ignored.
-                let toolArgs, toolOptions;
-                if(config.conf === undefined) {
-                    toolArgs = [config.src];
-                    toolOptions = {
-                        verbose: this.debug || config.debug,   // i.e. debug/source map options
-                        coverage: true
-                    };
-                } else {
-                    toolArgs = [];
-                    toolOptions = {
-                        verbose: this.debug || config.debug,   // i.e. debug/source map options
-                        config: config.conf
-                    };
-                }
+                // NOTE: We always use Warhorse conf file.
+                let src = path.resolve(this.workingDirectory, config.src);
+                //let configPath = path.resolve(this.moduleDirectory, "./conf/jest.json");
+                let toolArgs = [src];
+                let toolOptions = {
+                    verbose: this.debug || config.debug   // i.e. debug/source map options
+                    //config: configPath
+                    //coverage: true
+                };
 
                 // Finally map configuration to tool args and options
                 this._execute(this.moduleDirectory, "./node_modules/.bin/jest", this.workingDirectory, toolArgs, toolOptions, config);
             }
+            // OLD LOCAL
+            // else if(options.tooling === "jest") {
+            //
+            //     // Create a user-level config from defaults/options
+            //     let config = Object.assign(this.defaults.test.js.jest, options);
+            //     config.useInherit = true;
+            //
+            //     // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            //     // NOTE: IF an external configuration file is provided - ALL other configurations (except debug) are ignored.
+            //     let toolArgs, toolOptions;
+            //     if(config.conf === undefined) {
+            //         toolArgs = [config.src];
+            //         toolOptions = {
+            //             verbose: this.debug || config.debug,   // i.e. debug/source map options
+            //             coverage: true
+            //         };
+            //     } else {
+            //         toolArgs = [];
+            //         toolOptions = {
+            //             verbose: this.debug || config.debug,   // i.e. debug/source map options
+            //             config: config.conf
+            //         };
+            //     }
+            //
+            //     // Finally map configuration to tool args and options
+            //     this._execute(this.moduleDirectory, "./node_modules/.bin/jest", this.workingDirectory, toolArgs, toolOptions, config);
+            // }
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
         }
@@ -1086,7 +1211,7 @@ class Warhorse {
      * @param {string} options.action - The versioning action to execute.
      * @returns {Object} - Returns self for chaining.
      */
-    version(type, options) {
+    version(type, options={}) {
         switch(options.action) {
             case "get-branch-name":
                 console.h3("On branch: " + Git.getCurrentBranchName());
@@ -1098,6 +1223,57 @@ class Warhorse {
                 console.error(`Error: Unrecognised versioning action '${type}'.`);
         }
     }
+
+    // _cmdCreateInner(convention, answers) {
+    //
+    //     if(answers.warhorse === undefined) {
+    //         console.error("Error: Create command failed.");
+    //         return;
+    //     }
+    //
+    //     // console.log("\nProject construction summary:");
+    //     console.log(JSON.stringify(answers, null, "  "));
+    //
+    //     let config = Object.assign(packageBase, answers);
+    //
+    //     if(this.conventions.includes(convention)) {
+    //
+    //         // Create convention infrastructure
+    //         console.h2(`Creating infrastructure for convention '${convention}'.`);
+    //         let projectPath = this.workingDirectory + config.name + "/";
+    //         shell.cp("-R", `${this.conventionsDirectory}${convention}/`, projectPath);
+    //
+    //         // Create a package.json for the new project
+    //         let packageNew = Object.assign(packageBase, config);
+    //
+    //         this.commands.map(function(cmdName) {
+    //             packageNew.scripts[cmdName] = `warhorse ${cmdName}`;
+    //         });
+    //
+    //         delete packageNew.warhorse;
+    //
+    //         let str = JSON.stringify(packageNew, null, 2); // spacing level = 2
+    //         fs.writeFileSync(projectPath + "package.json", str);
+    //
+    //         // Create a license for the project
+    //         let license = config.license;
+    //         let licensePath = `${this.conventionsDirectory}_licenses/${license}.txt`;
+    //         fs.writeFileSync(projectPath + "LICENSE", fs.readFileSync(licensePath));
+    //
+    //         // Move into the new project directory
+    //         this.workingDirectory = projectPath;
+    //         process.chdir(this.workingDirectory);
+    //
+    //         // Install dependencies with a standard NPM install
+    //         let stdout = child.execSync(`npm install`);
+    //         if(stdout) {
+    //             console.log(stdout.toString());
+    //         }
+    //
+    //     } else {
+    //         console.warn("Warning: No Convention selected.  Exiting.");
+    //     }
+    // }
 
     _cmdCreateInner(convention, answers) {
 
@@ -1115,25 +1291,39 @@ class Warhorse {
 
             // Create convention infrastructure
             console.h2(`Creating infrastructure for convention '${convention}'.`);
-            let projectPath = this.workingDirectory + config.name + "/";
-            shell.cp("-R", `${this.conventionsDirectory}${convention}/`, projectPath);
+
+            let archiveName = `warhorse_${convention}.tar.gz`;
+            shell.cp("-R", `${this.conventionsDirectory}/${archiveName}`, this.workingDirectory);
+            tar.x({
+                file: archiveName,
+                sync: true,
+                cwd: this.workingDirectory
+            });
+            shell.mv(`warhorse_${convention}`, config.name);
+            shell.rm(archiveName);
+
+            let projectPath = path.resolve(this.workingDirectory, config.name);
 
             // Create a package.json for the new project
-            let packageNew = Object.assign(packageBase, config);
+            let packageFile = fs.readFileSync(projectPath + "/package.json");
+            let packageObj = JSON.parse(packageFile);
+
+            // Create a package.json for the new project
+            packageObj = Object.assign(packageObj, config);
 
             this.commands.map(function(cmdName) {
-                packageNew.scripts[cmdName] = `warhorse ${cmdName}`;
+                packageObj.scripts[cmdName] = `warhorse ${cmdName}`;
             });
 
-            delete packageNew.warhorse;
+            delete packageObj.warhorse;
 
-            let str = JSON.stringify(packageNew, null, 2); // spacing level = 2
-            fs.writeFileSync(projectPath + "package.json", str);
+            let packageStr = JSON.stringify(packageObj, null, 2); // spacing level = 2
+            fs.writeFileSync(projectPath + "/package.json", packageStr);
 
             // Create a license for the project
             let license = config.license;
             let licensePath = `${this.conventionsDirectory}_licenses/${license}.txt`;
-            fs.writeFileSync(projectPath + "LICENSE", fs.readFileSync(licensePath));
+            fs.writeFileSync(projectPath + "/LICENSE", fs.readFileSync(licensePath));
 
             // Move into the new project directory
             this.workingDirectory = projectPath;
@@ -1165,23 +1355,6 @@ class Warhorse {
 
         // Return self for chaining.
         return this;
-
-    }
-
-    /**
-     * Create project (using the defined convention) action.
-     * @param {Object} options - Options to further configure this action.
-     * @returns {void}
-     * @private
-     */
-    _initModule(options = {}) {
-
-        let srcPath = this.conventionsDirectory + "module/*";
-        shell.cp("-R", srcPath, "./");
-        let stdout = child.execSync(`npm install`);
-        if(stdout) {
-            console.log(stdout.toString());
-        }
     }
 
     /**
@@ -1283,14 +1456,14 @@ class Warhorse {
     }
 
     /**
-     * Task 'wrapper' function (used exclusively in '_warhorse.js' file).  Wraps an action, or list of actions, to be followed by the named task.
-     * @param {string} desc - Title or description of the task.
-     * @param {string} name - Name of the task tool.
-     * @param {Object} options - Options to further configure this task.
-     * @param {string|Array} args - Argument(s) for this task.
-     * @param {string} useOutput - Flag indicating that task should display any output returned by the task.
-     * @param {boolean} useEqualsSign - Use '=' sign between configuration key-values.
-     * @returns {Object} - Returns self for chaining.
+     *
+     * @param {string} warhorseDirectory
+     * @param {string} relativeExecutablePath
+     * @param {string} workingDirectory
+     * @param {Array} args
+     * @param {Object} argOptions
+     * @param {Object} options
+     * @returns {Warhorse}
      * @private
      */
     _execute(warhorseDirectory, relativeExecutablePath, workingDirectory, args=[], argOptions={}, options={}) {
@@ -1299,18 +1472,20 @@ class Warhorse {
         let defaults = {debug: false, useOutput: "stdout", stdio: "inherit", useEqualsSign: false};
         options = Object.assign(defaults, options);
 
-        // Next, define working directory TODO - Maybe this can be removed... as we now pass CWD directly the child process?
+        // Next, define working directory
         workingDirectory = path.resolve(workingDirectory);
-        if(workingDirectory !== process.cwd()) {
-            console.log("Current working directory was: >>" + process.cwd() + "<<");
-            try {
-                process.chdir(workingDirectory);
-                console.log("Changed working directory to: >>" + process.cwd() + "<<");
-            }
-            catch(err) {
-                throw err;
-            }
-        }
+
+        // TODO - Remove in the next iteration... as we now pass CWD directly the child process.
+        // if(workingDirectory !== process.cwd()) {
+        //     console.log("Current working directory was: >>" + process.cwd() + "<<");
+        //     try {
+        //         process.chdir(workingDirectory);
+        //         console.log("Changed working directory to: >>" + process.cwd() + "<<");
+        //     }
+        //     catch(err) {
+        //         throw err;
+        //     }
+        // }
 
         // Construct final cmdLine.
         let executablePath = path.resolve(this.moduleDirectory, relativeExecutablePath);
@@ -1337,14 +1512,34 @@ class Warhorse {
                     console.log(stdout.toString());
                     break;
                 case "jscs":
-                    // console.log(">> JSCS");
-                    output = JSON.parse(stdout.toString());
-                    this._reportJSCS(output);
+                    output = stdout.toString();
+                    if(output !== "") {
+                        try {
+                            output = JSON.parse(output);
+                            this._reportJSCS(output);
+                        } catch(err) {
+                            console.warn("Could not report on JS 'style' lint data.");
+                        }
+                    } else {
+                        console.log("Nothing to report.");
+                    }
                     break;
                 case "jshint":
-                    // console.log(">> JSHINT");
-                    output = JSON.parse(stdout.toString());
-                    this._reportJSHint(output);
+                    output = stdout.toString();
+                    if(output !== "") {
+                        try {
+                            output = JSON.parse(output);
+                            if(output !== "" && output.result.length) {
+                                this._reportJSHint(output);
+                            } else {
+                                console.log("Nothing to report.");
+                            }
+                        } catch(err) {
+                            console.warn("Could not report on JS 'quality' lint data.");
+                        }
+                    } else {
+                        console.log("Nothing to report.");
+                    }
                     break;
                 case "tape":
                     // console.log(">> TAPE");

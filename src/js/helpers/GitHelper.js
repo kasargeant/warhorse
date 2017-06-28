@@ -18,8 +18,19 @@ const child = require("child_process");
 class GitHelper {
 
     static getCurrentBranchName() {
-        let stdout = child.execSync("git rev-parse --abbrev-ref HEAD");
-        return stdout.toString();
+        let stdout = null; let stderr = null;
+        try {
+            stdout = child.execSync("git rev-parse --abbrev-ref HEAD");
+        } catch(ex) {
+            //console.error(ex.message);
+            stdout = ex.stdout;
+            stderr = ex.stderr;
+        }
+        if(stdout.indexOf("fatal: Not a git repository") === -1) {
+            return stdout.toString();
+        } else {
+            return "Warning: Version task applied to project that has not been initialised by GIT.";
+        }
     }
 
     static createBranch(name) {

@@ -62,7 +62,8 @@ function tasks(warhorse) {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         "document": function() {
             warhorse.document("js", {
-                conf: "conf/jsdoc.json"
+                src: "./src/js/Warhorse.js",
+                dst: "./docs/api",
             });
         },
 
@@ -169,8 +170,8 @@ function tasks(warhorse) {
             warhorse.test("js", {
                 tooling: "jest",
                 debug: true,
-                conf: "./conf/jest.json",
                 src: "./test/js/"
+                // conf: "./conf/jest.json",
             });
         }
     };
