@@ -67,7 +67,7 @@
     "bayeux": "^0.9.1",
     "browserify": "^14.1.0",
     "csso-cli": "^1.0.0",
-    "eslint": "^4.1.0",
+    "eslint": "^4.1.1",
     "glob": "^7.1.1",
     "handlebars": "^4.0.10",
     "imagemin-cli": "^3.0.0",
@@ -89,15 +89,15 @@
     "node-fetch": "^1.6.3",
     "node-sass": "^4.5.2",
     "npm": "^4.2.0",
-    "nyc": "^11.0.2",
-    "pageant": "^0.1.2",
+    "nyc": "^11.0.3",
+    "pageant": "^0.1.4",
     "postcss-cli": "^4.1.0",
     "readline-sync": "^1.4.7",
     "shelljs": "^0.7.8",
     "taffydb": "^2.7.3",
     "tar": "^3.1.5",
     "tinter": "^0.4.5",
-    "uglify-es": "^3.0.19"
+    "uglify-es": "^3.0.21"
   },
   "devDependencies": {
     "coveralls": "^2.13.1"
