@@ -1393,16 +1393,16 @@ class Warhorse {
         // Return self for chaining.
         return this;
     }
-
+    
     /**
-     * Task 'wrapper' function (used exclusively in '_warhorse.js' file).  Wraps an action, or list of actions, to be followed by the named task.
-     * @param {string} desc - Title or description of the task.
-     * @param {string} name - Name of the task tool.
-     * @param {Object} options - Options to further configure this task.
-     * @param {string|Array} args - Argument(s) for this task.
-     * @param {string} useOutput - Flag indicating that task should display any output returned by the task.
-     * @param {boolean} useEqualsSign - Use '=' sign between configuration key-values.
-     * @returns {Object} - Returns self for chaining.
+     *
+     * @param {string} warhorseDirectory
+     * @param {string} relativeExecutablePath
+     * @param {string} workingDirectory
+     * @param {Array} args
+     * @param {Object} argOptions
+     * @param {Object} options
+     * @returns {Warhorse}
      * @private
      */
     _execute(warhorseDirectory, relativeExecutablePath, workingDirectory, args=[], argOptions={}, options={}) {
@@ -1411,18 +1411,20 @@ class Warhorse {
         let defaults = {debug: false, useOutput: "stdout", stdio: "inherit", useEqualsSign: false};
         options = Object.assign(defaults, options);
 
-        // Next, define working directory TODO - Maybe this can be removed... as we now pass CWD directly the child process?
+        // Next, define working directory
         workingDirectory = path.resolve(workingDirectory);
-        if(workingDirectory !== process.cwd()) {
-            console.log("Current working directory was: >>" + process.cwd() + "<<");
-            try {
-                process.chdir(workingDirectory);
-                console.log("Changed working directory to: >>" + process.cwd() + "<<");
-            }
-            catch(err) {
-                throw err;
-            }
-        }
+
+        // TODO - Remove in the next iteration... as we now pass CWD directly the child process.
+        // if(workingDirectory !== process.cwd()) {
+        //     console.log("Current working directory was: >>" + process.cwd() + "<<");
+        //     try {
+        //         process.chdir(workingDirectory);
+        //         console.log("Changed working directory to: >>" + process.cwd() + "<<");
+        //     }
+        //     catch(err) {
+        //         throw err;
+        //     }
+        // }
 
         // Construct final cmdLine.
         let executablePath = path.resolve(this.moduleDirectory, relativeExecutablePath);
