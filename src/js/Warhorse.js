@@ -1150,7 +1150,6 @@ class Warhorse {
                     this._reportTape(reports);
                 }
 
-
             } else if(options.tooling === "jest") {
 
                 // Create a user-level config from defaults/options
@@ -1158,30 +1157,46 @@ class Warhorse {
                 config.useInherit = true;
 
                 // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-                // let toolArgs = [config.src];
-                // let toolOptions = {
-                //     verbose: this.debug || config.debug,   // i.e. debug/source map options
-                //     config: config.conf
-                // };
-                // NOTE: IF an external configuration file is provided - ALL other configurations (except debug) are ignored.
-                let toolArgs, toolOptions;
-                if(config.conf === undefined) {
-                    toolArgs = [config.src];
-                    toolOptions = {
-                        verbose: this.debug || config.debug,   // i.e. debug/source map options
-                        coverage: true
-                    };
-                } else {
-                    toolArgs = [];
-                    toolOptions = {
-                        verbose: this.debug || config.debug,   // i.e. debug/source map options
-                        config: config.conf
-                    };
-                }
+                // NOTE: We always use Warhorse conf file.
+                let src = path.resolve(this.workingDirectory, config.src);
+                //let configPath = path.resolve(this.moduleDirectory, "./conf/jest.json");
+                let toolArgs = [src];
+                let toolOptions = {
+                    verbose: this.debug || config.debug   // i.e. debug/source map options
+                    //config: configPath
+                    //coverage: true
+                };
 
                 // Finally map configuration to tool args and options
                 this._execute(this.moduleDirectory, "./node_modules/.bin/jest", this.workingDirectory, toolArgs, toolOptions, config);
             }
+            // OLD LOCAL
+            // else if(options.tooling === "jest") {
+            //
+            //     // Create a user-level config from defaults/options
+            //     let config = Object.assign(this.defaults.test.js.jest, options);
+            //     config.useInherit = true;
+            //
+            //     // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            //     // NOTE: IF an external configuration file is provided - ALL other configurations (except debug) are ignored.
+            //     let toolArgs, toolOptions;
+            //     if(config.conf === undefined) {
+            //         toolArgs = [config.src];
+            //         toolOptions = {
+            //             verbose: this.debug || config.debug,   // i.e. debug/source map options
+            //             coverage: true
+            //         };
+            //     } else {
+            //         toolArgs = [];
+            //         toolOptions = {
+            //             verbose: this.debug || config.debug,   // i.e. debug/source map options
+            //             config: config.conf
+            //         };
+            //     }
+            //
+            //     // Finally map configuration to tool args and options
+            //     this._execute(this.moduleDirectory, "./node_modules/.bin/jest", this.workingDirectory, toolArgs, toolOptions, config);
+            // }
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
         }
@@ -1393,7 +1408,7 @@ class Warhorse {
         // Return self for chaining.
         return this;
     }
-    
+
     /**
      *
      * @param {string} warhorseDirectory
