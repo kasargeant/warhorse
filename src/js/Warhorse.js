@@ -486,6 +486,74 @@ class Warhorse {
             config.stdio = "pipe"; // Needed to return raw data
 
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            // NOTE: We always use Warhorse conf file.
+            let src = path.resolve(this.workingDirectory, config.src);
+            let configPath = path.resolve(this.moduleDirectory, "./conf/jscs.json");
+            let toolArgs = [src];
+            let toolOptions = {
+                config: configPath,
+                reporter: "json"
+            };
+
+            // Finally map configuration to tool args and options
+            this._execute(this.moduleDirectory, "./node_modules/.bin/jscs", this.moduleDirectory, toolArgs, toolOptions, config);
+
+        } else if(type === "js" && options.type === "quality") {
+
+            // Create a user-level config from defaults/options
+            let config = Object.assign(this.defaults.lint.js.quality, options);
+            config.useOutput = "jshint";
+            config.useEqualsSign = true;
+            config.stdio = "pipe"; // Needed to return raw data
+
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            // NOTE: We always use Warhorse conf file.
+            let src = path.resolve(this.workingDirectory, config.src);
+            let configPath = path.resolve(this.moduleDirectory, "./conf/jshint.json");
+            let toolArgs = [src];
+            let toolOptions = {
+                config: configPath,
+                reporter: path.resolve(this.moduleDirectory, "./node_modules/jshint-json/json.js")
+            };
+
+            // Finally map configuration to tool args and options
+            this._execute(this.moduleDirectory, "./node_modules/.bin/jshint", this.moduleDirectory, toolArgs, toolOptions, config);
+
+        } else {
+            console.error(`Error: Unrecognised type '${type}'.`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Task for linting source and template code. e.g. JS, LESS, SASS.
+     * @param {string} type - Type of source file.
+     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.dst - The destination/target path for this task.
+     * @param {string} options.exclude - Exclude file(s) from the task.
+     * @param {string} options.include - Include file(s) for the task.
+     * @returns {Object} - Returns self for chaining.
+     * @private
+     */
+    lintLOCAL(type, options) {
+
+        // Log task execution
+        if(options.isSilent !== true) {console.h2(`TASK: Linting ${type.toUpperCase()}...`);}
+
+        // Select sub-task based on data type
+        if(type === "js" && options.type === "style") {
+
+            // Create a user-level config from defaults/options
+            let config = Object.assign(this.defaults.lint.js.style, options);
+            config.useOutput = "jscs";
+            config.useEqualsSign = true;
+            config.stdio = "pipe"; // Needed to return raw data
+
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
             let toolArgs = [config.src];
             let toolOptions = {
                 // verbose: this.debug || config.debug,   // i.e. debug/source map options
@@ -499,7 +567,7 @@ class Warhorse {
         } else if(type === "js" && options.type === "quality") {
 
             // Create a user-level config from defaults/options
-            let config = Object.assign(this.defaults.lint.js.style, options);
+            let config = Object.assign(this.defaults.lint.js.quality, options);
             config.useOutput = "jshint";
             config.useEqualsSign = true;
             config.stdio = "pipe"; // Needed to return raw data
@@ -1381,25 +1449,31 @@ class Warhorse {
                     console.log(stdout.toString());
                     break;
                 case "jscs":
-                    try {
-                        output = JSON.parse(stdout.toString());
-                    } catch(err) {
-                        console.debug("Could not parse (or lacking) JS style lint data.");
-                    }
+                    output = stdout.toString();
                     if(output !== "") {
-                        this._reportJSCS(output);
+                        try {
+                            output = JSON.parse(output);
+                            this._reportJSCS(output);
+                        } catch(err) {
+                            console.warn("Could not report on JS 'style' lint data.");
+                        }
                     } else {
                         console.log("Nothing to report.");
                     }
                     break;
                 case "jshint":
-                    try {
-                        output = JSON.parse(stdout.toString());
-                    } catch(err) {
-                        console.debug("Could not parse (or lacking) JS quality lint data.");
-                    }
-                    if(output.result.length) {
-                        this._reportJSHint(output);
+                    output = stdout.toString();
+                    if(output !== "") {
+                        try {
+                            output = JSON.parse(output);
+                            if(output !== "" && output.result.length) {
+                                this._reportJSHint(output);
+                            } else {
+                                console.log("Nothing to report.");
+                            }
+                        } catch(err) {
+                            console.warn("Could not report on JS 'quality' lint data.");
+                        }
                     } else {
                         console.log("Nothing to report.");
                     }
