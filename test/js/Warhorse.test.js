@@ -21,6 +21,10 @@ const IS_TRAVIS = process.env.TRAVIS;
 // Imports
 const fs = require.requireActual("fs");
 const path = require.requireActual("path");
+const shell = require("shelljs");
+const sinon = require("sinon");
+
+
 const Warhorse = require.requireActual("../../src/js/Warhorse");
 // let resolvedFilePath = path.resolve("./test/data/client_dist/js/index.js");
 // console.log("RESOLVED: " + resolvedFilePath);
@@ -50,11 +54,22 @@ const deleteSync = function(filePath) {
 let warhorseDirectory = process.cwd();
 if(IS_TRAVIS) {warhorseDirectory = process.env.TRAVIS_BUILD_DIR;} // Usually: "/home/travis/build/kasargeant/warhorse"
 
+// - Dummy data
+const DUMMY_OPTIONS = {
+    debug: false, //i.e. turn off source-mapping.
+    src: "./test/data/client_src/js/index.js",
+    dst: "./test/data/client_dist/js/index.js"
+};
+
 // Unit
-const warhorse = new Warhorse(warhorseDirectory, process.cwd(), {}, false);
+let warhorse = null;
 
 // Tests
 describe("Class: Warhorse", function() {
+
+    beforeEach(() => {
+        warhorse = new Warhorse(warhorseDirectory, process.cwd(), {}, false);
+    });
 
     describe("Standard sanity check", function() {
         it("contains spec with an positive expectation", function() {
@@ -81,6 +96,129 @@ describe("Class: Warhorse", function() {
             expect(warhorse.moduleDirectory).toBe(process.cwd());
         });
     });
+
+    describe("Command resolution (default)", function() {
+
+        beforeEach(() => {
+            sinon.spy(warhorse, "_execute");
+        });
+
+        afterEach(() => {
+            warhorse._execute.restore(); // Hardly necessary... but just for the symmetrical hell-of-it.
+        });
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: BUNDLE
+        it("should be able to resolve configurations for bundling: JS", function() {
+
+            // Execute
+            warhorse.bundle("js", DUMMY_OPTIONS);
+
+            // Evaluate
+            expect(warhorse._execute.callCount).toBe(1);
+            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/browserify");
+            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/js/index.js"]);
+            expect(warhorse._execute.getCall(0).args[4]).toEqual({"config": undefined, "debug": false, "exclude": undefined, "external": undefined, "outfile": "./test/data/client_dist/js/index.js", "recurse": true});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/js/index.js", "src": "./test/data/client_src/js/index.js", "useEqualsSign": false, "useOutput": "stdout"});
+
+            // Clean-up
+            deleteSync(DUMMY_OPTIONS.dst); // Clean-up
+        });
+
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: DOCUMENT
+        it("should be able to resolve configurations for documenting: JS", function() {
+
+            // Execute
+            warhorse.document("js", DUMMY_OPTIONS);
+
+            // Evaluate
+            expect(warhorse._execute.callCount).toBe(1);
+            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/jsdoc");
+            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[3]).toEqual([path.resolve(process.cwd(), "./test/data/client_src/js/index.js")]);
+            expect(warhorse._execute.getCall(0).args[4]).toEqual({
+                "configure": path.resolve(process.cwd(), "./conf/jsdoc.json"),
+                "destination": path.resolve(process.cwd(), "./test/data/client_dist/js/index.js"),
+                "recurse": true,
+                "verbose": false
+            });
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({
+                "conf": "./conf/jsdoc.json",
+                "debug": false,
+                "dst": "./test/data/client_dist/js/index.js",
+                "src": "./test/data/client_src/js/index.js",
+                "useOutput": "stdout"
+            });
+
+            // Clean-up
+            shell.rm("-rf", DUMMY_OPTIONS.dst); // Clean-up
+        });
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: LINT
+        it("should be able to resolve configurations for linting: JS quality", function() {
+
+            // Execute
+            warhorse.lint("js", {
+                type: "quality",
+                conf: "conf/jshint.json",
+                src: "test/data/client_src/js/",
+                exclude: "conf/.jshintignore"
+            });
+
+            // Evaluate
+            expect(warhorse._execute.callCount).toBe(1);
+            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/jshint");
+            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[3]).toEqual([path.resolve(process.cwd(), "./test/data/client_src/js")]);
+            expect(warhorse._execute.getCall(0).args[4]).toEqual({
+                "config": path.resolve(process.cwd(), "./conf/jshint.json"),
+                "reporter": path.resolve(process.cwd(), "./node_modules/jshint-json/json.js")
+            });
+            expect(warhorse._execute.getCall(0).args[5].useEqualsSign).toBe(true);
+            expect(warhorse._execute.getCall(0).args[5].useOutput).toBe("jshint");
+
+            // Clean-up
+        });
+        // TASK: LINT
+        it("should be able to resolve configurations for linting: JS style", function() {
+
+            // Execute
+            warhorse.lint("js", {
+                type: "style",
+                conf: "conf/jscs.json",
+                src: "test/data/client_src/js/"
+            });
+
+            // Evaluate
+            expect(warhorse._execute.callCount).toBe(1);
+            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/jscs");
+            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[3]).toEqual([path.resolve(process.cwd(), "./test/data/client_src/js")]);
+            expect(warhorse._execute.getCall(0).args[4]).toEqual({
+                "config": path.resolve(process.cwd(), "./conf/jscs.json"),
+                "reporter": "json"
+            });
+            expect(warhorse._execute.getCall(0).args[5].useEqualsSign).toBe(true);
+            expect(warhorse._execute.getCall(0).args[5].useOutput).toBe("jscs");
+
+            // Clean-up
+        });
+
+    });
+
+
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TASK: COMPRESS - doesn't use _execute
+
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TASKS

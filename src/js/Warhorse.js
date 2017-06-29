@@ -526,71 +526,6 @@ class Warhorse {
     }
 
     /**
-     * Task for linting source and template code. e.g. JS, LESS, SASS.
-     * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
-     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
-     * @param {string} options.src - The source path for this task.
-     * @param {string} options.dst - The destination/target path for this task.
-     * @param {string} options.exclude - Exclude file(s) from the task.
-     * @param {string} options.include - Include file(s) for the task.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    lintLOCAL(type, options={}) {
-
-        // Log task execution
-        if(options.isSilent !== true) {console.h2(`TASK: Linting ${type.toUpperCase()}...`);}
-
-        // Select sub-task based on data type
-        if(type === "js" && options.type === "style") {
-
-            // Create a user-level config from defaults/options
-            let config = Object.assign(this.defaults.lint.js.style, options);
-            config.useOutput = "jscs";
-            config.useEqualsSign = true;
-            config.stdio = "pipe"; // Needed to return raw data
-
-            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            let toolArgs = [config.src];
-            let toolOptions = {
-                // verbose: this.debug || config.debug,   // i.e. debug/source map options
-                config: config.conf,
-                reporter: "json"
-            };
-
-            // Finally map configuration to tool args and options
-            this._execute(this.moduleDirectory, "./node_modules/.bin/jscs", this.workingDirectory, toolArgs, toolOptions, config);
-
-        } else if(type === "js" && options.type === "quality") {
-
-            // Create a user-level config from defaults/options
-            let config = Object.assign(this.defaults.lint.js.quality, options);
-            config.useOutput = "jshint";
-            config.useEqualsSign = true;
-            config.stdio = "pipe"; // Needed to return raw data
-
-            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            let toolArgs = [config.src];
-            let toolOptions = {
-                "source-map": this.debug || config.debug,   // i.e. debug/source map options
-                config: config.conf,
-                "exclude-path": config.exclude,
-                reporter: path.resolve(this.moduleDirectory, "./node_modules/jshint-json/json.js")
-            };
-
-            // Finally map configuration to tool args and options
-            this._execute(this.moduleDirectory, "./node_modules/.bin/jshint", this.workingDirectory, toolArgs, toolOptions, config);
-
-        } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
-        }
-
-        // Return self for chaining.
-        return this;
-    }
-
-    /**
      * Task for minifying distributed code. e.g. JS, CSS.
      * @param {string} type - Type of source file.
      * @param {Object=} options - Options to override or extend this task's default configuration.
@@ -1168,33 +1103,6 @@ class Warhorse {
                 // Finally map configuration to tool args and options
                 this._execute(this.moduleDirectory, "./node_modules/.bin/jest", this.workingDirectory, toolArgs, toolOptions, config);
             }
-            // OLD LOCAL
-            // else if(options.tooling === "jest") {
-            //
-            //     // Create a user-level config from defaults/options
-            //     let config = Object.assign(this.defaults.test.js.jest, options);
-            //     config.useInherit = true;
-            //
-            //     // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            //     // NOTE: IF an external configuration file is provided - ALL other configurations (except debug) are ignored.
-            //     let toolArgs, toolOptions;
-            //     if(config.conf === undefined) {
-            //         toolArgs = [config.src];
-            //         toolOptions = {
-            //             verbose: this.debug || config.debug,   // i.e. debug/source map options
-            //             coverage: true
-            //         };
-            //     } else {
-            //         toolArgs = [];
-            //         toolOptions = {
-            //             verbose: this.debug || config.debug,   // i.e. debug/source map options
-            //             config: config.conf
-            //         };
-            //     }
-            //
-            //     // Finally map configuration to tool args and options
-            //     this._execute(this.moduleDirectory, "./node_modules/.bin/jest", this.workingDirectory, toolArgs, toolOptions, config);
-            // }
         } else {
             console.error(`Error: Unrecognised type '${type}'.`);
         }
@@ -1223,57 +1131,6 @@ class Warhorse {
                 console.error(`Error: Unrecognised versioning action '${type}'.`);
         }
     }
-
-    // _cmdCreateInner(convention, answers) {
-    //
-    //     if(answers.warhorse === undefined) {
-    //         console.error("Error: Create command failed.");
-    //         return;
-    //     }
-    //
-    //     // console.log("\nProject construction summary:");
-    //     console.log(JSON.stringify(answers, null, "  "));
-    //
-    //     let config = Object.assign(packageBase, answers);
-    //
-    //     if(this.conventions.includes(convention)) {
-    //
-    //         // Create convention infrastructure
-    //         console.h2(`Creating infrastructure for convention '${convention}'.`);
-    //         let projectPath = this.workingDirectory + config.name + "/";
-    //         shell.cp("-R", `${this.conventionsDirectory}${convention}/`, projectPath);
-    //
-    //         // Create a package.json for the new project
-    //         let packageNew = Object.assign(packageBase, config);
-    //
-    //         this.commands.map(function(cmdName) {
-    //             packageNew.scripts[cmdName] = `warhorse ${cmdName}`;
-    //         });
-    //
-    //         delete packageNew.warhorse;
-    //
-    //         let str = JSON.stringify(packageNew, null, 2); // spacing level = 2
-    //         fs.writeFileSync(projectPath + "package.json", str);
-    //
-    //         // Create a license for the project
-    //         let license = config.license;
-    //         let licensePath = `${this.conventionsDirectory}_licenses/${license}.txt`;
-    //         fs.writeFileSync(projectPath + "LICENSE", fs.readFileSync(licensePath));
-    //
-    //         // Move into the new project directory
-    //         this.workingDirectory = projectPath;
-    //         process.chdir(this.workingDirectory);
-    //
-    //         // Install dependencies with a standard NPM install
-    //         let stdout = child.execSync(`npm install`);
-    //         if(stdout) {
-    //             console.log(stdout.toString());
-    //         }
-    //
-    //     } else {
-    //         console.warn("Warning: No Convention selected.  Exiting.");
-    //     }
-    // }
 
     _cmdCreateInner(convention, answers) {
 
