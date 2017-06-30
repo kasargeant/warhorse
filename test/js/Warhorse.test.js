@@ -126,6 +126,88 @@ describe("Class: Warhorse", function() {
 
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: COMPRESS (TEXT) - doesn't use _execute!
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: COMPRESS (BINARY)
+        // it("should be able to resolve configurations for bundling: GIF", function() {
+        //     // TODO - Implement unit test COMPRESS GIF
+        // });
+
+        it("should be able to resolve configurations for bundling: GIF", function() {
+
+            // Setup
+            let options = {
+                src: "./test/data/client_src/img/East_pediment_O_Parthenon_BM.jpg",
+                dst: "./test/data/client_dist/img"
+            };
+
+            // Execute
+            warhorse.compress("jpg", options);
+
+            // Evaluate
+            expect(warhorse._execute.callCount).toBe(1);
+            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/imagemin");
+            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/img/East_pediment_O_Parthenon_BM.jpg"]);
+            expect(warhorse._execute.getCall(0).args[4]).toEqual({"map": undefined, "out-dir": "./test/data/client_dist/img", "plugin": "jpegtran"});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/img", "src": "./test/data/client_src/img/East_pediment_O_Parthenon_BM.jpg"});
+
+            // Clean-up
+            shell.rm("./test/data/client_dist/img/East_pediment_O_Parthenon_BM.jpg");
+        });
+
+        it("should be able to resolve configurations for bundling: PNG", function() {
+
+            // Setup
+            let options = {
+                src: "./test/data/client_src/img/file-archive-o.png",
+                dst: "./test/data/client_dist/img"
+            };
+
+            // Execute
+            warhorse.compress("png", options);
+
+            // Evaluate
+            expect(warhorse._execute.callCount).toBe(1);
+            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/imagemin");
+            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/img/file-archive-o.png"]);
+            expect(warhorse._execute.getCall(0).args[4]).toEqual({"map": undefined, "out-dir": "./test/data/client_dist/img", "plugin": "pngquant"});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/img", "src": "./test/data/client_src/img/file-archive-o.png"});
+
+            // Clean-up
+            shell.rm("./test/data/client_dist/img/file-archive-o.png");
+        });
+
+        it("should be able to resolve configurations for bundling: SVG", function() {
+
+
+            // Setup
+            let options = {
+                src: "./test/data/client_src/img/file-archive-o.svg",
+                dst: "./test/data/client_dist/img"
+            };
+
+            // Execute
+            warhorse.compress("svg", options);
+
+            // Evaluate
+            expect(warhorse._execute.callCount).toBe(1);
+            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/imagemin");
+            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/img/file-archive-o.svg"]);
+            expect(warhorse._execute.getCall(0).args[4]).toEqual({"map": undefined, "out-dir": "./test/data/client_dist/img", "plugin": "svgo"});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/img", "src": "./test/data/client_src/img/file-archive-o.svg"});
+
+            // Clean-up
+            shell.rm("./test/data/client_dist/img/file-archive-o.svg");
+        });
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // TASK: DOCUMENT
         it("should be able to resolve configurations for documenting: JS", function() {
 
@@ -211,10 +293,6 @@ describe("Class: Warhorse", function() {
 
     });
 
-
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TASK: COMPRESS - doesn't use _execute
 
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
