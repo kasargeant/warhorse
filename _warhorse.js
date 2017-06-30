@@ -35,17 +35,6 @@ function tasks(warhorse) {
         },
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        "distribute": function() {
-            warhorse
-                .execute("clean")
-                .execute("process")
-                .execute("lint")
-                .execute("test")
-                .execute("build")
-                .execute("document");
-        },
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         "clean": function() {
             warhorse
                 .clean([
@@ -57,6 +46,16 @@ function tasks(warhorse) {
                     "./test/data/client_dist/css/*",
                     "./test/data/client_dist/js/*",
                     "./test/data/client_dist/css/*"]);
+        },
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        "distribute": function() {
+            warhorse.execute("clean");
+            warhorse.execute("process");
+            warhorse.execute("lint");
+            warhorse.execute("test");
+            warhorse.execute("build");
+            warhorse.execute("document");
         },
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
