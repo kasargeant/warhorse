@@ -19,16 +19,13 @@ const IS_TRAVIS = process.env.TRAVIS;
 // console.log("__filename: " + __dirname);
 
 // Imports
-const fs = require.requireActual("fs");
-const path = require.requireActual("path");
+const fs = require("fs");
+const path = require("path");
 const shell = require("shelljs");
 const sinon = require("sinon");
 
-
-const Warhorse = require.requireActual("../../src/js/Warhorse");
-// let resolvedFilePath = path.resolve("./test/data/client_dist/js/index.js");
-// console.log("RESOLVED: " + resolvedFilePath);
-// console.log("FILE_EXISTS?: " + fs.existsSync(resolvedFilePath));
+// Unit
+const Warhorse = require("../../src/js/Warhorse");
 
 // Helpers
 // Failure-tolerant version of fs.readFileSync(filePath) - won't error if file missing.

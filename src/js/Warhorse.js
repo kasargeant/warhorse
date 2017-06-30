@@ -31,25 +31,6 @@ const Pageant = require("pageant");
 const console = new Pageant();
 const color = require("tinter");
 
-// Helpers (internal)
-// Failure-tolerant version of fs.mkdirSync(dirPath) - won't overwrite existing dirs!!!
-const mkdirSync = function(dirPath) {
-    try {
-        fs.mkdirSync(dirPath);
-    } catch(err) {
-        if(err.code !== "EEXIST") {throw err;}
-    }
-};
-
-// Failure-tolerant version of fs.unlinkSync(filePath) - won't crash if no file already exists!!!
-const unlinkSync = function(filePath) {
-    try {
-        fs.unlinkSync(filePath);
-    } catch(err) {
-        console.error(err.code);
-    }
-};
-
 /**
  * @class
  * @classdesc The main Warhorse class, containing all actions available to automate tasks and builds.
@@ -291,7 +272,7 @@ class Warhorse {
             this._execute(this.moduleDirectory, "./node_modules/.bin/browserify", this.workingDirectory, toolArgs, toolOptions, config);
 
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
 
         // Return self for chaining.
@@ -358,7 +339,7 @@ class Warhorse {
                 this._execute(this.moduleDirectory, "./node_modules/.bin/imagemin", this.workingDirectory, toolArgs, toolOptions, config);
             }
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
 
         // Return self for chaining.
@@ -401,7 +382,7 @@ class Warhorse {
             this._execute(this.moduleDirectory, "./node_modules/.bin/jsdoc", this.moduleDirectory, toolArgs, toolOptions, config);
 
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
 
         // Return self for chaining.
@@ -451,7 +432,7 @@ class Warhorse {
             this._execute(this.moduleDirectory, "./node_modules/.bin/jsdoc", this.workingDirectory, toolArgs, toolOptions, config);
 
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
 
         // Return self for chaining.
@@ -518,7 +499,7 @@ class Warhorse {
             this._execute(this.moduleDirectory, "./node_modules/.bin/jshint", this.moduleDirectory, toolArgs, toolOptions, config);
 
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
 
         // Return self for chaining.
@@ -578,7 +559,7 @@ class Warhorse {
             this._execute(this.moduleDirectory, "./node_modules/.bin/csso", this.workingDirectory, toolArgs, toolOptions, config);
 
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
 
         // Return self for chaining.
@@ -636,7 +617,7 @@ class Warhorse {
             this._execute(this.moduleDirectory, "./node_modules/.bin/node-sass", this.workingDirectory, toolArgs, toolOptions, config);
 
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
 
         // Return self for chaining.
@@ -686,7 +667,7 @@ class Warhorse {
             this._execute(this.moduleDirectory, "./node_modules/.bin/postcss", this.workingDirectory, toolArgs, toolOptions, config);
 
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
 
         // Return self for chaining.
@@ -702,7 +683,13 @@ class Warhorse {
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
      */
-    publish(type, options={}) {}
+    publish(type, options={}) {
+        if(type === "npm") {
+            // TODO - Implement Publish:NPM
+        } else {
+            throw new Error(`Unrecognised type '${type}'.`);
+        }
+    }
 
     /**
      *
@@ -1104,7 +1091,7 @@ class Warhorse {
                 this._execute(this.moduleDirectory, "./node_modules/.bin/jest", this.workingDirectory, toolArgs, toolOptions, config);
             }
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
 
         // Return self for chaining.
@@ -1120,23 +1107,26 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     version(type, options={}) {
-        switch(options.action) {
-            case "get-branch-name":
-                console.h3("On branch: " + Git.getCurrentBranchName());
-                break;
-            case "update-master":
-                Git.updateMaster(options.release, options.comment);
-                break;
-            default:
-                console.error(`Error: Unrecognised versioning action '${type}'.`);
+        if(type === "git") {
+            switch(options.action) {
+                case "get-branch-name":
+                    console.h3("On branch: " + Git.getCurrentBranchName());
+                    break;
+                case "update-master":
+                    Git.updateMaster(options.release, options.comment);
+                    break;
+                default:
+                    throw new Error(`Unrecognised versioning action '${type}'.`);
+            }
+        } else {
+            throw new Error(`Unrecognised type '${type}'.`);
         }
     }
 
     _cmdCreateInner(convention, answers) {
 
         if(answers.warhorse === undefined) {
-            console.error("Error: Create command failed.");
-            return;
+            throw new Error(`Create command failed.`);
         }
 
         // console.log("\nProject construction summary:");
@@ -1447,7 +1437,7 @@ class Warhorse {
             if(cmd !== null) {cmd();}
             return this;    // Return self for chaining.
         } else {
-            console.error(`Error: Unrecognised command '${name}'.`);
+            throw new Error(`Unrecognised command '${name}'.`);
         }
 
         // Return self for chaining.
@@ -1471,7 +1461,7 @@ class Warhorse {
             if(this.conventions.includes(convention)) {
                 this._cmdCreate(convention);
             } else {
-                console.error(`Error: Unrecognised project convention: '${convention}'.`);
+                throw new Error(`Unrecognised project convention: '${convention}'.`);
             }
             return null; // Success or fail - nothing to return.
         } else {
