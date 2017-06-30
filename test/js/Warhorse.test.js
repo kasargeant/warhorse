@@ -318,7 +318,7 @@ describe("Class: Warhorse", function() {
             expect(fs.existsSync(options.dst)).toBe(true);
 
             let fileContent = readSync(options.dst);
-            deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
+            shell.rm(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
 
             expect(fileContent.toString()).toMatchSnapshot();
 
@@ -343,7 +343,7 @@ describe("Class: Warhorse", function() {
             expect(fs.existsSync(options.dst)).toBe(true);
 
             //let fileContent = readSync(options.dst);
-            deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
+            shell.rm(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
 
             // // TODO - Output is too variable to use these - need better option
             // expect(fileContent.length).toBeGreaterThan(205);
