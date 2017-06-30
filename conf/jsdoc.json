@@ -2,14 +2,7 @@
   "tags": {
     "allowUnknownTags": true
   },
-  "source": {
-    "include": ["./src/README.md", "./src"],
-    "exclude": ["./dist", "./src/conventions", "./test", "scratch"],
-    "includePattern": ".+\\.js(doc)?$",
-    "excludePattern": "(^|\\/|\\\\)_"
-  },
   "opts": {
-    "destination": "./docs/api",
     "encoding": "utf8",
     "recurse": true,
     "template": "./node_modules/minami"

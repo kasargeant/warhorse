@@ -31,25 +31,6 @@ const Pageant = require("pageant");
 const console = new Pageant();
 const color = require("tinter");
 
-// Helpers (internal)
-// Failure-tolerant version of fs.mkdirSync(dirPath) - won't overwrite existing dirs!!!
-const mkdirSync = function(dirPath) {
-    try {
-        fs.mkdirSync(dirPath);
-    } catch(err) {
-        if(err.code !== "EEXIST") {throw err;}
-    }
-};
-
-// Failure-tolerant version of fs.unlinkSync(filePath) - won't crash if no file already exists!!!
-const unlinkSync = function(filePath) {
-    try {
-        fs.unlinkSync(filePath);
-    } catch(err) {
-        console.error(err.code);
-    }
-};
-
 /**
  * @class
  * @classdesc The main Warhorse class, containing all actions available to automate tasks and builds.
@@ -291,7 +272,7 @@ class Warhorse {
             this._execute(this.moduleDirectory, "./node_modules/.bin/browserify", this.workingDirectory, toolArgs, toolOptions, config);
 
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
 
         // Return self for chaining.
@@ -358,7 +339,7 @@ class Warhorse {
                 this._execute(this.moduleDirectory, "./node_modules/.bin/imagemin", this.workingDirectory, toolArgs, toolOptions, config);
             }
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
 
         // Return self for chaining.
@@ -401,57 +382,7 @@ class Warhorse {
             this._execute(this.moduleDirectory, "./node_modules/.bin/jsdoc", this.moduleDirectory, toolArgs, toolOptions, config);
 
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
-        }
-
-        // Return self for chaining.
-        return this;
-    }
-
-    /**
-     * Task for automatically documenting project source code.
-     * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
-     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
-     * @param {string} options.conf - The path to a separate configuration file for this task.
-     * @param {string} options.src - The source path for this task.
-     * @param {string} options.dst - The destination/target path for this task.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    documentLocal(type, options={}) {
-        // Log task execution
-        if(options.isSilent !== true) {console.h2(`TASK: Documenting ${type.toUpperCase()}...`);}
-
-        // Select sub-task based on data type
-        if(type === "js") {
-
-            // Create a user-level config from defaults/options
-            let config = Object.assign(this.defaults.document.js, options);
-
-            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            // NOTE: IF an external configuration file is provided - ALL other configurations (except debug) are ignored.
-            let toolArgs, toolOptions;
-            if(config.conf === undefined) {
-                toolArgs = [config.src];
-                toolOptions = {
-                    verbose: this.debug || config.debug,   // i.e. debug/source map options
-                    destination: config.dst,
-                    recurse: true
-                };
-            } else {
-                toolArgs = [];
-                toolOptions = {
-                    verbose: this.debug || config.debug,   // i.e. debug/source map options
-                    configure: config.conf
-                };
-            }
-
-            // Finally map configuration to tool args and options
-            this._execute(this.moduleDirectory, "./node_modules/.bin/jsdoc", this.workingDirectory, toolArgs, toolOptions, config);
-
-        } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
 
         // Return self for chaining.
@@ -518,72 +449,7 @@ class Warhorse {
             this._execute(this.moduleDirectory, "./node_modules/.bin/jshint", this.moduleDirectory, toolArgs, toolOptions, config);
 
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
-        }
-
-        // Return self for chaining.
-        return this;
-    }
-
-    /**
-     * Task for linting source and template code. e.g. JS, LESS, SASS.
-     * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
-     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
-     * @param {string} options.src - The source path for this task.
-     * @param {string} options.dst - The destination/target path for this task.
-     * @param {string} options.exclude - Exclude file(s) from the task.
-     * @param {string} options.include - Include file(s) for the task.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    lintLOCAL(type, options={}) {
-
-        // Log task execution
-        if(options.isSilent !== true) {console.h2(`TASK: Linting ${type.toUpperCase()}...`);}
-
-        // Select sub-task based on data type
-        if(type === "js" && options.type === "style") {
-
-            // Create a user-level config from defaults/options
-            let config = Object.assign(this.defaults.lint.js.style, options);
-            config.useOutput = "jscs";
-            config.useEqualsSign = true;
-            config.stdio = "pipe"; // Needed to return raw data
-
-            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            let toolArgs = [config.src];
-            let toolOptions = {
-                // verbose: this.debug || config.debug,   // i.e. debug/source map options
-                config: config.conf,
-                reporter: "json"
-            };
-
-            // Finally map configuration to tool args and options
-            this._execute(this.moduleDirectory, "./node_modules/.bin/jscs", this.workingDirectory, toolArgs, toolOptions, config);
-
-        } else if(type === "js" && options.type === "quality") {
-
-            // Create a user-level config from defaults/options
-            let config = Object.assign(this.defaults.lint.js.quality, options);
-            config.useOutput = "jshint";
-            config.useEqualsSign = true;
-            config.stdio = "pipe"; // Needed to return raw data
-
-            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            let toolArgs = [config.src];
-            let toolOptions = {
-                "source-map": this.debug || config.debug,   // i.e. debug/source map options
-                config: config.conf,
-                "exclude-path": config.exclude,
-                reporter: path.resolve(this.moduleDirectory, "./node_modules/jshint-json/json.js")
-            };
-
-            // Finally map configuration to tool args and options
-            this._execute(this.moduleDirectory, "./node_modules/.bin/jshint", this.workingDirectory, toolArgs, toolOptions, config);
-
-        } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
 
         // Return self for chaining.
@@ -643,7 +509,7 @@ class Warhorse {
             this._execute(this.moduleDirectory, "./node_modules/.bin/csso", this.workingDirectory, toolArgs, toolOptions, config);
 
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
 
         // Return self for chaining.
@@ -701,24 +567,8 @@ class Warhorse {
             this._execute(this.moduleDirectory, "./node_modules/.bin/node-sass", this.workingDirectory, toolArgs, toolOptions, config);
 
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
-
-        // Return self for chaining.
-        return this;
-    }
-
-    /**
-     * Task for packing (minifying) source assets. e.g. GIF, JPG, PNG, SVG.
-     * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
-     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
-     * @param {string} options.src - The source path for this task.
-     * @param {string} options.dst - The destination/target path for this task.
-     * @returns {Object} - Returns self for chaining.
-     */
-    pack(type, options={}) {
-        // TODO - Reuse or remove 'pack' command.
 
         // Return self for chaining.
         return this;
@@ -751,7 +601,7 @@ class Warhorse {
             this._execute(this.moduleDirectory, "./node_modules/.bin/postcss", this.workingDirectory, toolArgs, toolOptions, config);
 
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
 
         // Return self for chaining.
@@ -767,7 +617,13 @@ class Warhorse {
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
      */
-    publish(type, options={}) {}
+    publish(type, options={}) {
+        if(type === "npm") {
+            // TODO - Implement Publish:NPM
+        } else {
+            throw new Error(`Unrecognised type '${type}'.`);
+        }
+    }
 
     /**
      *
@@ -1168,35 +1024,8 @@ class Warhorse {
                 // Finally map configuration to tool args and options
                 this._execute(this.moduleDirectory, "./node_modules/.bin/jest", this.workingDirectory, toolArgs, toolOptions, config);
             }
-            // OLD LOCAL
-            // else if(options.tooling === "jest") {
-            //
-            //     // Create a user-level config from defaults/options
-            //     let config = Object.assign(this.defaults.test.js.jest, options);
-            //     config.useInherit = true;
-            //
-            //     // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            //     // NOTE: IF an external configuration file is provided - ALL other configurations (except debug) are ignored.
-            //     let toolArgs, toolOptions;
-            //     if(config.conf === undefined) {
-            //         toolArgs = [config.src];
-            //         toolOptions = {
-            //             verbose: this.debug || config.debug,   // i.e. debug/source map options
-            //             coverage: true
-            //         };
-            //     } else {
-            //         toolArgs = [];
-            //         toolOptions = {
-            //             verbose: this.debug || config.debug,   // i.e. debug/source map options
-            //             config: config.conf
-            //         };
-            //     }
-            //
-            //     // Finally map configuration to tool args and options
-            //     this._execute(this.moduleDirectory, "./node_modules/.bin/jest", this.workingDirectory, toolArgs, toolOptions, config);
-            // }
         } else {
-            console.error(`Error: Unrecognised type '${type}'.`);
+            throw new Error(`Unrecognised type '${type}'.`);
         }
 
         // Return self for chaining.
@@ -1212,74 +1041,26 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     version(type, options={}) {
-        switch(options.action) {
-            case "get-branch-name":
-                console.h3("On branch: " + Git.getCurrentBranchName());
-                break;
-            case "update-master":
-                Git.updateMaster(options.release, options.comment);
-                break;
-            default:
-                console.error(`Error: Unrecognised versioning action '${type}'.`);
+        if(type === "git") {
+            switch(options.action) {
+                case "get-branch-name":
+                    console.h3("On branch: " + Git.getCurrentBranchName());
+                    break;
+                case "update-master":
+                    Git.updateMaster(options.release, options.comment);
+                    break;
+                default:
+                    throw new Error(`Unrecognised versioning action '${type}'.`);
+            }
+        } else {
+            throw new Error(`Unrecognised type '${type}'.`);
         }
     }
-
-    // _cmdCreateInner(convention, answers) {
-    //
-    //     if(answers.warhorse === undefined) {
-    //         console.error("Error: Create command failed.");
-    //         return;
-    //     }
-    //
-    //     // console.log("\nProject construction summary:");
-    //     console.log(JSON.stringify(answers, null, "  "));
-    //
-    //     let config = Object.assign(packageBase, answers);
-    //
-    //     if(this.conventions.includes(convention)) {
-    //
-    //         // Create convention infrastructure
-    //         console.h2(`Creating infrastructure for convention '${convention}'.`);
-    //         let projectPath = this.workingDirectory + config.name + "/";
-    //         shell.cp("-R", `${this.conventionsDirectory}${convention}/`, projectPath);
-    //
-    //         // Create a package.json for the new project
-    //         let packageNew = Object.assign(packageBase, config);
-    //
-    //         this.commands.map(function(cmdName) {
-    //             packageNew.scripts[cmdName] = `warhorse ${cmdName}`;
-    //         });
-    //
-    //         delete packageNew.warhorse;
-    //
-    //         let str = JSON.stringify(packageNew, null, 2); // spacing level = 2
-    //         fs.writeFileSync(projectPath + "package.json", str);
-    //
-    //         // Create a license for the project
-    //         let license = config.license;
-    //         let licensePath = `${this.conventionsDirectory}_licenses/${license}.txt`;
-    //         fs.writeFileSync(projectPath + "LICENSE", fs.readFileSync(licensePath));
-    //
-    //         // Move into the new project directory
-    //         this.workingDirectory = projectPath;
-    //         process.chdir(this.workingDirectory);
-    //
-    //         // Install dependencies with a standard NPM install
-    //         let stdout = child.execSync(`npm install`);
-    //         if(stdout) {
-    //             console.log(stdout.toString());
-    //         }
-    //
-    //     } else {
-    //         console.warn("Warning: No Convention selected.  Exiting.");
-    //     }
-    // }
 
     _cmdCreateInner(convention, answers) {
 
         if(answers.warhorse === undefined) {
-            console.error("Error: Create command failed.");
-            return;
+            throw new Error(`Create command failed.`);
         }
 
         // console.log("\nProject construction summary:");
@@ -1590,7 +1371,7 @@ class Warhorse {
             if(cmd !== null) {cmd();}
             return this;    // Return self for chaining.
         } else {
-            console.error(`Error: Unrecognised command '${name}'.`);
+            throw new Error(`Unrecognised command '${name}'.`);
         }
 
         // Return self for chaining.
@@ -1614,7 +1395,7 @@ class Warhorse {
             if(this.conventions.includes(convention)) {
                 this._cmdCreate(convention);
             } else {
-                console.error(`Error: Unrecognised project convention: '${convention}'.`);
+                throw new Error(`Unrecognised project convention: '${convention}'.`);
             }
             return null; // Success or fail - nothing to return.
         } else {
