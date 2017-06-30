@@ -390,56 +390,6 @@ class Warhorse {
     }
 
     /**
-     * Task for automatically documenting project source code.
-     * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
-     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
-     * @param {string} options.conf - The path to a separate configuration file for this task.
-     * @param {string} options.src - The source path for this task.
-     * @param {string} options.dst - The destination/target path for this task.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    documentLocal(type, options={}) {
-        // Log task execution
-        if(options.isSilent !== true) {console.h2(`TASK: Documenting ${type.toUpperCase()}...`);}
-
-        // Select sub-task based on data type
-        if(type === "js") {
-
-            // Create a user-level config from defaults/options
-            let config = Object.assign(this.defaults.document.js, options);
-
-            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            // NOTE: IF an external configuration file is provided - ALL other configurations (except debug) are ignored.
-            let toolArgs, toolOptions;
-            if(config.conf === undefined) {
-                toolArgs = [config.src];
-                toolOptions = {
-                    verbose: this.debug || config.debug,   // i.e. debug/source map options
-                    destination: config.dst,
-                    recurse: true
-                };
-            } else {
-                toolArgs = [];
-                toolOptions = {
-                    verbose: this.debug || config.debug,   // i.e. debug/source map options
-                    configure: config.conf
-                };
-            }
-
-            // Finally map configuration to tool args and options
-            this._execute(this.moduleDirectory, "./node_modules/.bin/jsdoc", this.workingDirectory, toolArgs, toolOptions, config);
-
-        } else {
-            throw new Error(`Unrecognised type '${type}'.`);
-        }
-
-        // Return self for chaining.
-        return this;
-    }
-
-    /**
      * Task for linting source and template code. e.g. JS, LESS, SASS.
      * @param {string} type - Type of source file.
      * @param {Object=} options - Options to override or extend this task's default configuration.
@@ -619,22 +569,6 @@ class Warhorse {
         } else {
             throw new Error(`Unrecognised type '${type}'.`);
         }
-
-        // Return self for chaining.
-        return this;
-    }
-
-    /**
-     * Task for packing (minifying) source assets. e.g. GIF, JPG, PNG, SVG.
-     * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
-     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
-     * @param {string} options.src - The source path for this task.
-     * @param {string} options.dst - The destination/target path for this task.
-     * @returns {Object} - Returns self for chaining.
-     */
-    pack(type, options={}) {
-        // TODO - Reuse or remove 'pack' command.
 
         // Return self for chaining.
         return this;
