@@ -33,9 +33,16 @@ class CliHelper {
         // Firstly flush undefined options the cheap way...
         argOptions = JSON.parse(JSON.stringify(argOptions)); // i.e. remove undefined keys.
 
+        // Determine correct assignment operator for the cmdLine
+        let keyValDel = " ";
+        if(options.useEqualsSign === true) {
+            keyValDel = "=";
+            delete argOptions.useEqualsSign;
+        }
+
         // Convert argOptions object to string
         let cmdLineOpts = "";
-        let keyValDel = (options.useEqualsSign === true) ? "=" : " ";
+
         for(let key in argOptions) {
             let value = argOptions[key];
             if(value === false) {
@@ -49,7 +56,13 @@ class CliHelper {
                 cmdLineOpts += ` --${key}${keyValDel}${value}`;
             }
         }
-        return cmdLineOpts.slice(1);
+        let lastChar = cmdLineOpts.charAt(cmdLineOpts.length - 1);
+        if(lastChar === " " || lastChar === "=") {
+            return cmdLineOpts.slice(1, cmdLineOpts.length - 1);
+        } else {
+            return cmdLineOpts.slice(1);
+        }
+
     }
 
     // e.g. compileCmdLine("node", [arg0..argN], {opt0: .., opt1: ...}, {other options}

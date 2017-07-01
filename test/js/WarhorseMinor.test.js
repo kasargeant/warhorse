@@ -59,6 +59,13 @@ describe("Class: Warhorse", function() {
 
     describe("Task errors", function() {
         it("should throw an error when a task is given an invalid data type: bundle", function() {
+
+        });
+    });
+
+
+    describe("Task errors", function() {
+        it("should throw an error when a task is given an invalid data type: bundle", function() {
             expect(function() {warhorse.bundle("SOME_INVALID_TYPE");}).toThrow();
             expect(function() {warhorse.compress("SOME_INVALID_TYPE");}).toThrow();
             // expect(function() {warhorse.copy("SOME_INVALID_TYPE");}).toThrow(); // type is ignored by copy()
