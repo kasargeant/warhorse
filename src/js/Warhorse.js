@@ -859,49 +859,6 @@ class Warhorse {
         console.log("");
     }
 
-    _reportTape(reports) {
-        let testsTotal = 0;
-        let testsFailed = 0;
-        let testsPassed = 0;
-
-        for(let testIdx = 0; testIdx < reports.length; testIdx++) {
-            // Extract each report.
-            let report = reports[testIdx];
-            testsTotal += report.tests.length;
-
-            console.log("");
-            console.log(`  Test Report: ${report.name} (${report.tests.length} tests).`);
-            for(let i = 0; i < report.tests.length; i++) {
-                let result = report.tests[i];
-
-                let filename = result.file;
-                let line = result.line;
-                let column = result.column;
-
-                if(result.ok === true) {
-                    // e.g. {"id":0,"ok":true,"name":"it should have assigned the right height.","operator":"equal","objectPrintDepth":5,"actual":210,"expected":210,"test":0,"type":"assert"}
-                    testsPassed++;
-                    console.log(`    [32m✓[0m ${result.name}`);
-                } else {
-                    // e.g. {"id":2,"ok":false,"name":"it should have assigned the right area.","operator":"equal","objectPrintDepth":5,"actual":44100,"expected":441100,"error":{},"functionName":"Test.<anonymous>","file":"/Users/kasargeant/dev/projects/warhorse/test/data/client_test/js/tape.js:17:8","line":17,"column":"8","at":"Test.<anonymous> (/Users/kasargeant/dev/projects/warhorse/test/data/client_test/js/tape.js:17:8)","test":0,"type":"assert"}
-                    testsFailed++;
-                    console.log(`    [31m✕[0m FAILED: ${result.name}`);
-                    console.log(`        Testing: '${result.operator}'`);
-                    console.log(`        at line: ${line} col: ${column} in '${filename}'.`);
-                    console.log(`        - expected: '${result.expected}'`);
-                    console.log(`        - actual  : '${result.actual}'`);
-                    console.log("");
-                }
-            }
-        }
-        console.log(`Test Report Summary:`);
-        console.log(`   [32mTests passed: (${testsPassed}/${testsTotal})[0m`);
-        if(testsFailed) {
-            console.log(`   [31mTests failed: (${testsFailed}/${testsTotal})[0m`);
-        }
-        console.log("");
-    }
-
     /**
      * Task for testing code. e.g. JS.
      * @param {string} type - Type of source file.
@@ -935,77 +892,6 @@ class Warhorse {
 
                 // Finally map configuration to tool args and options
                 this._execute(this.moduleDirectory, "./node_modules/.bin/bayeux", this.workingDirectory, toolArgs, toolOptions, config);
-
-            } else if(options.tooling === "tape") {
-                // Create a user-level config from defaults/options
-                let defaults = {
-                    src: "test/js/*.test.js"
-                };
-                let config = Object.assign(defaults, options);
-
-                // Resolve tool-level arguments - with that user-level config
-                let toolArgs = "";
-                if(config.src !== undefined) {
-                    toolArgs += config.src;
-                }
-
-                // NOTE: THIS SCRIPT HAS NO OPTIONS
-                let toolOptions = {};
-
-                // let cmdLine = `node ${this.moduleDirectory}src/js/tools/TapeRunner.js ${toolArgs}`;
-                let cmdLine = `node ${toolArgs}`;
-
-                // Finally map configuration to tool args and options
-                let stdout = "{}";
-                try {
-                    stdout = child.execSync(cmdLine);
-                } catch(ex) {
-                    stdout = ex.stdout;
-                }
-                // At this point, stdout should contain an array of 0 or more test report objects.
-                if(stdout !== null) {
-                    let reportLines = stdout.toString().split("\n");
-                    let reports = [];
-                    let data = {
-                        name: "Untitled test",
-                        tests: []
-                    };
-                    let row = {};
-                    for(let i = 0; i < reportLines.length; i++) {
-                        let rowStr = reportLines[i];
-                        if(rowStr !== "") {
-                            try {
-                                // console.log(">> " + reportLines[i]); // DEBUG ONLY
-                                row = JSON.parse(reportLines[i]);
-                                //console.log("-> " + JSON.stringify(row));
-                                switch(row.type) {
-                                    case "test":
-                                        data.id = row.id;
-                                        data.name = row.name;
-                                        break;
-                                    case "assert":
-                                        data.tests.push(row);
-                                        break;
-                                    case "end":
-                                        reports.push(data);
-                                        data = {
-                                            name: "Untitled test",
-                                            tests: []
-                                        };
-                                        break;
-                                    default:
-                                        console.error(`Error: Unrecognised TAP message of type '${row.type}'.`);
-                                }
-                            } catch(ex) {
-                                console.error("On: " + JSON.stringify(reportLines[i]));
-                                throw ex;
-                                //console.log("IGNORING: " + reportLines[i]);
-                            }
-                        }
-                    }
-
-                    this._reportTape(reports);
-                }
 
             } else if(options.tooling === "jest") {
 

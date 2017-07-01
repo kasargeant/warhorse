@@ -159,17 +159,11 @@ function tasks(warhorse) {
             //     src: "test/data/client_test/js/bayeux/*.unit.js",
             // });
 
-            // // TAPE
             warhorse.test("js", {
-                tooling: "tape",
-                src: "./test/data/client_test/js/tap/*.test.js",
+                tooling: "jest",
+                debug: true,
+                src: "./test/js/"
             });
-
-            // warhorse.test("js", {
-            //     tooling: "jest",
-            //     debug: true,
-            //     src: "./test/js/"
-            // });
         }
     };
 }
