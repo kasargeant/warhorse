@@ -972,31 +972,35 @@ class Warhorse {
                     };
                     let row = {};
                     for(let i = 0; i < reportLines.length; i++) {
-                        try {
-                            // console.log(">> " + reportLines[i]); // DEBUG ONLY
-                            row = JSON.parse(reportLines[i]);
-                            //console.log("-> " + JSON.stringify(row));
-                            switch(row.type) {
-                                case "test":
-                                    data.id = row.id;
-                                    data.name = row.name;
-                                    break;
-                                case "assert":
-                                    data.tests.push(row);
-                                    break;
-                                case "end":
-                                    reports.push(data);
-                                    data = {
-                                        name: "Untitled test",
-                                        tests: []
-                                    };
-                                    break;
-                                default:
-                                    console.error(`Error: Unrecognised TAP message of type '${row.type}'.`);
+                        let rowStr = reportLines[i];
+                        if(rowStr !== "") {
+                            try {
+                                // console.log(">> " + reportLines[i]); // DEBUG ONLY
+                                row = JSON.parse(reportLines[i]);
+                                //console.log("-> " + JSON.stringify(row));
+                                switch(row.type) {
+                                    case "test":
+                                        data.id = row.id;
+                                        data.name = row.name;
+                                        break;
+                                    case "assert":
+                                        data.tests.push(row);
+                                        break;
+                                    case "end":
+                                        reports.push(data);
+                                        data = {
+                                            name: "Untitled test",
+                                            tests: []
+                                        };
+                                        break;
+                                    default:
+                                        console.error(`Error: Unrecognised TAP message of type '${row.type}'.`);
+                                }
+                            } catch(ex) {
+                                console.error("On: " + JSON.stringify(reportLines[i]));
+                                throw ex;
+                                //console.log("IGNORING: " + reportLines[i]);
                             }
-                        } catch(ex) {
-                            console.error(ex);
-                            //console.log("IGNORING: " + reportLines[i]);
                         }
                     }
 

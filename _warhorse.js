@@ -140,7 +140,6 @@ function tasks(warhorse) {
                 src: "test/data/client_dist/css/index.css",
                 dst: "test/data/client_dist/css/index.min.css"
             });
-
         },
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -161,17 +160,16 @@ function tasks(warhorse) {
             // });
 
             // // TAPE
-            // warhorse.test("js", {
-            //     tooling: "tape",
-            //     src: "test/data/client_test/js/tap/Tinter16.test.js",
-            // });
-
             warhorse.test("js", {
-                tooling: "jest",
-                debug: true,
-                src: "./test/js/"
-                // conf: "./conf/jest.json",
+                tooling: "tape",
+                src: "./test/data/client_test/js/tap/*.test.js",
             });
+
+            // warhorse.test("js", {
+            //     tooling: "jest",
+            //     debug: true,
+            //     src: "./test/js/"
+            // });
         }
     };
 }

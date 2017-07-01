@@ -96,6 +96,7 @@
     "readline-sync": "^1.4.7",
     "shelljs": "^0.7.8",
     "taffydb": "^2.7.3",
+    "tape": "^4.7.0",
     "tar": "^3.1.5",
     "tinter": "^0.4.5",
     "uglify-es": "^3.0.22"
