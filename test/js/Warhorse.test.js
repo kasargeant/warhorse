@@ -370,7 +370,7 @@ describe("Class: Warhorse", function() {
             expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
             expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/less/index.less", "./test/data/client_dist/css/index.css"]);
             expect(warhorse._execute.getCall(0).args[4]).toEqual({"include-path": "./test/data/client_src/less", "relative-urls": true, "source-map": undefined});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css/index.css", "include": "./test/data/client_src/less", "src": "./test/data/client_src/less/index.less"});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css/index.css", "include": "./test/data/client_src/less", "src": "./test/data/client_src/less/index.less", "useEqualsSign": true});
 
             // Clean-up
             shell.rm(options.dst);

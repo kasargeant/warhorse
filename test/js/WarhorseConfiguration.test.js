@@ -115,7 +115,7 @@ describe("Class: Warhorse", function() {
 
         it("should have a full set of tasks to support the command: fix", function() {
             cmds.process();
-            expect(warhorse.preprocess.callCount).toBe(2);
+            expect(warhorse.preprocess.callCount).toBe(1);
             expect(warhorse.postprocess.callCount).toBe(1);
             expect(warhorse.minify.callCount).toBe(1);
         });
