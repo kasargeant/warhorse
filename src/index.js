@@ -22,10 +22,56 @@ function run(moduleDirectory, workingDirectory, args, useDebug) {
     }
 
     const warhorse = new Warhorse(moduleDirectory, workingDirectory, userConfig, useDebug);
+// let banner = ` _    _            _
+// | |  | |          | |
+// | |  | | __ _ _ __| |__   ___  _ __ ___  ___
+// | |/\\| |/ _\` | '__| '_ \\ / _ \\| '__/ __|/ _ \\
+// \\  /\\  / (_| | |  | | | | (_) | |  \\__ \\  __/
+//  \\/  \\/ \\__,_|_|  |_| |_|\\___/|_|  |___/\\___|
+//
+// `;
+// let banner = `
+// I8,        8        ,8I                        88
+// \`8b       d8b       d8'                        88
+//  "8,     ,8"8,     ,8"                         88
+//   Y8     8P Y8     8P  ,adPPYYba,  8b,dPPYba,  88,dPPYba,    ,adPPYba,   8b,dPPYba,  ,adPPYba,   ,adPPYba,
+//   \`8b   d8' \`8b   d8'  ""     \`Y8  88P'   "Y8  88P'    "8a  a8"     "8a  88P'   "Y8  I8[    ""  a8P_____88
+//    \`8a a8'   \`8a a8'   ,adPPPPP88  88          88       88  8b       d8  88           \`"Y8ba,   8PP"""""""
+//     \`8a8'     \`8a8'    88,    ,88  88          88       88  "8a,   ,a8"  88          aa    ]8I  "8b,   ,aa
+//      \`8'       \`8'     \`"8bbdP"Y8  88          88       88   \`"YbbdP"'   88          \`"YbbdP"'   \`"Ybbd8"'
+//
+// `;
+// let banner = `
+//  _  _  _             _
+// (_)(_)(_)           | |
+//  _  _  _ _____  ____| |__   ___   ____ ___ _____
+// | || || (____ |/ ___)  _ \\ / _ \\ / ___)___) ___ |
+// | || || / ___ | |   | | | | |_| | |  |___ | ____|
+//  \\_____/\\_____|_|   |_| |_|\\___/|_|  (___/|_____)
+//
+// `;
+let banner =
+`\x1b[7m         ___ .______  .______  .___.__  ._______  .______  .________._______
+.___    |   |:      \\ : __   \\ :   |  \\ : .___  \\ : __   \\ |    ___/: .____/
+:   | /\\|   ||   .   ||  \\____||   :   || :   |  ||  \\____||___    \\| : _/\\ 
+|   |/  :   ||   :   ||   :  \\ |   .   ||     :  ||   :  \\ |       /|   /  \\
+|   /       ||___|   ||   |___\\|___|   | \\_. ___/ |   |___\\|__:___/ |_.: __/
+|______/|___|    |___||___|        |___|   :/     |___|       :        :/   
+        :                                  :                                
+        :                                                                   \x1b[0m`;
+    console.log();
+    console.log();
+    // console.log("%".repeat(77));
+    // console.log("---- --- - -- --- - - ------ - ------ - - -- -- - - - - -- --- ---- -- - - - --");
+    // console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    console.log(banner);
+    console.log();
+    console.log("Copyright 2017 Kyle Alexis Sargeant. Licensed & distributed under the AGPLv3");
 
-    console.log("Warhorse CLI location: " + warhorse.moduleDirectory);
+    // console.log("Warhorse CLI location: " + warhorse.moduleDirectory);
     console.log();
     warhorse.cli(args);
+    console.log();
     console.log();
 }
 
