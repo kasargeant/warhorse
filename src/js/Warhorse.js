@@ -642,8 +642,8 @@ class Warhorse {
         // console.error(reports);
 
         let issuesTotal = 0;
-        console.log("");
-        console.log(`  Lint Report (JS style):`);
+        console.log(`  Code Style Report:`);
+        console.log(`  =================`);
         console.log("");
 
         for(let reportIdx in reports) {
@@ -674,7 +674,8 @@ class Warhorse {
         // if(testsFailed) {
         //     console.log(`   \x1b[31mTests failed: (${testsFailed}/${testsTotal})\x1b[0m`);
         // }
-        // console.log("");
+
+        console.log("");
     }
 
     /**
@@ -821,8 +822,8 @@ class Warhorse {
         reports = reportsByFilename;
         // console.error(reports);
 
-        console.log("");
-        console.log(`  Lint Report (JS quality):`);
+        console.log(`  Code Quality Report:`);
+        console.log(`  ===================`);
         console.log("");
 
         let reportFilenames = Object.keys(reports);
@@ -848,16 +849,14 @@ class Warhorse {
                 let issue = report[j];
                 console.log(`        at line: ${issue.line} col: ${issue.character} - ${issue.reason}.`);
             }
-
-
-
         }
         // console.log(`Test Report Summary:`);
         // console.log(`   \x1b[32mTests passed: (${testsPassed}/${testsTotal})\x1b[0m`);
         // if(testsFailed) {
         //     console.log(`   \x1b[31mTests failed: (${testsFailed}/${testsTotal})\x1b[0m`);
         // }
-        // console.log("");
+
+        console.log("");
     }
 
     _reportTape(reports) {
@@ -1385,7 +1384,7 @@ class Warhorse {
      * @private
      */
     cli(args) {
-        console.log(color.inverse(`WARHORSE active.`));
+        console.h0(`WARHORSE active...`);
         let [cmdName, convention="module"] = args;
 
         console.h1(`COMMAND ${cmdName}`);
@@ -1407,7 +1406,7 @@ class Warhorse {
             }
         }
 
-        console.log(color.inverse(`WARHORSE done.`));
+        console.h0(`WARHORSE done.`);
 
         // Return self for chaining.
         return this;
