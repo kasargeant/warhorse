@@ -184,7 +184,6 @@ describe("Class: Warhorse", function() {
 
         it("should be able to resolve configurations for bundling: SVG", function() {
 
-
             // Setup
             let options = {
                 src: "./test/data/client_src/img/file-archive-o.svg",
@@ -240,6 +239,8 @@ describe("Class: Warhorse", function() {
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // TASK: LINT
+
+        // JS QUALITY
         it("should be able to resolve configurations for linting: JS quality", function() {
 
             // Execute
@@ -265,7 +266,8 @@ describe("Class: Warhorse", function() {
 
             // Clean-up
         });
-        // TASK: LINT
+
+        // JS STYLE
         it("should be able to resolve configurations for linting: JS style", function() {
 
             // Execute
@@ -291,6 +293,145 @@ describe("Class: Warhorse", function() {
             // Clean-up
         });
 
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: MINIFY
+
+        // JS
+        it("should be able to resolve configurations for minify: JS", function() {
+
+            // Setup
+            let options = {
+                src: "./test/data/client_dist/js/index.js",
+                dst: "./test/data/client_dist/js/index.min.js"
+            };
+
+            // Execute
+            warhorse.minify("js", options);
+
+            // Evaluate
+            expect(warhorse._execute.callCount).toBe(1);
+            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/uglifyjs");
+            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_dist/js/index.js"]);
+            expect(warhorse._execute.getCall(0).args[4]).toEqual({"compress": true, "config-file": undefined, "mangle": true, "output": "./test/data/client_dist/js/index.min.js", "verbose": false});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/js/index.min.js", "src": "./test/data/client_dist/js/index.js", "useEqualsSign": false, "useOutput": "stdout"});
+
+            // Clean-up
+            shell.rm(options.dst);
+        });
+
+        // CSS
+        it("should be able to resolve configurations for minify: CSS", function() {
+
+            // Setup
+            let options = {
+                src: "./test/data/client_dist/css/index.css",
+                dst: "./test/data/client_dist/css/index.min.css"
+            };
+
+            // Execute
+            warhorse.minify("css", options);
+
+            // Evaluate
+            expect(warhorse._execute.callCount).toBe(1);
+            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/csso");
+            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_dist/css/index.css"]);
+            expect(warhorse._execute.getCall(0).args[4]).toEqual({"debug": false, "input": "./test/data/client_dist/css/index.css", "map": false, "output": "./test/data/client_dist/css/index.min.css"});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/css/index.min.css", "src": "./test/data/client_dist/css/index.css", "useEqualsSign": false, "useOutput": "stdout"});
+
+            // Clean-up
+            shell.rm(options.dst);
+        });
+
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: PREPROCESS
+
+        // LESS
+        it("should be able to resolve configurations for preprocess: LESS", function() {
+
+            // Setup
+            let options = {
+                src: "./test/data/client_src/less/index.less",
+                dst: "./test/data/client_dist/css/index.css",
+                include: "./test/data/client_src/less"
+            };
+
+            // Execute
+            warhorse.preprocess("less", options);
+
+            // Evaluate
+            expect(warhorse._execute.callCount).toBe(1);
+            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/lessc");
+            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/less/index.less", "./test/data/client_dist/css/index.css"]);
+            expect(warhorse._execute.getCall(0).args[4]).toEqual({"include-path": "./test/data/client_src/less", "relative-urls": true, "source-map": undefined});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css/index.css", "include": "./test/data/client_src/less", "src": "./test/data/client_src/less/index.less"});
+
+            // Clean-up
+            shell.rm(options.dst);
+        });
+
+
+        // SASS
+        it("should be able to resolve configurations for preprocess: SASS", function() {
+
+            // Setup
+            let options = {
+                src: "./test/data/client_src/sass/index.less",
+                dst: "./test/data/client_dist/css/index.css",
+                include: "./test/data/client_src/less"
+            };
+
+            // Execute
+            warhorse.preprocess("sass", options);
+
+            // Evaluate
+            expect(warhorse._execute.callCount).toBe(1);
+            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/node-sass");
+            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/sass/index.less", "./test/data/client_dist/css/index.css"]);
+            expect(warhorse._execute.getCall(0).args[4]).toEqual({"include-path": "./test/data/client_src/less", "relative-urls": true, "source-map": undefined});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css/index.css", "include": "./test/data/client_src/less", "src": "./test/data/client_src/sass/index.less"});
+
+            // Clean-up
+            shell.rm(options.dst);
+        });
+
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TASK: POSTPROCESS
+
+        // LESS
+        it("should be able to resolve configurations for postprocess: CSS", function() {
+
+            // Setup
+            let options = {
+                src: "test/data/client_dist/css/index.css",
+                dst: "test/data/client_dist/css/index.css",
+                use: "autoprefixer"
+            };
+
+            // Execute
+            warhorse.postprocess("css", options);
+
+            // Evaluate
+            expect(warhorse._execute.callCount).toBe(1);
+            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/postcss");
+            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[3]).toEqual(["test/data/client_dist/css/index.css", "test/data/client_dist/css/index.css"]);
+            expect(warhorse._execute.getCall(0).args[4]).toEqual({"config": undefined, "map": undefined, "replace": true});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "test/data/client_dist/css/index.css", "src": "test/data/client_dist/css/index.css", "use": "autoprefixer"});
+
+            // Clean-up
+            shell.rm(options.dst);
+        });
     });
 
 

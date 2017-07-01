@@ -17,56 +17,97 @@ const child = require("child_process");
  */
 class GitHelper {
 
-    static getCurrentBranchName() {
-        let stdout = null; let stderr = null;
+    static _execute(cmdLine) {
+        let output = {stdout: null, stderr: null};
         try {
-            stdout = child.execSync("git rev-parse --abbrev-ref HEAD");
+            output.stdout = child.execSync(cmdLine);
         } catch(ex) {
             //console.error(ex.message);
-            stdout = ex.stdout;
-            stderr = ex.stderr;
+            output.stdout = ex.stdout;
+            output.stderr = ex.stderr;
         }
-        if(stdout.indexOf("fatal: Not a git repository") === -1) {
-            return stdout.toString();
+        return output;
+    }
+
+    static isGitAvailable() {
+        let output = this._execute("git --version");
+        return (output.stdout.indexOf("git version") !== -1);
+    }
+
+    static getCurrentBranchName() {
+        if(this.isGitAvailable()) {
+            let output = this._execute("git rev-parse --abbrev-ref HEAD");
+            return output.stdout.toString();
         } else {
-            return "Warning: Version task applied to project that has not been initialised by GIT.";
+            console.warn("Warning: This is not a GIT repository.");
+            return null;
         }
     }
 
-    static createBranch(name) {
-        child.execSync(`git checkout -b ${name}`);
-        let currentBranchName = this.getCurrentBranchName();
-        if(currentBranchName !== name) {
-            console.error(`Error: Failed to create new branch '${name}'.  Current branch is '${currentBranchName}'.`);
+    static checkoutBranch(name) {
+        if(this.isGitAvailable()) {
+            let output = this._execute(`git checkout ${name}`);
+            let currentBranchName = this.getCurrentBranchName();
+            if(currentBranchName !== name) {
+                throw new Error(`Failed to checkout branch '${name}'.  Current branch is '${currentBranchName}'.`);
+            }
+        } else {
+            console.warn("Warning: This is not a GIT repository.");
             return false;
         }
         return true;
     }
 
-    /**
-     *
-     * @param {string} releaseType - Can be semver options:- "major", "minor", "patch"
-     * @param {string} comment - Any text comment for the update release.
-     * @returns {boolean} - A flag for success or failure.
-     */
-    static updateMaster(releaseType, comment) {
-        let currentBranchName = this.getCurrentBranchName();
-        if(currentBranchName !== "dev") {
-            console.error(`Error: You need to update 'master' from 'dev'.  Current branch is '${currentBranchName}'.`);
+    static checkoutBranchNew(name) {
+        if(this.isGitAvailable()) {
+            let output = this._execute(`git checkout -b ${name}`);
+            let currentBranchName = this.getCurrentBranchName();
+            if(currentBranchName !== name) {
+                throw new Error(`Failed to create new branch '${name}'.  Current branch is '${currentBranchName}'.`);
+            }
         } else {
-            child.execSync(`npm version ${releaseType} -m "${comment}"`);
-            child.execSync(`git push`);
-            child.execSync(`git push --tags`);
-            child.execSync(`git checkout master`);
-            child.execSync(`git merge dev --no-ff -m "${comment}"`);
-
-            child.execSync("git push");
-            //child.execSync("npm publish");
-            child.execSync(`git checkout dev`);
+            console.warn("Warning: This is not a GIT repository.");
+            return false;
         }
+        return true;
     }
-
-
+    //
+    // static deleteBranch(name) {
+    //     if(this.isGitAvailable()) {
+    //         let output = this._execute(`git branch -d ${name}`);
+    //         let itStillExists = this.checkoutBranch(name);
+    //         if(itStillExists === true) {
+    //             throw new Error(`Failed to delete branch '${name}'.  Current branch is '${name}'.`);
+    //         }
+    //     } else {
+    //         console.warn("Warning: This is not a GIT repository.");
+    //         return false;
+    //     }
+    //     return true;
+    // }
+    //
+    // /**
+    //  *
+    //  * @param {string} releaseType - Can be semver options:- "major", "minor", "patch"
+    //  * @param {string} comment - Any text comment for the update release.
+    //  * @returns {boolean} - A flag for success or failure.
+    //  */
+    // static updateMaster(releaseType, comment) {
+    //     let currentBranchName = this.getCurrentBranchName();
+    //     if(currentBranchName !== "dev") {
+    //         console.error(`Error: You need to update 'master' from 'dev'.  Current branch is '${currentBranchName}'.`);
+    //     } else {
+    //         child.execSync(`npm version ${releaseType} -m "${comment}"`);
+    //         child.execSync(`git push`);
+    //         child.execSync(`git push --tags`);
+    //         child.execSync(`git checkout master`);
+    //         child.execSync(`git merge dev --no-ff -m "${comment}"`);
+    //
+    //         child.execSync("git push");
+    //         //child.execSync("npm publish");
+    //         child.execSync(`git checkout dev`);
+    //     }
+    // }
 }
 
 // Exports
