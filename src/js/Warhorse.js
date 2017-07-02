@@ -940,9 +940,9 @@ class Warhorse {
 
                 // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
                 // NOTE: We always use Warhorse conf file.
-                let src = path.resolve(this.workingDirectory, config.src);
+                //let src = path.resolve(this.workingDirectory, config.src);
                 //let configPath = path.resolve(this.moduleDirectory, "./conf/jest.json");
-                let toolArgs = [src];
+                let toolArgs = [config.src];
                 let toolOptions = {
                     verbose: this.debug || config.debug   // i.e. debug/source map options
                     //config: configPath
