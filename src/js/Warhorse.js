@@ -18,6 +18,7 @@ const glob = require("glob");
 const merge = require("merge");
 const shell = require("shelljs");
 const tar = require("tar");
+const zipper = require("zip-local");
 
 // Helpers (external)
 const Git = require("./helpers/GitHelper");
@@ -1000,13 +1001,21 @@ class Warhorse {
             // Create convention infrastructure
             console.h2(`Creating infrastructure for convention '${convention}'.`);
 
-            let archiveName = `warhorse_${convention}.tar.gz`;
-            shell.cp("-R", `${this.conventionsDirectory}/${archiveName}`, this.workingDirectory);
-            tar.x({
-                file: archiveName,
-                sync: true,
-                cwd: this.workingDirectory
-            });
+            // // Using TAR.GZ
+            // let archiveName = `warhorse_${convention}.tar.gz`;
+            // shell.cp(`${this.conventionsDirectory}/${archiveName}`, this.workingDirectory);
+            // tar.x({
+            //     file: archiveName,
+            //     sync: true,
+            //     cwd: this.workingDirectory
+            // });
+            // shell.mv(`warhorse_${convention}`, config.name);
+            // shell.rm(archiveName);
+
+            // Using ZIP
+            let archiveName = `warhorse_${convention}.zip`;
+            shell.cp(`${this.conventionsDirectory}/${archiveName}`, this.workingDirectory);
+            zipper.sync.unzip(archiveName).save("./");
             shell.mv(`warhorse_${convention}`, config.name);
             shell.rm(archiveName);
 

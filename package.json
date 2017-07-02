@@ -1,6 +1,6 @@
 {
   "name": "warhorse",
-  "version": "0.6.5",
+  "version": "0.6.7",
   "description": "A simple, friendly and reliable JavaScript Task Runner... able to crush your enemies!",
   "keywords": [
     "javascript",
@@ -98,7 +98,8 @@
     "taffydb": "^2.7.3",
     "tar": "^3.1.5",
     "tinter": "^0.4.5",
-    "uglify-es": "^3.0.22"
+    "uglify-es": "^3.0.22",
+    "zip-local": "^0.3.4"
   },
   "devDependencies": {
     "coveralls": "^2.13.1",
