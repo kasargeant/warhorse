@@ -9,9 +9,10 @@
 "use strict";
 
 // Imports
-const child = require("child_process");
+const os = require("os");
+const path = (os.platform() === "win32") ? require("path").win32 : require("path");
 const fs = require("fs");
-const path = require("path");
+const child = require("child_process");
 
 const glob = require("glob");
 const merge = require("merge");

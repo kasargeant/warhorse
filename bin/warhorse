@@ -11,7 +11,8 @@
 "use strict";
 
 // Imports
-const path = require("path");
+const os = require("os");
+const path = (os.platform() === "win32") ? require("path").win32 : require("path");
 
 let argv = require("minimist")(process.argv.slice(2), {
     string: "task",
