@@ -73,7 +73,7 @@ class CliHelper {
         // console.log(JSON.stringify(options));
 
         let cmdLineArgs = this._compileCmdLineArgs(args);
-        let cmdLineArgOptions = this._compileCmdLineArgsAsOptions(argOptions);
+        let cmdLineArgOptions = this._compileCmdLineArgsAsOptions(argOptions, options);
         return `${executable} ${cmdLineArgs} ${cmdLineArgOptions}`;
     }
     //

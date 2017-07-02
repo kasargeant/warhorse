@@ -11,7 +11,8 @@
 "use strict";
 
 // Imports
-const path = require("path");
+const os = require("os");
+const path = (os.platform() === "win32") ? require("path").win32 : require("path");
 
 let argv = require("minimist")(process.argv.slice(2), {
     string: "task",
@@ -21,8 +22,8 @@ let argv = require("minimist")(process.argv.slice(2), {
 });
 // console.log(JSON.stringify(argv, null, 2));
 // return;
-let workingDirectory = process.cwd() + "/";
-let moduleDirectory = path.join(__dirname, "..") + "/";
+let workingDirectory = (process.cwd() + "/").trim();
+let moduleDirectory = (path.join(__dirname, "..") + "/").trim();
 
 const run = require("../src/index");
 

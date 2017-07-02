@@ -123,22 +123,23 @@ function tasks(warhorse) {
         "process": function() {
 
             warhorse.preprocess("less", {
-                src: "test/data/client_src/less/index.less",
-                dst: "test/data/client_dist/css/index.css",
-                include: "test/data/client_src/less/"
+                src: "./test/data/client_src/less/index.less",
+                dst: "./test/data/client_dist/css/index.css",
+                include: "./test/data/client_src/less"
             });
-            warhorse.preprocess("sass", {
-                src: "test/data/client_src/sass/index.scss",
-                dst: "test/data/client_dist/css/index.css"
-            });
+            // warhorse.preprocess("sass", {
+            //     src: "./test/data/client_src/sass/index.scss",
+            //     dst: "./test/data/client_dist/css/index.css",
+            //     include: "./test/data/client_src/sass"
+            // });
             warhorse.postprocess("css", {
-                src: "test/data/client_dist/css/index.css",
-                dst: "test/data/client_dist/css/index.css",
+                src: "./test/data/client_dist/css/index.css",
+                dst: "./test/data/client_dist/css/index.css",
                 use: "autoprefixer"
             });
             warhorse.minify("css", {
-                src: "test/data/client_dist/css/index.css",
-                dst: "test/data/client_dist/css/index.min.css"
+                src: "./test/data/client_dist/css/index.css",
+                dst: "./test/data/client_dist/css/index.min.css"
             });
         },
 

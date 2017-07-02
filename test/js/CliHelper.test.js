@@ -110,17 +110,34 @@ describe("Class: CliHelper", function() {
     });
 
     // Final Command-line
-    describe("Compiling: final command line", function() {
-        it("should be able to compile a command line without args", function() {
+    describe("Compiling: the final command line", function() {
 
-            const EXECUTABLE_PATH = "/usr/bin/local/warhorse/node_modules/.bin/warhorse";
+        it("should be able to compile a command line without an options equals sign", function() {
+
+            const EXECUTABLE_PATH = "/usr/bin/local/warhorse/node_modules/.bin/browserify";
             const ARGS = ["./test/data/client_src/js/index.js"];
             const ARG_OPTIONS = {"debug": false,"outfile": "./test/data/client_dist/js/index.js", "recurse": true};
             const OPTIONS = {"debug": false, "useOutput": "stdout", "useEqualsSign": false, "src": "./test/data/client_src/js/index.js", "dst": "./test/data/client_dist/js/index.js"};
 
             let cmdLine = CliHelper._compileCmdLine(EXECUTABLE_PATH, ARGS, ARG_OPTIONS, OPTIONS);
 
-            expect(cmdLine).toBe("/usr/bin/local/warhorse/node_modules/.bin/warhorse ./test/data/client_src/js/index.js --outfile ./test/data/client_dist/js/index.js --recurse");
+            expect(cmdLine).toBe("/usr/bin/local/warhorse/node_modules/.bin/browserify ./test/data/client_src/js/index.js --outfile ./test/data/client_dist/js/index.js --recurse");
+        });
+
+        it("should be able to compile a command line with an options equals sign", function() {
+
+            const EXECUTABLE_PATH = "/usr/bin/local/warhorse/node_modules/.bin/lessc";
+            const ARGS = ["./test/data/client_src/less/index.less", "./test/data/client_dist/css/index.css"];
+            const ARG_OPTIONS = {
+                "source-map": false,
+                "include-path": "./test/data/client_src/less",
+                "relative-urls": true
+            };
+            const OPTIONS = {"debug": false, "useOutput": "stdout", "useEqualsSign": true, "src": "./test/data/client_src/less/index.less", "dst": "./test/data/client_dist/css/index.css"};
+
+            let cmdLine = CliHelper._compileCmdLine(EXECUTABLE_PATH, ARGS, ARG_OPTIONS, OPTIONS);
+
+            expect(cmdLine).toBe("/usr/bin/local/warhorse/node_modules/.bin/lessc ./test/data/client_src/less/index.less ./test/data/client_dist/css/index.css --include-path=./test/data/client_src/less --relative-urls");
         });
 
     });

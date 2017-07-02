@@ -44,8 +44,8 @@ describe("Class: GitHelper", function() {
     // UNMOCKED
     describe("Core functions", function() {
         it("should be able to execute a valid command line and return results", function() {
-            let output = GitHelper._execute("echo hi");
-            expect(output.stdout.toString()).toBe("hi\n");
+            let output = GitHelper._execute("echo hi").stdout.toString();
+            expect(output.slice(0, 2)).toBe("hi");
         });
 
         it("should be able to execute an invalid command line and return error", function() {

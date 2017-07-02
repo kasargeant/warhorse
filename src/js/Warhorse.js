@@ -9,9 +9,10 @@
 "use strict";
 
 // Imports
-const child = require("child_process");
+const os = require("os");
+const path = (os.platform() === "win32") ? require("path").win32 : require("path");
 const fs = require("fs");
-const path = require("path");
+const child = require("child_process");
 
 const glob = require("glob");
 const merge = require("merge");
@@ -30,6 +31,14 @@ const packageSnippets = require("../conventions/package_snippets.json");
 const Pageant = require("pageant");
 const console = new Pageant();
 const color = require("tinter");
+
+// Helpers (internal)
+function ensureTargetDirectory(workingDirectory, relativePathDst) {
+    let dst = path.resolve(workingDirectory, relativePathDst);
+    let dstPath = path.dirname(dst);
+    shell.mkdir("-p", dstPath);
+}
+
 
 /**
  * @class
@@ -139,12 +148,12 @@ class Warhorse {
             },
             preprocess: {
                 less: {
-                    src: "src/index.less",
-                    dst: "dist/index.css"
+                    src: "src/less/index.less",
+                    dst: "dist/css/index.css"
                 },
                 sass: {
-                    src: "src/css/index.sass",
-                    dst: "dist/css/index.min.css"
+                    src: "src/sass/index.sass",
+                    dst: "dist/css/index.css"
                 }
             },
             postprocess: {
@@ -268,6 +277,12 @@ class Warhorse {
                 recurse: true
             };
 
+            // Ensure that the destination directory actually exists... or if not, create it.
+            ensureTargetDirectory(this.workingDirectory, config.dst);
+            // let dst = path.resolve(this.workingDirectory, config.dst);
+            // let dstPath = path.dirname(dst);
+            // shell.mkdir("-p", dstPath);
+
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/browserify", this.workingDirectory, toolArgs, toolOptions, config);
 
@@ -308,6 +323,9 @@ class Warhorse {
                 file: config.dst
             };
 
+            // Ensure that the destination directory actually exists... or if not, create it.
+            ensureTargetDirectory(this.workingDirectory, config.dst);
+
             // NOTE: There is no user->tool mapping necessary here.
             // Directly execute the task.
             tar.c(toolOptions, toolArgs);
@@ -334,6 +352,9 @@ class Warhorse {
                     "out-dir": config.dst,
                     plugin: plugin
                 };
+
+                // Ensure that the destination directory actually exists... or if not, create it.
+                ensureTargetDirectory(this.workingDirectory, config.dst);
 
                 // Finally map configuration to tool args and options
                 this._execute(this.moduleDirectory, "./node_modules/.bin/imagemin", this.workingDirectory, toolArgs, toolOptions, config);
@@ -377,6 +398,9 @@ class Warhorse {
                 destination: dst,
                 recurse: true
             };
+
+            // Ensure that the destination directory actually exists... or if not, create it.
+            ensureTargetDirectory(this.workingDirectory, config.dst);
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/jsdoc", this.moduleDirectory, toolArgs, toolOptions, config);
@@ -488,6 +512,9 @@ class Warhorse {
                 mangle: true
             };
 
+            // Ensure that the destination directory actually exists... or if not, create it.
+            ensureTargetDirectory(this.workingDirectory, config.dst);
+
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/uglifyjs", this.workingDirectory, toolArgs, toolOptions, config);
 
@@ -538,6 +565,8 @@ class Warhorse {
 
             // Create a user-level config from defaults/options
             let config = Object.assign(this.defaults.preprocess.less, options);
+            config.useEqualsSign = true;
+            // config.stdio = "pipe"; // Needed to return raw data
 
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
             let toolArgs = [config.src, config.dst];
@@ -546,6 +575,9 @@ class Warhorse {
                 "include-path": config.include,
                 "relative-urls": true
             };
+
+            // Ensure that the destination directory actually exists... or if not, create it.
+            ensureTargetDirectory(this.workingDirectory, config.dst);
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/lessc", this.workingDirectory, toolArgs, toolOptions, config);
@@ -562,6 +594,9 @@ class Warhorse {
                 "include-path": config.include,
                 "relative-urls": true
             };
+
+            // Ensure that the destination directory actually exists... or if not, create it.
+            ensureTargetDirectory(this.workingDirectory, config.dst);
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/node-sass", this.workingDirectory, toolArgs, toolOptions, config);
@@ -596,6 +631,9 @@ class Warhorse {
                 config: config.conf,
                 replace: true
             };
+
+            // Ensure that the destination directory actually exists... or if not, create it.
+            ensureTargetDirectory(this.workingDirectory, config.dst);
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/postcss", this.workingDirectory, toolArgs, toolOptions, config);
