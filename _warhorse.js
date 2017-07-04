@@ -10,6 +10,8 @@
 function tasks(warhorse) {
     "use strict";
 
+    warhorse.settings.language = "es51"; //"es51", "es2015"
+
     return {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // COMMANDS
