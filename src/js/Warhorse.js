@@ -518,7 +518,7 @@ class Warhorse {
             let config = Object.assign(this.defaults.minify.css, options);
 
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            let toolArgs = [config.src];
+            let toolArgs = [];
             let toolOptions = {
                 debug: this.settings.debug || config.debug,   // i.e. debug/source map options
                 map: this.settings.debug || config.debug,   // i.e. debug/source map options
@@ -619,12 +619,17 @@ class Warhorse {
             let config = Object.assign(this.defaults.preprocess.less, options);
 
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            let toolArgs = [config.src, config.dst];
+            let toolArgs = [config.src];
             let toolOptions = {
                 map: this.settings.debug || config.debug,   // i.e. debug/source map options
-                config: config.conf,
                 replace: true
             };
+            console.log(">>" + path.extname(config.dst) + "<<")
+            if(path.extname(config.dst) === "") {
+                toolOptions.dir = config.dst;
+            } else {
+                toolOptions.output = config.dst;
+            }
 
             // Ensure that the destination directory actually exists... or if not, create it.
             ensureTargetDirectory(this.workingDirectory, config.dst);
