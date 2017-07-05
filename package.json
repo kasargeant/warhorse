@@ -1,6 +1,6 @@
 {
   "name": "warhorse",
-  "version": "0.6.8",
+  "version": "0.6.9",
   "description": "A simple, friendly and reliable JavaScript Task Runner... able to crush your enemies!",
   "keywords": [
     "javascript",
@@ -48,11 +48,6 @@
     "test": "jest --config ./conf/jest.json --verbose",
     "test-cover": "jest --config ./conf/jest.json --coverage",
     "test-update": "jest --config ./conf/jest.json --updateSnapshot"
-  },
-  "babel": {
-    "presets": [
-      "es2015"
-    ]
   },
   "jest-html-reporter": {
     "pageTitle": "Test Results",

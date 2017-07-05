@@ -229,14 +229,7 @@ describe("Class: Warhorse", function() {
                 "recurse": true,
                 "verbose": false
             });
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({
-                "conf": "./conf/jsdoc.json",
-                "debug": false,
-                "dst": "./test/data/client_dist/js/index.js",
-                "isSilent": true,
-                "src": "./test/data/client_src/js/index.js",
-                "useOutput": "stdout"
-            });
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/js/index.js", "isSilent": true, "src": "./test/data/client_src/js/index.js", "useOutput": "stdout"});
 
             // Clean-up
             shell.rm("-rf", DUMMY_OPTIONS.dst); // Clean-up
