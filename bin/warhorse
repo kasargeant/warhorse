@@ -27,7 +27,7 @@ let moduleDirectory = (path.join(__dirname, "..") + "/").trim();
 
 const run = require("../src/index");
 
-const commands = ["build", "clean", "create", "distribute", "document", "help", "lint", "pack", "process", "publish", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
+const commands = ["build", "clean", "create", "distribute", "document", "help", "lint", "pack", "process", "publish", "test", "watch"]; //FIXME - replace with Object.keys(warhorse.tasks);
 
 const help = `
   ============================================================================
@@ -41,9 +41,12 @@ const help = `
 	  create,       Initialises and creates a new project interactively in a named sub-directory.
 	  distribute,   Makes a final distribution build of the project in the ./dist directory.
 	  document,     Documents the project in the current directory.
-	  lint,         Runs linters across the project - checking both code style and quality.
-	  precompile,   Precompiles and minimises all style and template assets.
-	  test          Test the project code - runs both unit and integration tests.
+	  lint,         Lints source files - checking code style and quality.
+	  pack,         Packs and places image assets.
+	  process,      Pre-process, post-process and pack all stylesheets and templates assets.
+	  publish,      [TO BE IMPLEMENTED] Publishes final distribution to NPM or other configured services.
+	  test          Executes unit and integration tests.
+	  watch         Watch source files and rebuild/retest automatically.
 
 	Flags
 	  --conf,       -c  Use a specific configuration file.

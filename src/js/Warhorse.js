@@ -23,6 +23,7 @@ const zipper = require("zip-local");
 // Helpers (external)
 const Git = require("./helpers/GitHelper");
 const Cli = require("./helpers/CliHelper");
+const File = require("./helpers/FileHelper");
 
 // Default templates
 const packageBase = require("../conventions/package_base.json");
@@ -53,7 +54,7 @@ class Warhorse {
      * @constructor
      * @param {string} moduleDirectory - Directory where this file's module is.
      * @param {string} workingDirectory - Directory where this code was originally invoked from.
-     * @param {Object=} options - Configuration options to override Warhorse's own defaults.
+     * @param {Object} [options] - Configuration options to override Warhorse's own defaults.
      * @param {string} [options.language=es51] - JavaScript language version.  Can be "es51", "es2015".
      * @param {boolean} [options.debug=false] - Flag to initiate verbose tool operation (including source map generation).
      */
@@ -196,6 +197,7 @@ class Warhorse {
         }
         // Finally, finally, slip built-in 'create' into cmds
         this.cmds.create = this._cmdCreate;
+        this.cmds.watch = this._cmdWatch;
     }
 
     /**
@@ -215,7 +217,7 @@ class Warhorse {
     /**
      * Copy file(s) task.
      * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
@@ -236,7 +238,7 @@ class Warhorse {
     /**
      * Task for bundling and module resolution.
      * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.dst - The destination/target path for this task.
@@ -289,7 +291,7 @@ class Warhorse {
     /**
      * Task for compressing files of any type. e.g. JS, CSS, TXT. [NOTE: CURRENTLY OUTPUTS .tar.gz ONLY.]
      * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.dst - The destination/target path for this task.
@@ -362,7 +364,7 @@ class Warhorse {
     /**
      * Task for automatically documenting project source code.
      * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.dst - The destination/target path for this task.
@@ -408,7 +410,7 @@ class Warhorse {
     /**
      * Task for linting source and template code. e.g. JS, LESS, SASS.
      * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.dst - The destination/target path for this task.
@@ -475,7 +477,7 @@ class Warhorse {
     /**
      * Task for minifying distributed code. e.g. JS, CSS.
      * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.dst - The destination/target path for this task.
@@ -539,7 +541,7 @@ class Warhorse {
     /**
      * Task for preprocessing template code. e.g. Handlebars, LESS, SASS.
      * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.dst - The destination/target path for this task.
@@ -604,7 +606,7 @@ class Warhorse {
     /**
      * Task for post-processing source code. e.g. CSS.
      * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.dst - The destination/target path for this task.
@@ -641,7 +643,7 @@ class Warhorse {
     /**
      * TODO: IMPLEMENT Task for publishing the distribution to cloud services. e.g. NPM.
      * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.dst - The destination/target path for this task.
@@ -892,7 +894,7 @@ class Warhorse {
     /**
      * Task for testing code. e.g. JS.
      * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.coverage - Report on unit coverage.
@@ -954,7 +956,7 @@ class Warhorse {
     /**
      * Task for controlling VCSs. e.g. GIT
      * @param {string} type - Type of source file.
-     * @param {Object=} options - Options to override or extend this task's default configuration.
+     * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.action - The versioning action to execute.
      * @returns {Object} - Returns self for chaining.
@@ -976,6 +978,17 @@ class Warhorse {
         }
     }
 
+    /**
+     * Task for file watching.
+     * @param {string} workingDirectory - Path of the project root directory.
+     * @param {Object} options - Name of the project layout convention to follow.
+     * @returns {Object} - Returns self for chaining.
+     * @private
+     */
+    _cmdWatch(workingDirectory, options={}) {
+        File.watch(workingDirectory);
+    }
+    
     _cmdCreateInner(convention, answers) {
 
         if(answers.warhorse === undefined) {
@@ -1312,6 +1325,9 @@ class Warhorse {
             } else {
                 throw new Error(`Unrecognised project convention: '${convention}'.`);
             }
+            return null; // Success or fail - nothing to return.
+        } else if(cmdName === "watch") {
+            this._cmdWatch(this.workingDirectory);
             return null; // Success or fail - nothing to return.
         } else {
             // Handle standard built-ins

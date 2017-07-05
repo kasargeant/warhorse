@@ -27,12 +27,12 @@ function tasks(warhorse) {
                 dst: "./test/data/client_dist/js/index.js"
             });
             warhorse.minify("js", {
-                src: "test/data/client_dist/js/index.js",
-                dst: "test/data/client_dist/js/index.min.js"
+                src: "./test/data/client_dist/js/index.js",
+                dst: "./test/data/client_dist/js/index.min.js"
             });
             warhorse.compress("js", {
-                src: "test/data/client_dist/js/index.min.js",
-                dst: "test/data/client_dist/js/index.tar.gz"
+                src: "./test/data/client_dist/js/index.min.js",
+                dst: "./test/data/client_dist/js/index.tar.gz"
             });
         },
 
@@ -124,16 +124,16 @@ function tasks(warhorse) {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         "process": function() {
 
-            warhorse.preprocess("less", {
-                src: "./test/data/client_src/less/index.less",
-                dst: "./test/data/client_dist/css/index.css",
-                include: "./test/data/client_src/less"
-            });
-            // warhorse.preprocess("sass", {
-            //     src: "./test/data/client_src/sass/index.scss",
+            // warhorse.preprocess("less", {
+            //     src: "./test/data/client_src/less/index.less",
             //     dst: "./test/data/client_dist/css/index.css",
-            //     include: "./test/data/client_src/sass"
+            //     include: "./test/data/client_src/less"
             // });
+            warhorse.preprocess("sass", {
+                src: "./test/data/client_src/sass/index.scss",
+                dst: "./test/data/client_dist/css/index.css",
+                include: "./test/data/client_src/sass"
+            });
             warhorse.postprocess("css", {
                 src: "./test/data/client_dist/css/index.css",
                 dst: "./test/data/client_dist/css/index.css",
