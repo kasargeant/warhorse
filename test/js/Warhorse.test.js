@@ -119,7 +119,7 @@ describe("Class: Warhorse", function() {
             expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
             expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/js/index.js"]);
             expect(warhorse._execute.getCall(0).args[4]).toEqual({"config": undefined, "debug": false, "exclude": undefined, "external": undefined, "outfile": "./test/data/client_dist/js/index.js", "recurse": true});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/js/index.js", "isSilent": true, "src": "./test/data/client_src/js/index.js", "useEqualsSign": false, "useOutput": "stdout"});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/js/index.js", isSilent: true, "src": "./test/data/client_src/js/index.js", "useEqualsSign": false, "useOutput": "stdout"});
 
             // Clean-up
             deleteSync(DUMMY_OPTIONS.dst); // Clean-up
@@ -141,7 +141,7 @@ describe("Class: Warhorse", function() {
             let options = {
                 src: "./test/data/client_src/img/East_pediment_O_Parthenon_BM.jpg",
                 dst: "./test/data/client_dist/img",
-                "isSilent": true
+                isSilent: true
             };
 
             // Execute
@@ -154,7 +154,7 @@ describe("Class: Warhorse", function() {
             expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
             expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/img/East_pediment_O_Parthenon_BM.jpg"]);
             expect(warhorse._execute.getCall(0).args[4]).toEqual({"map": undefined, "out-dir": "./test/data/client_dist/img", "plugin": "jpegtran"});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/img", "isSilent": true, "src": "./test/data/client_src/img/East_pediment_O_Parthenon_BM.jpg"});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/img", isSilent: true, "src": "./test/data/client_src/img/East_pediment_O_Parthenon_BM.jpg"});
 
             // Clean-up
             shell.rm("./test/data/client_dist/img/East_pediment_O_Parthenon_BM.jpg");
@@ -166,7 +166,7 @@ describe("Class: Warhorse", function() {
             let options = {
                 src: "./test/data/client_src/img/file-archive-o.png",
                 dst: "./test/data/client_dist/img",
-                "isSilent": true
+                isSilent: true
             };
 
             // Execute
@@ -179,7 +179,7 @@ describe("Class: Warhorse", function() {
             expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
             expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/img/file-archive-o.png"]);
             expect(warhorse._execute.getCall(0).args[4]).toEqual({"map": undefined, "out-dir": "./test/data/client_dist/img", "plugin": "pngquant"});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/img", "isSilent": true, "src": "./test/data/client_src/img/file-archive-o.png"});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/img", isSilent: true, "src": "./test/data/client_src/img/file-archive-o.png"});
 
             // Clean-up
             shell.rm("./test/data/client_dist/img/file-archive-o.png");
@@ -191,7 +191,7 @@ describe("Class: Warhorse", function() {
             let options = {
                 src: "./test/data/client_src/img/file-archive-o.svg",
                 dst: "./test/data/client_dist/img",
-                "isSilent": true
+                isSilent: true
             };
 
             // Execute
@@ -204,7 +204,7 @@ describe("Class: Warhorse", function() {
             expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
             expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/img/file-archive-o.svg"]);
             expect(warhorse._execute.getCall(0).args[4]).toEqual({"map": undefined, "out-dir": "./test/data/client_dist/img", "plugin": "svgo"});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/img", "isSilent": true, "src": "./test/data/client_src/img/file-archive-o.svg"});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/img", isSilent: true, "src": "./test/data/client_src/img/file-archive-o.svg"});
 
             // Clean-up
             shell.rm("./test/data/client_dist/img/file-archive-o.svg");
@@ -229,7 +229,7 @@ describe("Class: Warhorse", function() {
                 "recurse": true,
                 "verbose": false
             });
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/js/index.js", "isSilent": true, "src": "./test/data/client_src/js/index.js", "useOutput": "stdout"});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/js/index.js", isSilent: true, "src": "./test/data/client_src/js/index.js", "useOutput": "stdout"});
 
             // Clean-up
             shell.rm("-rf", DUMMY_OPTIONS.dst); // Clean-up
@@ -247,7 +247,7 @@ describe("Class: Warhorse", function() {
                 conf: "conf/jshint.json",
                 src: "test/data/client_src/js/",
                 exclude: "conf/.jshintignore",
-                "isSilent": true
+                isSilent: true
             });
 
             // Evaluate
@@ -274,7 +274,7 @@ describe("Class: Warhorse", function() {
                 type: "style",
                 conf: "conf/jscs.json",
                 src: "test/data/client_src/js/",
-                "isSilent": true
+                isSilent: true
             });
 
             // Evaluate
@@ -301,8 +301,9 @@ describe("Class: Warhorse", function() {
 
             // Setup
             let options = {
-                src: "./test/data/client_dist/js/index.js",
-                dst: "./test/data/client_dist/js/index.min.js"
+                src: "./test/data/client_src/js/index.js",
+                dst: "./test/data/client_dist/js/index.min.js",
+                isSilent: true
             };
 
             // Execute
@@ -313,9 +314,9 @@ describe("Class: Warhorse", function() {
             expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
             expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/uglifyjs");
             expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_dist/js/index.js"]);
+            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/js/index.js"]);
             expect(warhorse._execute.getCall(0).args[4]).toEqual({"compress": true, "config-file": undefined, "mangle": true, "output": "./test/data/client_dist/js/index.min.js", "verbose": false});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/js/index.min.js", "src": "./test/data/client_dist/js/index.js", "useEqualsSign": false, "useOutput": "stdout"});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/js/index.min.js", "isSilent": true, "src": "./test/data/client_src/js/index.js", "useEqualsSign": false, "useOutput": "stdout"});
 
             // Clean-up
             shell.rm(options.dst);
@@ -326,9 +327,9 @@ describe("Class: Warhorse", function() {
 
             // Setup
             let options = {
-                src: "./test/data/client_dist/css/index.css",
+                src: "./test/data/client_src/css/index.css",
                 dst: "./test/data/client_dist/css/index.min.css",
-                "isSilent": true
+                isSilent: true
             };
 
             // Execute
@@ -339,9 +340,9 @@ describe("Class: Warhorse", function() {
             expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
             expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/csso");
             expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_dist/css/index.css"]);
-            expect(warhorse._execute.getCall(0).args[4]).toEqual({"debug": false, "input": "./test/data/client_dist/css/index.css", "map": false, "output": "./test/data/client_dist/css/index.min.css"});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/css/index.min.css", "isSilent": true, "src": "./test/data/client_dist/css/index.css", "useEqualsSign": false, "useOutput": "stdout"});
+            expect(warhorse._execute.getCall(0).args[3]).toEqual([]);
+            expect(warhorse._execute.getCall(0).args[4]).toEqual({"debug": false, "input": "./test/data/client_src/css/index.css", "map": false, "output": "./test/data/client_dist/css/index.min.css"});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/css/index.min.css", isSilent: true, "src": "./test/data/client_src/css/index.css", "useEqualsSign": false, "useOutput": "stdout"});
 
             // Clean-up
             shell.rm(options.dst);
@@ -359,7 +360,7 @@ describe("Class: Warhorse", function() {
                 src: "./test/data/client_src/less/index.less",
                 dst: "./test/data/client_dist/css/index.css",
                 include: "./test/data/client_src/less",
-                "isSilent": true
+                isSilent: true
             };
 
             // Execute
@@ -372,7 +373,7 @@ describe("Class: Warhorse", function() {
             expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
             expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/less/index.less", "./test/data/client_dist/css/index.css"]);
             expect(warhorse._execute.getCall(0).args[4]).toEqual({"include-path": "./test/data/client_src/less", "relative-urls": true, "source-map": undefined});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css/index.css", "include": "./test/data/client_src/less", "isSilent": true, "src": "./test/data/client_src/less/index.less", "useEqualsSign": true});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css/index.css", "include": "./test/data/client_src/less", isSilent: true, "src": "./test/data/client_src/less/index.less", "useEqualsSign": true});
 
             // Clean-up
             shell.rm(options.dst);
@@ -387,7 +388,7 @@ describe("Class: Warhorse", function() {
                 src: "./test/data/client_src/sass/index.scss",
                 dst: "./test/data/client_dist/css/index.css",
                 include: "./test/data/client_src/sass",
-                "isSilent": true
+                isSilent: true
             };
 
             // Execute
@@ -400,7 +401,7 @@ describe("Class: Warhorse", function() {
             expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
             expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/sass/index.scss", "./test/data/client_dist/css/index.css"]);
             expect(warhorse._execute.getCall(0).args[4]).toEqual({"include-path": "./test/data/client_src/sass", "relative-urls": true, "source-map": undefined});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css/index.css", "include": "./test/data/client_src/sass", "isSilent": true, "src": "./test/data/client_src/sass/index.scss"});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css/index.css", "include": "./test/data/client_src/sass", isSilent: true, "src": "./test/data/client_src/sass/index.scss"});
 
             // Clean-up
             shell.rm(options.dst);
@@ -410,15 +411,15 @@ describe("Class: Warhorse", function() {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // TASK: POSTPROCESS
 
-        // LESS
-        it("should be able to resolve configurations for postprocess: CSS", function() {
+        // SINGLE-FILE OUTPUT
+        it("should be able to resolve configurations for postprocess (single-single): CSS", function() {
 
             // Setup
             let options = {
-                src: "test/data/client_dist/css/index.css",
-                dst: "test/data/client_dist/css/index.css",
+                src: "./test/data/client_src/css/index.css",
+                dst: "./test/data/client_dist/css/index.css",
                 use: "autoprefixer",
-                "isSilent": true
+                isSilent: true
             };
 
             // Execute
@@ -429,12 +430,40 @@ describe("Class: Warhorse", function() {
             expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
             expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/postcss");
             expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual(["test/data/client_dist/css/index.css", "test/data/client_dist/css/index.css"]);
-            expect(warhorse._execute.getCall(0).args[4]).toEqual({"config": undefined, "map": undefined, "replace": true});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "test/data/client_dist/css/index.css", "isSilent": true, "src": "test/data/client_dist/css/index.css", "use": "autoprefixer"});
+            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/css/index.css"]);
+            expect(warhorse._execute.getCall(0).args[4]).toEqual({"map": undefined, "output": "./test/data/client_dist/css/index.css", "replace": true});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css/index.css", isSilent: true, "src": "./test/data/client_src/css/index.css", "use": "autoprefixer"});
 
             // Clean-up
             shell.rm(options.dst);
+        });
+
+
+        // SINGLE-FILE OUTPUT
+        it("should be able to resolve configurations for postprocess (multiple-multiple): CSS", function() {
+
+            // Setup
+            let options = {
+                src: "./test/data/client_src/css",
+                dst: "./test/data/client_dist/css",
+                use: "autoprefixer",
+                isSilent: true
+            };
+
+            // Execute
+            warhorse.postprocess("css", options);
+
+            // Evaluate
+            expect(warhorse._execute.callCount).toBe(1);
+            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/postcss");
+            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/css"]);
+            expect(warhorse._execute.getCall(0).args[4]).toEqual({"dir": "./test/data/client_dist/css", "map": undefined, "replace": true});
+            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css", isSilent: true, "src": "./test/data/client_src/css", "use": "autoprefixer"});
+
+            // Clean-up
+            shell.rm("./test/data/client_dist/css/*.css");
         });
     });
 
@@ -454,7 +483,7 @@ describe("Class: Warhorse", function() {
                 debug: false, //i.e. turn off source-mapping.
                 src: "./test/data/client_src/js/index.js",
                 dst: "./test/data/client_dist/js/index.js",
-                "isSilent": true
+                isSilent: true
             };
 
             // Test
@@ -480,7 +509,7 @@ describe("Class: Warhorse", function() {
             const options = {
                 src: "./test/data/client_src/js/index.js",
                 dst: "./test/data/client_dist/js/index.js.tar.gz",
-                "isSilent": true
+                isSilent: true
             };
 
             // Test
@@ -504,7 +533,7 @@ describe("Class: Warhorse", function() {
             const options = {
                 src: "./test/data/client_src/css/index.css",
                 dst: "./test/data/client_dist/css/index.css.tar.gz",
-                "isSilent": true
+                isSilent: true
             };
 
             // Test
@@ -531,7 +560,7 @@ describe("Class: Warhorse", function() {
             const options = {
                 src: "./test/data/client_src/css/index.css",
                 dst: "./test/data/client_dist/css/index.css",
-                "isSilent": true
+                isSilent: true
             };
 
             // Test
@@ -564,7 +593,7 @@ describe("Class: Warhorse", function() {
                 debug: false, //i.e. turn off source-mapping.
                 src: "./test/data/client_src/js/index.js",
                 dst: "./test/data/client_dist/js/index.min.js",
-                "isSilent": true
+                isSilent: true
             };
 
             // Test
@@ -582,7 +611,8 @@ describe("Class: Warhorse", function() {
             const options = {
                 debug: false, //i.e. turn off source-mapping.
                 src: "./test/data/client_src/css/index.css",
-                dst: "./test/data/client_dist/css/index.min.css"
+                dst: "./test/data/client_dist/css/index.min.css",
+                isSilent: true
             };
 
             // Test
