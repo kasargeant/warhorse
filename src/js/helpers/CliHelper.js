@@ -1,6 +1,6 @@
 /**
  * @file GitHelper.js
- * @description An NPM helper for Warhorse.
+ * @description An command-line helper for Warhorse.
  * @author Kyle Alexis Sargeant <kasargeant@gmail.com> {@link https://github.com/kasargeant https://github.com/kasargeant}.
  * @copyright Kyle Alexis Sargeant 2017
  * @license See LICENSE file included in this distribution.

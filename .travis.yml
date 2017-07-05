@@ -1,11 +1,21 @@
+os:
+  - linux
+  - osx
+
+sudo: false
+
 language: node_js
 node_js:
   - "6"
   - "7"
   - "8"
-cache:
-  directories:
-    - "node_modules"
+
+compiler: clang
+
+before_install:
+  - export CC=clang CXX=clang++ npm_config_clang=1
+
 script: "npm run-script test-cover"
+
 # Send coverage data to Coveralls
 after_script: "cat ./docs/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"

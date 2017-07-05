@@ -66,17 +66,17 @@ describe("Class: Warhorse", function() {
 
     describe("Task errors", function() {
         it("should throw an error when a task is given an invalid data type: bundle", function() {
-            expect(function() {warhorse.bundle("SOME_INVALID_TYPE");}).toThrow();
-            expect(function() {warhorse.compress("SOME_INVALID_TYPE");}).toThrow();
-            // expect(function() {warhorse.copy("SOME_INVALID_TYPE");}).toThrow(); // type is ignored by copy()
-            expect(function() {warhorse.document("SOME_INVALID_TYPE");}).toThrow();
-            expect(function() {warhorse.lint("SOME_INVALID_TYPE");}).toThrow();
-            expect(function() {warhorse.minify("SOME_INVALID_TYPE");}).toThrow();
-            expect(function() {warhorse.preprocess("SOME_INVALID_TYPE");}).toThrow();
-            expect(function() {warhorse.postprocess("SOME_INVALID_TYPE");}).toThrow();
-            expect(function() {warhorse.publish("SOME_INVALID_TYPE");}).toThrow();
-            expect(function() {warhorse.test("SOME_INVALID_TYPE");}).toThrow();
-            expect(function() {warhorse.version("SOME_INVALID_TYPE");}).toThrow();
+            expect(function() {warhorse.bundle("SOME_INVALID_TYPE", {isSilent: true});}).toThrow();
+            expect(function() {warhorse.compress("SOME_INVALID_TYPE", {isSilent: true});}).toThrow();
+            // expect(function() {warhorse.copy("SOME_INVALID_TYPE", {isSilent: true});}).toThrow(); // type is ignored by copy()
+            expect(function() {warhorse.document("SOME_INVALID_TYPE", {isSilent: true});}).toThrow();
+            expect(function() {warhorse.lint("SOME_INVALID_TYPE", {isSilent: true});}).toThrow();
+            expect(function() {warhorse.minify("SOME_INVALID_TYPE", {isSilent: true});}).toThrow();
+            expect(function() {warhorse.preprocess("SOME_INVALID_TYPE", {isSilent: true});}).toThrow();
+            expect(function() {warhorse.postprocess("SOME_INVALID_TYPE", {isSilent: true});}).toThrow();
+            expect(function() {warhorse.publish("SOME_INVALID_TYPE", {isSilent: true});}).toThrow();
+            expect(function() {warhorse.test("SOME_INVALID_TYPE", {isSilent: true});}).toThrow();
+            expect(function() {warhorse.version("SOME_INVALID_TYPE", {isSilent: true});}).toThrow();
         });
 
     });
