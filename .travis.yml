@@ -2,14 +2,18 @@ os:
   - linux
   - osx
 
-env:
-  matrix:
-    - export NODE_VERSION="4" CC=clang CXX=clang++ npm_config_clang=1
-    - export NODE_VERSION="6" CC=clang CXX=clang++ npm_config_clang=1
-    - export NODE_VERSION="7" CC=clang CXX=clang++ npm_config_clang=1
+sudo: false
 
-install:
-- npm install
+language: node_js
+node_js:
+  - "6"
+  - "7"
+  - "8"
+
+compiler: clang
+
+before_install:
+  - export CC=clang CXX=clang++ npm_config_clang=1
 
 script: "npm run-script test-cover"
 
