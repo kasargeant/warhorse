@@ -1,7 +1,7 @@
 # Warhorse [![npm](https://img.shields.io/npm/v/warhorse.svg)]() [![Build Status](https://travis-ci.org/kasargeant/warhorse.svg?branch=master)](https://travis-ci.org/kasargeant/warhorse) [![Build Status Windows](https://ci.appveyor.com/api/projects/status/github/kasargeant/warhorse?branch=master&svg=true)](https://ci.appveyor.com/project/kasargeant/warhorse) [![Coverage Status](https://coveralls.io/repos/github/kasargeant/warhorse/badge.svg?branch=master)](https://coveralls.io/github/kasargeant/warhorse?branch=master)
 
 
-![The ideal warhorse..!](/docs/img/warhorse_320.jpg)
+![Warhorse logo](/docs/shared/img/warhorse_logo.png)
 
 *NOTE: THIS PROJECT IS NOW AT A 'FEATURE-COMPLETE' ALPHA RELEASE.  
 PLEASE FILE AN ISSUE FOR ANY BUGS OR PROBLEMS YOU FIND ON YOUR LINUX/MACOS/WIN32 SETUP.  THANK YOU.*
@@ -14,11 +14,11 @@ It is an on-going attempt to help make developers lives easier by removing the i
 
 When you run it in a project folder - if the folder is layout according to one of the conventions it recognises... then Warhorse will automatically:-
 
-* Bundle your files
-* Compress your assets
-* Document your project (API, test, coverage and linting)
-* Minimise your scripts
-* Handle your versioning
+* Bundle/transpile your JS files,
+* Minimise/optimize your stylesheets and scripts,
+* Compress your project assets,
+* Document almost everything... (API, test, coverage and linting)
+* Handle your versioning,
 * Package and publish your end-product (e.g. to NPM)
 
 ...and will keep watching and doing this - until you switch it off! ;)
