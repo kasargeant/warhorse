@@ -27,7 +27,7 @@ let moduleDirectory = (path.join(__dirname, "..") + "/").trim();
 
 const run = require("../src/index");
 
-const commands = ["build", "clean", "create", "distribute", "document", "help", "lint", "pack", "process", "publish", "test", "watch"]; //FIXME - replace with Object.keys(warhorse.tasks);
+const commands = ["build", "clean", "create", "deploy", "distribute", "document", "help", "lint", "pack", "process", "publish", "test", "watch"]; //FIXME - replace with Object.keys(warhorse.tasks);
 
 const help = `
   ============================================================================

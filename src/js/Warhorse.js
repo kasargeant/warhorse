@@ -175,7 +175,7 @@ class Warhorse {
         };
         this.settings = Object.assign(this.defaults, options);
 
-        this.commands = ["build", "clean", "create", "distribute", "document", "lint", "pack", "process", "publish", "test"]; //FIXME - replace with Object.keys(warhorse.tasks);
+        this.commands = ["build", "clean", "create", "deploy", "distribute", "document", "lint", "pack", "process", "publish", "test", "watch"]; //FIXME - replace with Object.keys(warhorse.tasks);
         this.conventions = ["client", "library", "module", "server"]; //TODO "fullstack" convention,
 
         this.cmds = {}; // Lookup for built-in commands.
@@ -199,6 +199,155 @@ class Warhorse {
         this.cmds.create = this._cmdCreate;
         this.cmds.watch = this._cmdWatch;
     }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // COMMANDS
+    ///////////////////////////////////////////////////////////////////////////
+
+    _cmdCreateInner(convention, answers) {
+
+        if(answers.warhorse === undefined) {
+            throw new Error(`Create command failed.`);
+        }
+
+        // console.log("\nProject construction summary:");
+        console.log(JSON.stringify(answers, null, "  "));
+
+        let config = Object.assign(packageBase, answers);
+
+        if(this.conventions.includes(convention)) {
+
+            // Create convention infrastructure
+            console.h2(`Creating infrastructure for convention '${convention}'.`);
+
+            // // Using TAR.GZ
+            // let archiveName = `warhorse_${convention}.tar.gz`;
+            // shell.cp(`${this.conventionsDirectory}/${archiveName}`, this.workingDirectory);
+            // tar.x({
+            //     file: archiveName,
+            //     sync: true,
+            //     cwd: this.workingDirectory
+            // });
+            // shell.mv(`warhorse_${convention}`, config.name);
+            // shell.rm(archiveName);
+
+            // Using ZIP
+            let archiveName = `warhorse_${convention}.zip`;
+            shell.cp(`${this.conventionsDirectory}/${archiveName}`, this.workingDirectory);
+            zipper.sync.unzip(archiveName).save("./");
+            shell.mv(`warhorse_${convention}`, config.name);
+            shell.rm(archiveName);
+
+            let projectPath = path.resolve(this.workingDirectory, config.name);
+
+            // Create a package.json for the new project
+            let packageFile = fs.readFileSync(projectPath + "/package.json");
+            let packageObj = JSON.parse(packageFile);
+
+            // Create a package.json for the new project
+            packageObj = Object.assign(packageObj, config);
+
+            this.commands.map(function(cmdName) {
+                packageObj.scripts[cmdName] = `warhorse ${cmdName}`;
+            });
+
+            delete packageObj.warhorse;
+
+            let packageStr = JSON.stringify(packageObj, null, 2); // spacing level = 2
+            fs.writeFileSync(projectPath + "/package.json", packageStr);
+
+            // Create a license for the project
+            let license = config.license;
+            let licensePath = `${this.conventionsDirectory}_licenses/${license}.txt`;
+            fs.writeFileSync(projectPath + "/LICENSE", fs.readFileSync(licensePath));
+
+            // Move into the new project directory
+            this.workingDirectory = projectPath;
+            process.chdir(this.workingDirectory);
+
+            // Install dependencies with a standard NPM install
+            let stdout = child.execSync(`npm install`);
+            if(stdout) {
+                console.log(stdout.toString());
+            }
+
+        } else {
+            console.warn("Warning: No Convention selected.  Exiting.");
+        }
+    }
+
+    /**
+     * Built-in 'create' command.  Starts an interactive session and then initialises a project similar to npm's 'init'.
+     * @param {string} convention - Name of the project layout convention to follow.
+     * @returns {Object} - Returns self for chaining.
+     * @private
+     */
+    _cmdCreate(convention) {
+
+        const questions = require(`./interactions/questions_${convention}`);
+
+        let answers = questions();
+        this._cmdCreateInner(convention, answers);
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Built-in 'deploy' command.  Configure a projects build process to target a particular platform/framework.
+     * @param {string} target - Name of the target platorm/framework.
+     * @returns {Object} - Returns self for chaining.
+     * @private
+     */
+    _cmdDeploy(target) {
+
+        switch(target) {
+            case "cordova":
+
+                // Remove current dist/
+                shell.rm("-rf", "./dist");
+
+                // Using ZIP
+                let archiveName = `deploy_${target}.zip`;
+                shell.cp(`${this.conventionsDirectory}/${archiveName}`, this.workingDirectory);
+                zipper.sync.unzip(archiveName).save("./");
+                shell.rm(archiveName);
+
+                // // Install dependencies with a standard NPM install
+                // let stdout = child.execSync(`npm install --save-dev cordova`);
+                // if(stdout) {
+                //     console.log(stdout.toString());
+                // }
+
+                break;
+            case "electron":
+                break;
+            case "react.native":
+                break;
+            default:
+                throw new Error(`Unrecognised deployment target configuration: '${target}'.`);
+        }
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Task for file watching.
+     * @param {string} workingDirectory - Path of the project root directory.
+     * @param {Object} options - Name of the project layout convention to follow.
+     * @returns {Object} - Returns self for chaining.
+     * @private
+     */
+    _cmdWatch(workingDirectory, options={}) {
+        File.watch(workingDirectory);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // TASKS
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Clean/ delete file(s) task.
@@ -983,106 +1132,6 @@ class Warhorse {
         }
     }
 
-    /**
-     * Task for file watching.
-     * @param {string} workingDirectory - Path of the project root directory.
-     * @param {Object} options - Name of the project layout convention to follow.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    _cmdWatch(workingDirectory, options={}) {
-        File.watch(workingDirectory);
-    }
-    
-    _cmdCreateInner(convention, answers) {
-
-        if(answers.warhorse === undefined) {
-            throw new Error(`Create command failed.`);
-        }
-
-        // console.log("\nProject construction summary:");
-        console.log(JSON.stringify(answers, null, "  "));
-
-        let config = Object.assign(packageBase, answers);
-
-        if(this.conventions.includes(convention)) {
-
-            // Create convention infrastructure
-            console.h2(`Creating infrastructure for convention '${convention}'.`);
-
-            // // Using TAR.GZ
-            // let archiveName = `warhorse_${convention}.tar.gz`;
-            // shell.cp(`${this.conventionsDirectory}/${archiveName}`, this.workingDirectory);
-            // tar.x({
-            //     file: archiveName,
-            //     sync: true,
-            //     cwd: this.workingDirectory
-            // });
-            // shell.mv(`warhorse_${convention}`, config.name);
-            // shell.rm(archiveName);
-
-            // Using ZIP
-            let archiveName = `warhorse_${convention}.zip`;
-            shell.cp(`${this.conventionsDirectory}/${archiveName}`, this.workingDirectory);
-            zipper.sync.unzip(archiveName).save("./");
-            shell.mv(`warhorse_${convention}`, config.name);
-            shell.rm(archiveName);
-
-            let projectPath = path.resolve(this.workingDirectory, config.name);
-
-            // Create a package.json for the new project
-            let packageFile = fs.readFileSync(projectPath + "/package.json");
-            let packageObj = JSON.parse(packageFile);
-
-            // Create a package.json for the new project
-            packageObj = Object.assign(packageObj, config);
-
-            this.commands.map(function(cmdName) {
-                packageObj.scripts[cmdName] = `warhorse ${cmdName}`;
-            });
-
-            delete packageObj.warhorse;
-
-            let packageStr = JSON.stringify(packageObj, null, 2); // spacing level = 2
-            fs.writeFileSync(projectPath + "/package.json", packageStr);
-
-            // Create a license for the project
-            let license = config.license;
-            let licensePath = `${this.conventionsDirectory}_licenses/${license}.txt`;
-            fs.writeFileSync(projectPath + "/LICENSE", fs.readFileSync(licensePath));
-
-            // Move into the new project directory
-            this.workingDirectory = projectPath;
-            process.chdir(this.workingDirectory);
-
-            // Install dependencies with a standard NPM install
-            let stdout = child.execSync(`npm install`);
-            if(stdout) {
-                console.log(stdout.toString());
-            }
-
-        } else {
-            console.warn("Warning: No Convention selected.  Exiting.");
-        }
-    }
-
-    /**
-     * Built-in 'create' command.  Starts an interactive session and then initialises a project similar to npm's 'init'.
-     * @param {string} convention - Name of the project layout convention to follow.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    _cmdCreate(convention) {
-
-        const questions = require(`./interactions/questions_${convention}`);
-
-        let answers = questions();
-        this._cmdCreateInner(convention, answers);
-
-        // Return self for chaining.
-        return this;
-    }
-
     // /**
     //  * Load action.  Loads files being used for processing by the action that follows.
     //  * @param {Object} options - Options to further configure this action.
@@ -1330,6 +1379,9 @@ class Warhorse {
             } else {
                 throw new Error(`Unrecognised project convention: '${convention}'.`);
             }
+            return null; // Success or fail - nothing to return.
+        } else if(cmdName === "deploy") {
+            this._cmdDeploy(convention);
             return null; // Success or fail - nothing to return.
         } else if(cmdName === "watch") {
             this._cmdWatch(this.workingDirectory);
