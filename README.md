@@ -10,40 +10,58 @@ PLEASE FILE AN ISSUE FOR ANY BUGS OR PROBLEMS YOU FIND ON YOUR LINUX/MACOS/WIN32
 
 Warhorse is designed to be a zero-configuration task runner for JavaScript projects.  
 
-It is an on-going attempt to help make developers lives easier by removing the increasing amount of repetitive "build" task type from day-to-day development.  
+Think of it like, Grunt or Gulp - but, without the weeks of configuration. ;)
 
-When you run it in a project folder - if the folder is layout according to one of the conventions it recognises... then Warhorse will automatically:-
+Warhorse is built to:-
 
-* Bundle/transpile your JS files,
-* Minimise/optimize your stylesheets and scripts,
-* Compress your project assets,
-* Document almost everything... (API, test, coverage and linting)
-* Handle your versioning,
-* Package and publish your end-product (e.g. to NPM)
+* **Bundle**, **transpile**, **minimise** your JS files,
+* **Preprocess** and **post-process** your templates, SASS and CSS stylesheets,
+* **Compress** your project assets,
+* **Test** everything together with coverage.
+* **Document** almost everything... (API, test, coverage and linting)
+* Package and **publish** your end-product (e.g. to NPM)
+* And will keep **watch** and everything updated - until you switch it off!
 
-...and will keep watching and doing this - until you switch it off! ;)
+So you can focus entirely on developing the actual code - which is your real app.
 
-All with the emphasis on practicality, simplicity and readability. 
+## How does it do this?
 
-So you can focus entirely on developing your app - rather than infrastructure. 
+Warhorse is based almost entirely on a set of carefully thought-out and standardised project layouts, templates, boilerplate code, naming and configuration schemes - it calls its "Conventions".  
 
-## Why is Warhorse special?
+These Conventions don't try to 'reinvent the wheel' - but rather summerize - the most useful practises and structures that are in common-usage amongst developers and testers today.
 
-In short, because it's ludicrously simple to use.
-
-And simple because Warhorse doesn't try to be "everything for everyone".  
-
-Instead, Warhorse is aimed strictly at the JavaScript professional - who appreciate anything to reduce their workload without reducing the quality.
-
-And it can do this by using the best in current JS tooling and preconfiguring everything for you in advance!
- 
-These sets (there's more than one!) of carefully thought-out and standardised project layouts, templates, boilerplate code, naming and configuration schemes - it calls its "Conventions".  
-
-And if one these Conventions is a good fit for you... then congratulations - because now there's nothing more you have to do.  Well, other than code your world-beating application! ;)
+An overall design and selection strongly lead by: 'Convention over Configuration', the Principle of Least Astonishment and most of all KISS!
 
 You can find more information the specific Conventions that Warhorse offers in [Wiki:Warhorse Conventions](https://github.com/kasargeant/warhorse/wiki/Warhorse-Conventions).
 
+## What tools does Warhorse use?
+
+Warhorse maintains a curated and opinionated tool-set of core JS tooling to provide its functionality.  These are, in no particular order:-
+
+* Babel,
+* Browserify,
+* GIT,
+* JSDoc,
+* JSHint, JSCS and ESLint,
+* LESS, SASS, CSSO and PostCSS,
+* Gifsicle, JpegTran and PngQuant,
+* SVGO,
+* plus a variety of bespoke tools.
+
+With everything preconfigured - so you don't have to!
+
+## What deployments can Warhorse support?
+
+Currently Warhorse supports building modules, libraries, clients and servers for targets:-
+
+* Node (Linux, MacOS, Windows)
+* Browser
+* Cordova (and PhoneGap)
+* [TO BE SOON IMPLMENTED] Electron
+
 ## Installation
+
+Warhorse is built and tested with all versions of Node v6+ on: Linux, MacOS and Windows.
 
     npm -g install warhorse
 
