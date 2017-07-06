@@ -25,7 +25,8 @@ const Git = require("./helpers/GitHelper");
 const Cli = require("./helpers/CliHelper");
 const File = require("./helpers/FileHelper");
 
-// Default templates
+// Default values and templates
+const defaults = require("./conf/defaults");
 const packageBase = require("../conventions/package_base.json");
 const packageSnippets = require("../conventions/package_snippets.json");
 
@@ -342,7 +343,7 @@ class Warhorse {
      * @private
      */
     _cmdWatch(workingDirectory, options={}) {
-        File.watch(workingDirectory);
+        File.watch(path.resolve(workingDirectory, "./src"));
     }
 
 
@@ -1421,6 +1422,105 @@ class Warhorse {
                 }
         }
 
+        console.h0(`WARHORSE done.`);
+
+        // Return self for chaining.
+        return this;
+    }
+
+    _executeTask(toolConfig, task) {
+        console.log(`Executing task: ${task.idn}`);
+        console.log(toolConfig);
+
+        let [taskMethod, taskType, taskSubtype] = task.idn.split(":");
+        if(taskSubtype !== undefined) {
+            taskType = taskType + ":" + taskSubtype; // Reform the type e.g. js:style
+        }
+        this[taskMethod](taskType, task);
+    }
+
+    _executePipeline(buildType, pipeline) {
+        console.log(`Executing pipeline for: ${buildType}`);
+        let toolConfigs = defaults.tools[buildType];
+        for(let task of pipeline) {
+            let toolConfig = toolConfigs[task.idn];
+            this._executeTask(toolConfig, task);
+        }
+    }
+
+    command(args) {
+        console.h0(`WARHORSE active...`);
+
+        // Determine command and any arguments
+        // warhorse <cmdName> <type>
+        // warhorse distribute
+        // warhorse build less
+        // warhorse create module
+        // warhorse deploy cordova
+        // warhorse test js
+        // warhorse test
+        // warhorse watch
+        let cmdName = args[0];
+        let arg1 = args[1];
+        let arg2 = args[2];
+        console.log("ARGS: " + JSON.stringify(args));
+
+        // If an invalid command is given - don't error - just exit gracefully.
+        if(!this.commands.includes(cmdName)) {
+            console.h0(`WARHORSE done.`);
+            console.error(`Error: Unrecognised command: '${cmdName}'.`);
+            return this;
+        }
+
+        console.h1(`COMMAND ${cmdName}`);
+
+        // Handle built-in commands separately
+        switch(cmdName) {
+            case "create":
+                if(this.conventions.includes(arg1)) {
+                    this._cmdCreate(arg1);
+                } else {
+                    // If an invalid convention is given - don't error - just exit gracefully.
+                    console.h0(`WARHORSE done.`);
+                    console.error(`Error: Unrecognised project convention: '${arg1}'.`);
+                    return this;
+                }
+                break;
+            case "deploy":
+                if(this.deployments.includes(arg1)) {
+                    this._cmdDeploy(arg1);
+                } else {
+                    // If an invalid deployment is given - don't error - just exit gracefully.
+                    console.h0(`WARHORSE done.`);
+                    console.error(`Error: Unrecognised project deployment: '${arg1}'.`);
+                    return this;
+                }
+                break;
+            case "watch":
+                this._cmdWatch(this.workingDirectory);
+                break;
+            case "build":
+            case "test":
+            case "distribute":
+                // Handle standard built-ins
+                let pipelines = defaults.pipelines[cmdName];
+                let pipeline = null;
+
+                if(arg1 === undefined) {
+                    // Execute the entire pipeline for all types
+                    for(let type in pipelines) {
+                        pipeline = pipelines[type];
+                        this._executePipeline(cmdName, pipeline);
+                    }
+                } else {
+                    pipeline = pipelines[arg1];
+                    this._executePipeline(cmdName, pipeline);
+                }
+                break;
+            default:
+                console.h0(`WARHORSE done.`);
+                console.error(`Error: Command recognized but unable to complete: '${cmdName}'.`);
+        }
         console.h0(`WARHORSE done.`);
 
         // Return self for chaining.

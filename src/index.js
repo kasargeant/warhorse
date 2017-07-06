@@ -71,7 +71,7 @@ let banner =
 
     // console.log("Warhorse CLI location: " + warhorse.moduleDirectory);
     console.log();
-    warhorse.cli(args);
+    warhorse.command(args);
     console.log();
     console.log();
 }
