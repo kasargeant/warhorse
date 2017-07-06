@@ -177,6 +177,7 @@ class Warhorse {
 
         this.commands = ["build", "clean", "create", "deploy", "distribute", "document", "lint", "pack", "process", "publish", "test", "watch"]; //FIXME - replace with Object.keys(warhorse.tasks);
         this.conventions = ["client", "library", "module", "server"]; //TODO "fullstack" convention,
+        this.deployments = ["browser", "cordova", "node"]; //TODO "electron" deployment,
 
         this.cmds = {}; // Lookup for built-in commands.
 
@@ -1351,7 +1352,6 @@ class Warhorse {
         if(this.commands.includes(name)) {
             let cmd = this.cmds[name];
             if(cmd !== null) {cmd();}
-            return this;    // Return self for chaining.
         } else {
             throw new Error(`Unrecognised command '${name}'.`);
         }
@@ -1368,31 +1368,57 @@ class Warhorse {
      */
     cli(args) {
         console.h0(`WARHORSE active...`);
-        let [cmdName, convention="module"] = args;
+
+        // Determine command and any arguments
+        let cmdName = args[0];
+        let arg1 = args[1];
+        let arg2 = args[2];
+
+        // If an invalid command is given - don't error - just exit gracefully.
+        if(!this.commands.includes(cmdName)) {
+            console.h0(`WARHORSE done.`);
+            console.error(`Error: Unrecognised command: '${cmdName}'.`);
+            return this;
+        }
 
         console.h1(`COMMAND ${cmdName}`);
 
-        // Handle the 'create' built-in separately
-        if(cmdName === "create") {
-            if(this.conventions.includes(convention)) {
-                this._cmdCreate(convention);
-            } else {
-                throw new Error(`Unrecognised project convention: '${convention}'.`);
-            }
-            return null; // Success or fail - nothing to return.
-        } else if(cmdName === "deploy") {
-            this._cmdDeploy(convention);
-            return null; // Success or fail - nothing to return.
-        } else if(cmdName === "watch") {
-            this._cmdWatch(this.workingDirectory);
-            return null; // Success or fail - nothing to return.
-        } else {
-            // Handle standard built-ins
-            let cmd = this.cmds[cmdName];
-            if(cmd !== null) {
-                //console.log("Executing command type: " + typeof cmd);
-                cmd();
-            }
+        // Handle built-in commands separately
+        switch(cmdName) {
+            case "create":
+                if(this.conventions.includes(arg1)) {
+                    this._cmdCreate(arg1);
+                } else {
+                    // If an invalid convention is given - don't error - just exit gracefully.
+                    console.h0(`WARHORSE done.`);
+                    console.error(`Error: Unrecognised project convention: '${arg1}'.`);
+                    return this;
+                }
+                break;
+            case "deploy":
+                if(this.deployments.includes(arg1)) {
+                    this._cmdDeploy(arg1);
+                } else {
+                    // If an invalid deployment is given - don't error - just exit gracefully.
+                    console.h0(`WARHORSE done.`);
+                    console.error(`Error: Unrecognised project deployment: '${arg1}'.`);
+                    return this;
+                }
+                break;
+            case "watch":
+                this._cmdWatch(this.workingDirectory);
+                break;
+            default:
+                // Handle standard built-ins
+                let cmd = this.cmds[cmdName];
+                if(cmd !== null) {
+                    //console.log("Executing command type: " + typeof cmd);
+                    cmd();
+                } else {
+                    console.h0(`WARHORSE done.`);
+                    console.error(`Error: Command recognized but unable to complete: '${cmdName}'.`);
+                    return this;
+                }
         }
 
         console.h0(`WARHORSE done.`);

@@ -663,4 +663,108 @@ describe("Class: Warhorse", function() {
 
     });
 
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // COMMANDS
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    describe("Commands", function() {
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // COMMAND: CREATE
+        it("should call the built-in commands from valid user args: create", function() {
+
+            // Setup
+            let cmdStub = sinon.stub(warhorse, "_cmdCreate").returns(null);
+
+            // Test
+            warhorse.cli(["create", "module"]);
+
+            // Evaluation
+            expect(cmdStub.callCount).toBe(1);
+            expect(cmdStub.getCall(0).args[0]).toBe("module");
+
+            // Cleanup
+            warhorse._cmdCreate.restore();
+        });
+        it("should not call the built-in commands from invalid user args: create", function() {
+
+            // Setup
+            let cmdStub = sinon.stub(warhorse, "_cmdCreate").returns(null);
+
+            // Test
+            warhorse.cli(["create", "something"]);
+
+            // Evaluation
+            expect(cmdStub.callCount).toBe(0);
+
+            // Cleanup
+            warhorse._cmdCreate.restore();
+        });
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // COMMAND: DEPLOY
+        it("should call the built-in commands from valid user args: deploy", function() {
+
+            // Setup
+            let cmdStub = sinon.stub(warhorse, "_cmdDeploy").returns(null);
+
+            // Test
+            warhorse.cli(["deploy", "cordova"]);
+
+            // Evaluation
+            expect(cmdStub.callCount).toBe(1);
+            expect(cmdStub.getCall(0).args[0]).toBe("cordova");
+
+            // Cleanup
+            warhorse._cmdDeploy.restore();
+        });
+        it("should not call the built-in commands from invalid user args: deploy", function() {
+
+            // Setup
+            let cmdStub = sinon.stub(warhorse, "_cmdDeploy").returns(null);
+
+            // Test
+            warhorse.cli(["deploy", "rubbish"]);
+
+            // Evaluation
+            expect(cmdStub.callCount).toBe(0);
+
+            // Cleanup
+            warhorse._cmdDeploy.restore();
+        });
+
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // COMMAND: WATCH
+        it("should call the built-in commands that have no arguments: watch", function() {
+
+            // Setup
+            let cmdStub = sinon.stub(warhorse, "_cmdWatch").returns(null);
+
+            // Test
+            warhorse.cli(["watch"]);
+
+            // Evaluation
+            expect(cmdStub.callCount).toBe(1);
+
+            // Cleanup
+            warhorse._cmdWatch.restore();
+        });
+
+        // it("should not call an invalid built-in command.", function() {
+        //
+        //     // Setup
+        //     let cmdStub = sinon.stub(warhorse, "_cmdDeploy").returns(null);
+        //
+        //     // Test
+        //     warhorse.cli(["deploy", "rubbish"]);
+        //
+        //     // Evaluation
+        //     expect(cmdStub.callCount).toBe(0);
+        //
+        //     // Cleanup
+        //     warhorse._cmdDeploy.restore();
+        // });
+    });
+
 });
