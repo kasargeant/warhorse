@@ -180,7 +180,7 @@ class Warhorse {
         this.commands = ["build", "clean", "create", "deploy", "distribute", "document", "lint", "pack", "process", "publish", "test", "watch"]; //FIXME - replace with Object.keys(warhorse.tasks);
         this.conventions = ["client", "library", "module", "server"]; //TODO "fullstack" convention,
         this.deployments = ["browser", "cordova", "node"]; //TODO "electron" deployment,
-
+        this.types = ["css", "gif", "html", "ico", "jpg", "js", "less", "png", "sass", "svg"];
         this.cmds = {}; // Lookup for built-in commands.
 
         this.moduleDirectory = moduleDirectory;     // i.e. Warhorse's own directory
@@ -376,19 +376,17 @@ class Warhorse {
      */
     copy(type, config, options = {}) {
 
-        // Log task execution
+        // Log task beginning
         if(options.silent !== true) {console.h2(`TASK: Copying ${type.toUpperCase()}...`);}
 
-        // Create a user-level config from defaults/options
-        let src = path.resolve(config.src);
-        let dst = path.resolve(config.dst);
-
         if(options.recurse === true) {
-            shell.cp("-R", src, dst);
+            shell.cp("-R", config.src, config.dst);
         } else {
-            shell.cp(src, dst);
+            shell.cp(config.src, config.dst);
         }
-        console.h4(`Done.`);
+
+        // Log task ending
+        if(options.silent !== true) {console.h4(`Done.`);}
     }
 
     /**
@@ -410,16 +408,12 @@ class Warhorse {
         // Select sub-task based on data type
         if(type === "js") {
 
-            // Create a user-level config from defaults/options
-            let src = path.resolve(config.src, "index" + config.sxt);
-            let dst = path.resolve(config.dst, "index" + config.dxt);
-
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            let toolArgs = [src];
+            let toolArgs = [config.src];
             let toolOptions = {
                 debug: this.settings.debug || config.debug,   // i.e. debug/source map options
                 config: config.conf,
-                outfile: dst,
+                outfile: config.dst,
                 exclude: config.exclude,
                 external: config.include,
                 recurse: true
@@ -429,7 +423,7 @@ class Warhorse {
             }
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, dst);
+            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
             // let dst = path.resolve(this.workingDirectory, config.dst);
             // let dstPath = path.dirname(dst);
             // shell.mkdir("-p", dstPath);
@@ -464,21 +458,17 @@ class Warhorse {
         // Select sub-task based on data type
         if(["css", "js", "txt"].includes(type)) {
 
-            // Create a user-level config from defaults/options
-            let src = path.resolve(config.src, "index" + config.sxt);
-            let dst = path.resolve(config.dst, "index" + config.dxt);
-
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            let toolArgs = [src];
+            let toolArgs = [config.src];
             let toolOptions = {
                 sync: true,
                 gzip: true,
                 cwd: this.workingDirectory,
-                file: dst
+                file: config.dst
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.resolve(config.dst));
+            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
 
             // NOTE: There is no user->tool mapping necessary here.
             // Directly execute the task.
@@ -496,9 +486,6 @@ class Warhorse {
             let plugin = plugins[type];
             if(plugin !== undefined) {
 
-                // Create a user-level config from defaults/options
-                let config = Object.assign(this.defaults.compress[type], options);
-
                 // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
                 let toolArgs = [config.src];
                 let toolOptions = {
@@ -508,7 +495,7 @@ class Warhorse {
                 };
 
                 // Ensure that the destination directory actually exists... or if not, create it.
-                ensureTargetDirectory(this.workingDirectory, dst);
+                ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
 
                 // Finally map configuration to tool args and options
                 this._execute(this.moduleDirectory, "./node_modules/.bin/imagemin", this.workingDirectory, toolArgs, toolOptions, options);
@@ -537,19 +524,16 @@ class Warhorse {
         // Select sub-task based on data type
         if(type === "js") {
 
-            // Create a user-level config from defaults/options
-            let config = Object.assign(this.defaults.document.js, options);
-
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
             // NOTE: We always use Warhorse conf file.
             let src = path.resolve(this.workingDirectory, config.src);
             let dst = path.resolve(this.workingDirectory, config.dst);
             let configPath = path.resolve(this.moduleDirectory, "./conf/jsdoc.json");
-            let toolArgs = [src];
+            let toolArgs = [config.src];
             let toolOptions = {
                 verbose: this.settings.debug || config.debug,   // i.e. debug/source map options
                 configure: configPath,
-                destination: dst,
+                destination: config.dst,
                 recurse: true
             };
 
@@ -588,7 +572,7 @@ class Warhorse {
 
             // Create a user-level config from defaults/options
             // NOTE: We always use Warhorse conf file.
-            let src = path.resolve(this.workingDirectory, config.src);
+            let src = path.resolve(this.workingDirectory, config.src[0], config.src[1]);
             let configPath = path.resolve(this.moduleDirectory, "./conf/jscs.json");
 
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
@@ -605,7 +589,7 @@ class Warhorse {
 
             // Create a user-level config from defaults/options
             // NOTE: We always use Warhorse conf file.
-            let src = path.resolve(this.workingDirectory, config.src);
+            let src = path.resolve(this.workingDirectory, config.src[0], config.src[1]);
             let configPath = path.resolve(this.moduleDirectory, "./conf/jshint.json");
 
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
@@ -626,6 +610,8 @@ class Warhorse {
         return this;
     }
 
+
+
     /**
      * Task for minifying distributed code. e.g. JS, CSS.
      * @param {string} type - Type of source file.
@@ -645,40 +631,35 @@ class Warhorse {
         // Select sub-task based on data type
         if(type === "js") {
 
-            // Create a user-level config from defaults/options
-            let src = path.resolve(config.src, "index" + config.sxt);
-            let dst = path.resolve(config.dst, "index" + config.dxt);
-
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            let toolArgs = [src];
+            let toolArgs = [config.src];
             let toolOptions = {
                 verbose: this.settings.debug || config.debug,   // i.e. debug/source map options
                 "config-file": config.conf,
-                output: dst,
+                output: config.dst,
                 compress: true,
                 mangle: true
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, dst);
+            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/uglifyjs", this.workingDirectory, toolArgs, toolOptions, options);
 
         } else if(type === "css") {
 
-            // Create a user-level config from defaults/options
-            let src = path.resolve(config.src, "*" + config.sxt);
-            let dst = path.resolve(config.dst);
-
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
             let toolArgs = [];
             let toolOptions = {
                 debug: this.settings.debug || config.debug,   // i.e. debug/source map options
                 map: this.settings.debug || config.debug,   // i.e. debug/source map options
-                input: src,
-                output: dst
+                input: config.src,
+                output: config.dst
             };
+
+            // Ensure that the destination directory actually exists... or if not, create it.
+            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/csso", this.workingDirectory, toolArgs, toolOptions, options);
@@ -711,12 +692,8 @@ class Warhorse {
         // Select sub-task based on data type
         if(type === "less") {
 
-            // Create a user-level config from defaults/options
-            let src = path.resolve(config.src, "index" + config.sxt);
-            let dst = path.resolve(config.dst, "index" + config.dxt);
-
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            let toolArgs = [src, dst];
+            let toolArgs = [config.src, config.dst];
             let toolOptions = {
                 "source-map": this.settings.debug || config.debug,   // i.e. debug/source map options
                 "include-path": config.include,
@@ -724,19 +701,15 @@ class Warhorse {
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, dst);
+            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/lessc", this.workingDirectory, toolArgs, toolOptions, options);
 
         } else if(type === "sass") {
 
-            // Create a user-level config from defaults/options
-            let src = path.resolve(config.src, "index" + config.sxt);
-            let dst = path.resolve(config.dst, "index" + config.dxt);
-
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            let toolArgs = [src, dst];
+            let toolArgs = [config.src, config.dst];
             let toolOptions = {
                 "source-map": this.settings.debug || config.debug,   // i.e. debug/source map options
                 "include-path": config.include,
@@ -744,7 +717,7 @@ class Warhorse {
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, dst);
+            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/node-sass", this.workingDirectory, toolArgs, toolOptions, options);
@@ -773,25 +746,21 @@ class Warhorse {
 
         if(type === "css") {
 
-            // Create a user-level config from defaults/options
-            let src = path.resolve(config.src, "*" + config.sxt);
-            let dst = path.resolve(config.dst);
-
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            let toolArgs = [src];
+            let toolArgs = [config.src];
             let toolOptions = {
                 map: this.settings.debug || config.debug,   // i.e. debug/source map options
+                output: config.dst,
                 replace: true
             };
-            console.log(">>" + path.extname(dst) + "<<");
-            if(path.extname(dst) === "") {
-                toolOptions.dir = dst;
-            } else {
-                toolOptions.output = dst;
-            }
+            // if(path.extname(config.dst) === "") {
+            //     toolOptions.dir = config.dst;
+            // } else {
+            //     toolOptions.output = config.dst;
+            // }
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, dst);
+            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/postcss", this.workingDirectory, toolArgs, toolOptions, options);
@@ -1075,12 +1044,11 @@ class Warhorse {
 
             // Create a user-level config from defaults/options
             // Create a user-level config from defaults/options
-            let src = path.resolve(config.src);
             config.useInherit = true;
 
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
             // NOTE: We always use Warhorse conf file.
-            //let src = path.resolve(this.workingDirectory, config.src);
+            let src = path.resolve(this.workingDirectory, config.src[0], config.src[1]);
             //let configPath = path.resolve(this.moduleDirectory, "./conf/jest.json");
             let toolArgs = [src];
             let toolOptions = {
@@ -1419,6 +1387,30 @@ class Warhorse {
         return this;
     }
 
+
+    _resolveDst(srcRoot, srcPath, dstRoot, dstExt) {
+        let srcRootAbsolute = path.resolve(srcRoot);                        // e.g. /home/kas/project/engine/src
+        console.log("srcRootAbsolute: " + srcRootAbsolute);
+        let srcPathAbsolute = path.resolve(srcPath);                        // e.g. /home/kas/project/engine/src/js/Engine.js
+        console.log("srcPathAbsolute: " + srcPathAbsolute);
+
+        // srcPath MUST be a subset of srcRoot thus...
+        let relativeFilePath = "." + srcPathAbsolute.slice(srcRootAbsolute.length);   // e.g. /js/Engine.js
+        console.log("relativeFilePath: " + relativeFilePath);
+        let relativePath = path.dirname(relativeFilePath);                  // e.g. /js
+        console.log("relativePath: " + relativePath);
+        let srcFileStem = path.basename(srcPath, path.extname(srcPath));
+        console.log("srcFileStem: " + srcFileStem);
+        let dstFileName = srcFileStem + dstExt;
+        console.log("dstFileName: " + dstFileName);
+        let dstRootAbsolute = path.resolve(dstRoot);                        // e.g. /home/kas/project/engine/dist
+        console.log("dstRootAbsolute: " + dstRootAbsolute);
+        let dstPathAbsolute = path.resolve(dstRootAbsolute, relativePath, dstFileName);                       // e.g. /home/kas/project/engine/dist/js/Engine.js
+        console.log("dstPathAbsolute: " + dstPathAbsolute);
+        return dstPathAbsolute;
+    }
+
+
     _executeTask(toolConfig, task) {
         console.log(`Executing task: ${task.idn}`);
         console.log("with details: " + JSON.stringify(task));
@@ -1428,8 +1420,25 @@ class Warhorse {
         if(taskSubtype !== undefined) {
             taskType = taskType + ":" + taskSubtype; // Reform the type e.g. js:style
         }
-        // e.g. this.bundle("js", {src: ..., dst: ...});
-        this[taskMethod](taskType, task, toolConfig);
+        if(toolConfig.expandGlobs === true) {
+            let srcPaths = glob.sync(path.resolve(task.src[0], task.src[1]));
+            console.log("GLOBBED: " + JSON.stringify(srcPaths));
+            if(srcPaths.constructor === Array && srcPaths.length > 0) {
+                for(let src of srcPaths) {
+                    let expandedTask = JSON.parse(JSON.stringify(task)); // Cheap, tacky - but effective - clone!
+                    expandedTask.src = src;
+                    expandedTask.dst = this._resolveDst(task.src[0], src, task.dst[0], task.dst[1]);//src.replace("src", "dist");
+                    // e.g. this.bundle("js", {src: ..., dst: ...});
+                    this[taskMethod](taskType, expandedTask, toolConfig);
+                }
+            } else {
+                console.warn("No files matched.");
+            }
+        } else {
+            // e.g. this.bundle("js", {src: ..., dst: ...});
+            this[taskMethod](taskType, task, toolConfig);
+        }
+
     }
 
     _executePipeline(buildType, pipeline) {
@@ -1507,7 +1516,7 @@ class Warhorse {
                         pipeline = pipelines[type];
                         this._executePipeline(cmdName, pipeline);
                     }
-                } else if(["css", "js", "html", "less", "sass"].includes(arg1)) {
+                } else if(this.types.includes(arg1)) {
                     pipeline = pipelines[arg1];
                     this._executePipeline(cmdName, pipeline);
                 } else {

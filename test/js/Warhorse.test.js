@@ -95,573 +95,573 @@ describe("Class: Warhorse", function() {
         });
     });
 
-    describe("Command resolution (default)", function() {
-
-        beforeEach(() => {
-            sinon.spy(warhorse, "_execute");
-        });
-
-        afterEach(() => {
-            warhorse._execute.restore(); // Hardly necessary... but just for the symmetrical hell-of-it.
-        });
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: BUNDLE
-        it("should be able to resolve configurations for bundling: JS", function() {
-
-            // Execute
-            warhorse.bundle("js", DUMMY_OPTIONS);
-
-            // Evaluate
-            expect(warhorse._execute.callCount).toBe(1);
-            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/browserify");
-            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/js/index.js"]);
-            expect(warhorse._execute.getCall(0).args[4]).toEqual({"config": undefined, "debug": false, "exclude": undefined, "external": undefined, "outfile": "./test/data/client_dist/js/index.js", "recurse": true});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/js/index.js", isSilent: true, "src": "./test/data/client_src/js/index.js", "useEqualsSign": false, "useOutput": "stdout"});
-
-            // Clean-up
-            deleteSync(DUMMY_OPTIONS.dst); // Clean-up
-        });
-
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: COMPRESS (TEXT) - doesn't use _execute!
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: COMPRESS (BINARY)
-        // it("should be able to resolve configurations for bundling: GIF", function() {
-        //     // TODO - Implement unit test COMPRESS GIF
-        // });
-
-        it("should be able to resolve configurations for bundling: GIF", function() {
-
-            // Setup
-            let options = {
-                src: "./test/data/client_src/img/East_pediment_O_Parthenon_BM.jpg",
-                dst: "./test/data/client_dist/img",
-                isSilent: true
-            };
-
-            // Execute
-            warhorse.compress("jpg", options);
-
-            // Evaluate
-            expect(warhorse._execute.callCount).toBe(1);
-            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/imagemin");
-            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/img/East_pediment_O_Parthenon_BM.jpg"]);
-            expect(warhorse._execute.getCall(0).args[4]).toEqual({"map": undefined, "out-dir": "./test/data/client_dist/img", "plugin": "jpegtran"});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/img", isSilent: true, "src": "./test/data/client_src/img/East_pediment_O_Parthenon_BM.jpg"});
-
-            // Clean-up
-            shell.rm("./test/data/client_dist/img/East_pediment_O_Parthenon_BM.jpg");
-        });
-
-        it("should be able to resolve configurations for bundling: PNG", function() {
-
-            // Setup
-            let options = {
-                src: "./test/data/client_src/img/file-archive-o.png",
-                dst: "./test/data/client_dist/img",
-                isSilent: true
-            };
-
-            // Execute
-            warhorse.compress("png", options);
-
-            // Evaluate
-            expect(warhorse._execute.callCount).toBe(1);
-            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/imagemin");
-            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/img/file-archive-o.png"]);
-            expect(warhorse._execute.getCall(0).args[4]).toEqual({"map": undefined, "out-dir": "./test/data/client_dist/img", "plugin": "pngquant"});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/img", isSilent: true, "src": "./test/data/client_src/img/file-archive-o.png"});
-
-            // Clean-up
-            shell.rm("./test/data/client_dist/img/file-archive-o.png");
-        });
-
-        it("should be able to resolve configurations for bundling: SVG", function() {
-
-            // Setup
-            let options = {
-                src: "./test/data/client_src/img/file-archive-o.svg",
-                dst: "./test/data/client_dist/img",
-                isSilent: true
-            };
-
-            // Execute
-            warhorse.compress("svg", options);
-
-            // Evaluate
-            expect(warhorse._execute.callCount).toBe(1);
-            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/imagemin");
-            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/img/file-archive-o.svg"]);
-            expect(warhorse._execute.getCall(0).args[4]).toEqual({"map": undefined, "out-dir": "./test/data/client_dist/img", "plugin": "svgo"});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/img", isSilent: true, "src": "./test/data/client_src/img/file-archive-o.svg"});
-
-            // Clean-up
-            shell.rm("./test/data/client_dist/img/file-archive-o.svg");
-        });
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: DOCUMENT
-        it("should be able to resolve configurations for documenting: JS", function() {
-
-            // Execute
-            warhorse.document("js", DUMMY_OPTIONS);
-
-            // Evaluate
-            expect(warhorse._execute.callCount).toBe(1);
-            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/jsdoc");
-            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual([path.resolve(process.cwd(), "./test/data/client_src/js/index.js")]);
-            expect(warhorse._execute.getCall(0).args[4]).toEqual({
-                "configure": path.resolve(process.cwd(), "./conf/jsdoc.json"),
-                "destination": path.resolve(process.cwd(), "./test/data/client_dist/js/index.js"),
-                "recurse": true,
-                "verbose": false
-            });
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/js/index.js", isSilent: true, "src": "./test/data/client_src/js/index.js", "useOutput": "stdout"});
-
-            // Clean-up
-            shell.rm("-rf", DUMMY_OPTIONS.dst); // Clean-up
-        });
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: LINT
-
-        // JS QUALITY
-        it("should be able to resolve configurations for linting: JS quality", function() {
-
-            // Execute
-            warhorse.lint("js", {
-                type: "quality",
-                conf: "conf/jshint.json",
-                src: "test/data/client_src/js/",
-                exclude: "conf/.jshintignore",
-                isSilent: true
-            });
-
-            // Evaluate
-            expect(warhorse._execute.callCount).toBe(1);
-            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/jshint");
-            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual([path.resolve(process.cwd(), "./test/data/client_src/js")]);
-            expect(warhorse._execute.getCall(0).args[4]).toEqual({
-                "config": path.resolve(process.cwd(), "./conf/jshint.json"),
-                "reporter": path.resolve(process.cwd(), "./node_modules/jshint-json/json.js")
-            });
-            expect(warhorse._execute.getCall(0).args[5].useEqualsSign).toBe(true);
-            expect(warhorse._execute.getCall(0).args[5].useOutput).toBe("jshint");
-
-            // Clean-up
-        });
-
-        // JS STYLE
-        it("should be able to resolve configurations for linting: JS style", function() {
-
-            // Execute
-            warhorse.lint("js", {
-                type: "style",
-                conf: "conf/jscs.json",
-                src: "test/data/client_src/js/",
-                isSilent: true
-            });
-
-            // Evaluate
-            expect(warhorse._execute.callCount).toBe(1);
-            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/jscs");
-            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual([path.resolve(process.cwd(), "./test/data/client_src/js")]);
-            expect(warhorse._execute.getCall(0).args[4]).toEqual({
-                "config": path.resolve(process.cwd(), "./conf/jscs.json"),
-                "reporter": "json"
-            });
-            expect(warhorse._execute.getCall(0).args[5].useEqualsSign).toBe(true);
-            expect(warhorse._execute.getCall(0).args[5].useOutput).toBe("jscs");
-
-            // Clean-up
-        });
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: MINIFY
-
-        // JS
-        it("should be able to resolve configurations for minify: JS", function() {
-
-            // Setup
-            let options = {
-                src: "./test/data/client_src/js/index.js",
-                dst: "./test/data/client_dist/js/index.min.js",
-                isSilent: true
-            };
-
-            // Execute
-            warhorse.minify("js", options);
-
-            // Evaluate
-            expect(warhorse._execute.callCount).toBe(1);
-            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/uglifyjs");
-            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/js/index.js"]);
-            expect(warhorse._execute.getCall(0).args[4]).toEqual({"compress": true, "config-file": undefined, "mangle": true, "output": "./test/data/client_dist/js/index.min.js", "verbose": false});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/js/index.min.js", "isSilent": true, "src": "./test/data/client_src/js/index.js", "useEqualsSign": false, "useOutput": "stdout"});
-
-            // Clean-up
-            shell.rm(options.dst);
-        });
-
-        // CSS
-        it("should be able to resolve configurations for minify: CSS", function() {
-
-            // Setup
-            let options = {
-                src: "./test/data/client_src/css/index.css",
-                dst: "./test/data/client_dist/css/index.min.css",
-                isSilent: true
-            };
-
-            // Execute
-            warhorse.minify("css", options);
-
-            // Evaluate
-            expect(warhorse._execute.callCount).toBe(1);
-            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/csso");
-            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual([]);
-            expect(warhorse._execute.getCall(0).args[4]).toEqual({"debug": false, "input": "./test/data/client_src/css/index.css", "map": false, "output": "./test/data/client_dist/css/index.min.css"});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/css/index.min.css", isSilent: true, "src": "./test/data/client_src/css/index.css", "useEqualsSign": false, "useOutput": "stdout"});
-
-            // Clean-up
-            shell.rm(options.dst);
-        });
-
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: PREPROCESS
-
-        // LESS
-        it("should be able to resolve configurations for preprocess: LESS", function() {
-
-            // Setup
-            let options = {
-                src: "./test/data/client_src/less/index.less",
-                dst: "./test/data/client_dist/css/index.css",
-                include: "./test/data/client_src/less",
-                isSilent: true
-            };
-
-            // Execute
-            warhorse.preprocess("less", options);
-
-            // Evaluate
-            expect(warhorse._execute.callCount).toBe(1);
-            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/lessc");
-            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/less/index.less", "./test/data/client_dist/css/index.css"]);
-            expect(warhorse._execute.getCall(0).args[4]).toEqual({"include-path": "./test/data/client_src/less", "relative-urls": true, "source-map": undefined});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css/index.css", "include": "./test/data/client_src/less", isSilent: true, "src": "./test/data/client_src/less/index.less", "useEqualsSign": true});
-
-            // Clean-up
-            shell.rm(options.dst);
-        });
-
-
-        // SASS
-        it("should be able to resolve configurations for preprocess: SASS", function() {
-
-            // Setup
-            let options = {
-                src: "./test/data/client_src/sass/index.scss",
-                dst: "./test/data/client_dist/css/index.css",
-                include: "./test/data/client_src/sass",
-                isSilent: true
-            };
-
-            // Execute
-            warhorse.preprocess("sass", options);
-
-            // Evaluate
-            expect(warhorse._execute.callCount).toBe(1);
-            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/node-sass");
-            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/sass/index.scss", "./test/data/client_dist/css/index.css"]);
-            expect(warhorse._execute.getCall(0).args[4]).toEqual({"include-path": "./test/data/client_src/sass", "relative-urls": true, "source-map": undefined});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css/index.css", "include": "./test/data/client_src/sass", isSilent: true, "src": "./test/data/client_src/sass/index.scss"});
-
-            // Clean-up
-            shell.rm(options.dst);
-        });
-
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: POSTPROCESS
-
-        // SINGLE-FILE OUTPUT
-        it("should be able to resolve configurations for postprocess (single-single): CSS", function() {
-
-            // Setup
-            let options = {
-                src: "./test/data/client_src/css/index.css",
-                dst: "./test/data/client_dist/css/index.css",
-                use: "autoprefixer",
-                isSilent: true
-            };
-
-            // Execute
-            warhorse.postprocess("css", options);
-
-            // Evaluate
-            expect(warhorse._execute.callCount).toBe(1);
-            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/postcss");
-            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/css/index.css"]);
-            expect(warhorse._execute.getCall(0).args[4]).toEqual({"map": undefined, "output": "./test/data/client_dist/css/index.css", "replace": true});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css/index.css", isSilent: true, "src": "./test/data/client_src/css/index.css", "use": "autoprefixer"});
-
-            // Clean-up
-            shell.rm(options.dst);
-        });
-
-
-        // SINGLE-FILE OUTPUT
-        it("should be able to resolve configurations for postprocess (multiple-multiple): CSS", function() {
-
-            // Setup
-            let options = {
-                src: "./test/data/client_src/css",
-                dst: "./test/data/client_dist/css",
-                use: "autoprefixer",
-                isSilent: true
-            };
-
-            // Execute
-            warhorse.postprocess("css", options);
-
-            // Evaluate
-            expect(warhorse._execute.callCount).toBe(1);
-            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/postcss");
-            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/css"]);
-            expect(warhorse._execute.getCall(0).args[4]).toEqual({"dir": "./test/data/client_dist/css", "map": undefined, "replace": true});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css", isSilent: true, "src": "./test/data/client_src/css", "use": "autoprefixer"});
-
-            // Clean-up
-            shell.rm("./test/data/client_dist/css/*.css");
-        });
-    });
-
-
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TASKS
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    describe("Tasks", function() {
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: BUNDLE
-        it("should be able to bundle JS code", function() {
-
-            // Preparation
-            const options = {
-                debug: false, //i.e. turn off source-mapping.
-                src: "./test/data/client_src/js/index.js",
-                dst: "./test/data/client_dist/js/index.js",
-                isSilent: true
-            };
-
-            // Test
-            warhorse.bundle("js", options);
-
-            // Evaluation
-            expect(fs.existsSync(options.dst)).toBe(true);
-
-            let fileContent = readSync(options.dst);
-            shell.rm(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
-
-            expect(fileContent.toString()).toMatchSnapshot();
-
-        });
-
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: COMPRESS
-
-        it("should be able to compress JS code", function() {
-
-            // Preparation
-            const options = {
-                src: "./test/data/client_src/js/index.js",
-                dst: "./test/data/client_dist/js/index.js.tar.gz",
-                isSilent: true
-            };
-
-            // Test
-            warhorse.compress("js", options);
-
-            // Evaluation
-            expect(fs.existsSync(options.dst)).toBe(true);
-
-            //let fileContent = readSync(options.dst);
-            shell.rm(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
-
-            // // TODO - Output is too variable to use these - need better option
-            // expect(fileContent.length).toBeGreaterThan(205);
-            // expect(fileContent.length).toBeLessThan(225);
-
-        });
-
-        it("should be able to compress CSS code", function() {
-
-            // Preparation
-            const options = {
-                src: "./test/data/client_src/css/index.css",
-                dst: "./test/data/client_dist/css/index.css.tar.gz",
-                isSilent: true
-            };
-
-            // Test
-            warhorse.compress("css", options);
-
-            // Evaluation
-            expect(fs.existsSync(options.dst)).toBe(true);
-
-            //let fileContent = readSync(options.dst);
-            deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
-
-            // // TODO - Output is too variable to use these - need better option
-            // expect(fileContent.length).toBeGreaterThan(840);
-            // expect(fileContent.length).toBeLessThan(870);
-
-        });
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: COPY
-
-        it("should be able to copy a text file", function() {
-
-            // Preparation
-            const options = {
-                src: "./test/data/client_src/css/index.css",
-                dst: "./test/data/client_dist/css/index.css",
-                isSilent: true
-            };
-
-            // Test
-            warhorse.copy("text", options);
-
-            // Evaluation
-            expect(fs.existsSync(options.dst)).toBe(true);
-
-            let fileContentSrc = readSync(path.resolve(options.src)).toString();
-            let fileContentDst = readSync(path.resolve(options.dst)).toString();
-            deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
-            expect(fileContentDst).toBe(fileContentSrc);
-
-        });
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: DOCUMENT
-        //TODO - unit test: lint
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: LINT
-        //TODO - unit test: lint
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: MINIFY
-        it("should be able to minify JS code", function() {
-
-            // Preparation
-            const options = {
-                debug: false, //i.e. turn off source-mapping.
-                src: "./test/data/client_src/js/index.js",
-                dst: "./test/data/client_dist/js/index.min.js",
-                isSilent: true
-            };
-
-            // Test
-            warhorse.minify("js", options);
-
-            // Evaluation
-            let fileContent = readSync(options.dst);
-            deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
-            expect(fileContent.toString()).toMatchSnapshot();
-        });
-
-        it("should be able to minify CSS code", function() {
-
-            // Preparation
-            const options = {
-                debug: false, //i.e. turn off source-mapping.
-                src: "./test/data/client_src/css/index.css",
-                dst: "./test/data/client_dist/css/index.min.css",
-                isSilent: true
-            };
-
-            // Test
-            warhorse.minify("css", options);
-
-            // Evaluation
-            let fileContent = readSync(options.dst);
-            deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
-            expect(fileContent.toString()).toMatchSnapshot();
-
-        });
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: PREPROCESS
-        //TODO - unit test: preprocess
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: POSTPROCESS
-        //TODO - unit test: postprocess
-        
-        //
-        // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // // TODO - Implement asset packing tests
-        // // it("should be able to pack a GIF", function() {
-        // //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_GIF));
-        // //     warhorse.packGIF({});
-        // //     expect(warhorse.file.content).toMatchSnapshot();
-        // // });
-        // //
-        // // it("should be able to pack a JPG", function() {
-        // //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_JPG));
-        // //     warhorse.packJPG({});
-        // //     expect(warhorse.file.content).toMatchSnapshot();
-        // // });
-        // //
-        // // it("should be able to pack a PNG", function() {
-        // //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_GIF));
-        // //     warhorse.packGIF({});
-        // //     expect(warhorse.file.content).toMatchSnapshot();
-        // // });
-        // //
-        // // it("should be able to pack a SVG", function() {
-        // //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_SVG));
-        // //     warhorse.packSVG({});
-        // //     expect(warhorse.file.content).toMatchSnapshot();
-        // // });
-
-
-    });
+    // describe("Command resolution (default)", function() {
+    //
+    //     beforeEach(() => {
+    //         sinon.spy(warhorse, "_execute");
+    //     });
+    //
+    //     afterEach(() => {
+    //         warhorse._execute.restore(); // Hardly necessary... but just for the symmetrical hell-of-it.
+    //     });
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // TASK: BUNDLE
+    //     it("should be able to resolve configurations for bundling: JS", function() {
+    //
+    //         // Execute
+    //         warhorse.bundle("js", DUMMY_OPTIONS);
+    //
+    //         // Evaluate
+    //         expect(warhorse._execute.callCount).toBe(1);
+    //         expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/browserify");
+    //         expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/js/index.js"]);
+    //         expect(warhorse._execute.getCall(0).args[4]).toEqual({"config": undefined, "debug": false, "exclude": undefined, "external": undefined, "outfile": "./test/data/client_dist/js/index.js", "recurse": true});
+    //         expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/js/index.js", isSilent: true, "src": "./test/data/client_src/js/index.js", "useEqualsSign": false, "useOutput": "stdout"});
+    //
+    //         // Clean-up
+    //         deleteSync(DUMMY_OPTIONS.dst); // Clean-up
+    //     });
+    //
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // TASK: COMPRESS (TEXT) - doesn't use _execute!
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // TASK: COMPRESS (BINARY)
+    //     // it("should be able to resolve configurations for bundling: GIF", function() {
+    //     //     // TODO - Implement unit test COMPRESS GIF
+    //     // });
+    //
+    //     it("should be able to resolve configurations for bundling: GIF", function() {
+    //
+    //         // Setup
+    //         let options = {
+    //             src: "./test/data/client_src/img/East_pediment_O_Parthenon_BM.jpg",
+    //             dst: "./test/data/client_dist/img",
+    //             isSilent: true
+    //         };
+    //
+    //         // Execute
+    //         warhorse.compress("jpg", options);
+    //
+    //         // Evaluate
+    //         expect(warhorse._execute.callCount).toBe(1);
+    //         expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/imagemin");
+    //         expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/img/East_pediment_O_Parthenon_BM.jpg"]);
+    //         expect(warhorse._execute.getCall(0).args[4]).toEqual({"map": undefined, "out-dir": "./test/data/client_dist/img", "plugin": "jpegtran"});
+    //         expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/img", isSilent: true, "src": "./test/data/client_src/img/East_pediment_O_Parthenon_BM.jpg"});
+    //
+    //         // Clean-up
+    //         shell.rm("./test/data/client_dist/img/East_pediment_O_Parthenon_BM.jpg");
+    //     });
+    //
+    //     it("should be able to resolve configurations for bundling: PNG", function() {
+    //
+    //         // Setup
+    //         let options = {
+    //             src: "./test/data/client_src/img/file-archive-o.png",
+    //             dst: "./test/data/client_dist/img",
+    //             isSilent: true
+    //         };
+    //
+    //         // Execute
+    //         warhorse.compress("png", options);
+    //
+    //         // Evaluate
+    //         expect(warhorse._execute.callCount).toBe(1);
+    //         expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/imagemin");
+    //         expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/img/file-archive-o.png"]);
+    //         expect(warhorse._execute.getCall(0).args[4]).toEqual({"map": undefined, "out-dir": "./test/data/client_dist/img", "plugin": "pngquant"});
+    //         expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/img", isSilent: true, "src": "./test/data/client_src/img/file-archive-o.png"});
+    //
+    //         // Clean-up
+    //         shell.rm("./test/data/client_dist/img/file-archive-o.png");
+    //     });
+    //
+    //     it("should be able to resolve configurations for bundling: SVG", function() {
+    //
+    //         // Setup
+    //         let options = {
+    //             src: "./test/data/client_src/img/file-archive-o.svg",
+    //             dst: "./test/data/client_dist/img",
+    //             isSilent: true
+    //         };
+    //
+    //         // Execute
+    //         warhorse.compress("svg", options);
+    //
+    //         // Evaluate
+    //         expect(warhorse._execute.callCount).toBe(1);
+    //         expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/imagemin");
+    //         expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/img/file-archive-o.svg"]);
+    //         expect(warhorse._execute.getCall(0).args[4]).toEqual({"map": undefined, "out-dir": "./test/data/client_dist/img", "plugin": "svgo"});
+    //         expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/img", isSilent: true, "src": "./test/data/client_src/img/file-archive-o.svg"});
+    //
+    //         // Clean-up
+    //         shell.rm("./test/data/client_dist/img/file-archive-o.svg");
+    //     });
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // TASK: DOCUMENT
+    //     it("should be able to resolve configurations for documenting: JS", function() {
+    //
+    //         // Execute
+    //         warhorse.document("js", DUMMY_OPTIONS);
+    //
+    //         // Evaluate
+    //         expect(warhorse._execute.callCount).toBe(1);
+    //         expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/jsdoc");
+    //         expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[3]).toEqual([path.resolve(process.cwd(), "./test/data/client_src/js/index.js")]);
+    //         expect(warhorse._execute.getCall(0).args[4]).toEqual({
+    //             "configure": path.resolve(process.cwd(), "./conf/jsdoc.json"),
+    //             "destination": path.resolve(process.cwd(), "./test/data/client_dist/js/index.js"),
+    //             "recurse": true,
+    //             "verbose": false
+    //         });
+    //         expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/js/index.js", isSilent: true, "src": "./test/data/client_src/js/index.js", "useOutput": "stdout"});
+    //
+    //         // Clean-up
+    //         shell.rm("-rf", DUMMY_OPTIONS.dst); // Clean-up
+    //     });
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // TASK: LINT
+    //
+    //     // JS QUALITY
+    //     it("should be able to resolve configurations for linting: JS quality", function() {
+    //
+    //         // Execute
+    //         warhorse.lint("js", {
+    //             type: "quality",
+    //             conf: "conf/jshint.json",
+    //             src: "test/data/client_src/js/",
+    //             exclude: "conf/.jshintignore",
+    //             isSilent: true
+    //         });
+    //
+    //         // Evaluate
+    //         expect(warhorse._execute.callCount).toBe(1);
+    //         expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/jshint");
+    //         expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[3]).toEqual([path.resolve(process.cwd(), "./test/data/client_src/js")]);
+    //         expect(warhorse._execute.getCall(0).args[4]).toEqual({
+    //             "config": path.resolve(process.cwd(), "./conf/jshint.json"),
+    //             "reporter": path.resolve(process.cwd(), "./node_modules/jshint-json/json.js")
+    //         });
+    //         expect(warhorse._execute.getCall(0).args[5].useEqualsSign).toBe(true);
+    //         expect(warhorse._execute.getCall(0).args[5].useOutput).toBe("jshint");
+    //
+    //         // Clean-up
+    //     });
+    //
+    //     // JS STYLE
+    //     it("should be able to resolve configurations for linting: JS style", function() {
+    //
+    //         // Execute
+    //         warhorse.lint("js", {
+    //             type: "style",
+    //             conf: "conf/jscs.json",
+    //             src: "test/data/client_src/js/",
+    //             isSilent: true
+    //         });
+    //
+    //         // Evaluate
+    //         expect(warhorse._execute.callCount).toBe(1);
+    //         expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/jscs");
+    //         expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[3]).toEqual([path.resolve(process.cwd(), "./test/data/client_src/js")]);
+    //         expect(warhorse._execute.getCall(0).args[4]).toEqual({
+    //             "config": path.resolve(process.cwd(), "./conf/jscs.json"),
+    //             "reporter": "json"
+    //         });
+    //         expect(warhorse._execute.getCall(0).args[5].useEqualsSign).toBe(true);
+    //         expect(warhorse._execute.getCall(0).args[5].useOutput).toBe("jscs");
+    //
+    //         // Clean-up
+    //     });
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // TASK: MINIFY
+    //
+    //     // JS
+    //     it("should be able to resolve configurations for minify: JS", function() {
+    //
+    //         // Setup
+    //         let options = {
+    //             src: "./test/data/client_src/js/index.js",
+    //             dst: "./test/data/client_dist/js/index.min.js",
+    //             isSilent: true
+    //         };
+    //
+    //         // Execute
+    //         warhorse.minify("js", options);
+    //
+    //         // Evaluate
+    //         expect(warhorse._execute.callCount).toBe(1);
+    //         expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/uglifyjs");
+    //         expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/js/index.js"]);
+    //         expect(warhorse._execute.getCall(0).args[4]).toEqual({"compress": true, "config-file": undefined, "mangle": true, "output": "./test/data/client_dist/js/index.min.js", "verbose": false});
+    //         expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/js/index.min.js", "isSilent": true, "src": "./test/data/client_src/js/index.js", "useEqualsSign": false, "useOutput": "stdout"});
+    //
+    //         // Clean-up
+    //         shell.rm(options.dst);
+    //     });
+    //
+    //     // CSS
+    //     it("should be able to resolve configurations for minify: CSS", function() {
+    //
+    //         // Setup
+    //         let options = {
+    //             src: "./test/data/client_src/css/index.css",
+    //             dst: "./test/data/client_dist/css/index.min.css",
+    //             isSilent: true
+    //         };
+    //
+    //         // Execute
+    //         warhorse.minify("css", options);
+    //
+    //         // Evaluate
+    //         expect(warhorse._execute.callCount).toBe(1);
+    //         expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/csso");
+    //         expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[3]).toEqual([]);
+    //         expect(warhorse._execute.getCall(0).args[4]).toEqual({"debug": false, "input": "./test/data/client_src/css/index.css", "map": false, "output": "./test/data/client_dist/css/index.min.css"});
+    //         expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "dst": "./test/data/client_dist/css/index.min.css", isSilent: true, "src": "./test/data/client_src/css/index.css", "useEqualsSign": false, "useOutput": "stdout"});
+    //
+    //         // Clean-up
+    //         shell.rm(options.dst);
+    //     });
+    //
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // TASK: PREPROCESS
+    //
+    //     // LESS
+    //     it("should be able to resolve configurations for preprocess: LESS", function() {
+    //
+    //         // Setup
+    //         let options = {
+    //             src: "./test/data/client_src/less/index.less",
+    //             dst: "./test/data/client_dist/css/index.css",
+    //             include: "./test/data/client_src/less",
+    //             isSilent: true
+    //         };
+    //
+    //         // Execute
+    //         warhorse.preprocess("less", options);
+    //
+    //         // Evaluate
+    //         expect(warhorse._execute.callCount).toBe(1);
+    //         expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/lessc");
+    //         expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/less/index.less", "./test/data/client_dist/css/index.css"]);
+    //         expect(warhorse._execute.getCall(0).args[4]).toEqual({"include-path": "./test/data/client_src/less", "relative-urls": true, "source-map": undefined});
+    //         expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css/index.css", "include": "./test/data/client_src/less", isSilent: true, "src": "./test/data/client_src/less/index.less", "useEqualsSign": true});
+    //
+    //         // Clean-up
+    //         shell.rm(options.dst);
+    //     });
+    //
+    //
+    //     // SASS
+    //     it("should be able to resolve configurations for preprocess: SASS", function() {
+    //
+    //         // Setup
+    //         let options = {
+    //             src: "./test/data/client_src/sass/index.scss",
+    //             dst: "./test/data/client_dist/css/index.css",
+    //             include: "./test/data/client_src/sass",
+    //             isSilent: true
+    //         };
+    //
+    //         // Execute
+    //         warhorse.preprocess("sass", options);
+    //
+    //         // Evaluate
+    //         expect(warhorse._execute.callCount).toBe(1);
+    //         expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/node-sass");
+    //         expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/sass/index.scss", "./test/data/client_dist/css/index.css"]);
+    //         expect(warhorse._execute.getCall(0).args[4]).toEqual({"include-path": "./test/data/client_src/sass", "relative-urls": true, "source-map": undefined});
+    //         expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css/index.css", "include": "./test/data/client_src/sass", isSilent: true, "src": "./test/data/client_src/sass/index.scss"});
+    //
+    //         // Clean-up
+    //         shell.rm(options.dst);
+    //     });
+    //
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // TASK: POSTPROCESS
+    //
+    //     // SINGLE-FILE OUTPUT
+    //     it("should be able to resolve configurations for postprocess (single-single): CSS", function() {
+    //
+    //         // Setup
+    //         let options = {
+    //             src: "./test/data/client_src/css/index.css",
+    //             dst: "./test/data/client_dist/css/index.css",
+    //             use: "autoprefixer",
+    //             isSilent: true
+    //         };
+    //
+    //         // Execute
+    //         warhorse.postprocess("css", options);
+    //
+    //         // Evaluate
+    //         expect(warhorse._execute.callCount).toBe(1);
+    //         expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/postcss");
+    //         expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/css/index.css"]);
+    //         expect(warhorse._execute.getCall(0).args[4]).toEqual({"map": undefined, "output": "./test/data/client_dist/css/index.css", "replace": true});
+    //         expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css/index.css", isSilent: true, "src": "./test/data/client_src/css/index.css", "use": "autoprefixer"});
+    //
+    //         // Clean-up
+    //         shell.rm(options.dst);
+    //     });
+    //
+    //
+    //     // SINGLE-FILE OUTPUT
+    //     it("should be able to resolve configurations for postprocess (multiple-multiple): CSS", function() {
+    //
+    //         // Setup
+    //         let options = {
+    //             src: "./test/data/client_src/css",
+    //             dst: "./test/data/client_dist/css",
+    //             use: "autoprefixer",
+    //             isSilent: true
+    //         };
+    //
+    //         // Execute
+    //         warhorse.postprocess("css", options);
+    //
+    //         // Evaluate
+    //         expect(warhorse._execute.callCount).toBe(1);
+    //         expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/postcss");
+    //         expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+    //         expect(warhorse._execute.getCall(0).args[3]).toEqual(["./test/data/client_src/css"]);
+    //         expect(warhorse._execute.getCall(0).args[4]).toEqual({"dir": "./test/data/client_dist/css", "map": undefined, "replace": true});
+    //         expect(warhorse._execute.getCall(0).args[5]).toEqual({"dst": "./test/data/client_dist/css", isSilent: true, "src": "./test/data/client_src/css", "use": "autoprefixer"});
+    //
+    //         // Clean-up
+    //         shell.rm("./test/data/client_dist/css/*.css");
+    //     });
+    // });
+    //
+    //
+    //
+    // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // // TASKS
+    // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // describe("Tasks", function() {
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // TASK: BUNDLE
+    //     it("should be able to bundle JS code", function() {
+    //
+    //         // Preparation
+    //         const options = {
+    //             debug: false, //i.e. turn off source-mapping.
+    //             src: "./test/data/client_src/js/index.js",
+    //             dst: "./test/data/client_dist/js/index.js",
+    //             isSilent: true
+    //         };
+    //
+    //         // Test
+    //         warhorse.bundle("js", options);
+    //
+    //         // Evaluation
+    //         expect(fs.existsSync(options.dst)).toBe(true);
+    //
+    //         let fileContent = readSync(options.dst);
+    //         shell.rm(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
+    //
+    //         expect(fileContent.toString()).toMatchSnapshot();
+    //
+    //     });
+    //
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // TASK: COMPRESS
+    //
+    //     it("should be able to compress JS code", function() {
+    //
+    //         // Preparation
+    //         const options = {
+    //             src: "./test/data/client_src/js/index.js",
+    //             dst: "./test/data/client_dist/js/index.js.tar.gz",
+    //             isSilent: true
+    //         };
+    //
+    //         // Test
+    //         warhorse.compress("js", options);
+    //
+    //         // Evaluation
+    //         expect(fs.existsSync(options.dst)).toBe(true);
+    //
+    //         //let fileContent = readSync(options.dst);
+    //         shell.rm(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
+    //
+    //         // // TODO - Output is too variable to use these - need better option
+    //         // expect(fileContent.length).toBeGreaterThan(205);
+    //         // expect(fileContent.length).toBeLessThan(225);
+    //
+    //     });
+    //
+    //     it("should be able to compress CSS code", function() {
+    //
+    //         // Preparation
+    //         const options = {
+    //             src: "./test/data/client_src/css/index.css",
+    //             dst: "./test/data/client_dist/css/index.css.tar.gz",
+    //             isSilent: true
+    //         };
+    //
+    //         // Test
+    //         warhorse.compress("css", options);
+    //
+    //         // Evaluation
+    //         expect(fs.existsSync(options.dst)).toBe(true);
+    //
+    //         //let fileContent = readSync(options.dst);
+    //         deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
+    //
+    //         // // TODO - Output is too variable to use these - need better option
+    //         // expect(fileContent.length).toBeGreaterThan(840);
+    //         // expect(fileContent.length).toBeLessThan(870);
+    //
+    //     });
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // TASK: COPY
+    //
+    //     it("should be able to copy a text file", function() {
+    //
+    //         // Preparation
+    //         const options = {
+    //             src: "./test/data/client_src/css/index.css",
+    //             dst: "./test/data/client_dist/css/index.css",
+    //             isSilent: true
+    //         };
+    //
+    //         // Test
+    //         warhorse.copy("text", options);
+    //
+    //         // Evaluation
+    //         expect(fs.existsSync(options.dst)).toBe(true);
+    //
+    //         let fileContentSrc = readSync(path.resolve(options.src)).toString();
+    //         let fileContentDst = readSync(path.resolve(options.dst)).toString();
+    //         deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
+    //         expect(fileContentDst).toBe(fileContentSrc);
+    //
+    //     });
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // TASK: DOCUMENT
+    //     //TODO - unit test: lint
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // TASK: LINT
+    //     //TODO - unit test: lint
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // TASK: MINIFY
+    //     it("should be able to minify JS code", function() {
+    //
+    //         // Preparation
+    //         const options = {
+    //             debug: false, //i.e. turn off source-mapping.
+    //             src: "./test/data/client_src/js/index.js",
+    //             dst: "./test/data/client_dist/js/index.min.js",
+    //             isSilent: true
+    //         };
+    //
+    //         // Test
+    //         warhorse.minify("js", options);
+    //
+    //         // Evaluation
+    //         let fileContent = readSync(options.dst);
+    //         deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
+    //         expect(fileContent.toString()).toMatchSnapshot();
+    //     });
+    //
+    //     it("should be able to minify CSS code", function() {
+    //
+    //         // Preparation
+    //         const options = {
+    //             debug: false, //i.e. turn off source-mapping.
+    //             src: "./test/data/client_src/css/index.css",
+    //             dst: "./test/data/client_dist/css/index.min.css",
+    //             isSilent: true
+    //         };
+    //
+    //         // Test
+    //         warhorse.minify("css", options);
+    //
+    //         // Evaluation
+    //         let fileContent = readSync(options.dst);
+    //         deleteSync(options.dst); // Clean-up immediately after read and before expect - to avoid leaving debris.
+    //         expect(fileContent.toString()).toMatchSnapshot();
+    //
+    //     });
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // TASK: PREPROCESS
+    //     //TODO - unit test: preprocess
+    //
+    //     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // TASK: POSTPROCESS
+    //     //TODO - unit test: postprocess
+    //
+    //     //
+    //     // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //     // // TODO - Implement asset packing tests
+    //     // // it("should be able to pack a GIF", function() {
+    //     // //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_GIF));
+    //     // //     warhorse.packGIF({});
+    //     // //     expect(warhorse.file.content).toMatchSnapshot();
+    //     // // });
+    //     // //
+    //     // // it("should be able to pack a JPG", function() {
+    //     // //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_JPG));
+    //     // //     warhorse.packJPG({});
+    //     // //     expect(warhorse.file.content).toMatchSnapshot();
+    //     // // });
+    //     // //
+    //     // // it("should be able to pack a PNG", function() {
+    //     // //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_GIF));
+    //     // //     warhorse.packGIF({});
+    //     // //     expect(warhorse.file.content).toMatchSnapshot();
+    //     // // });
+    //     // //
+    //     // // it("should be able to pack a SVG", function() {
+    //     // //     warhorse.file = JSON.parse(JSON.stringify(FILE_DUMMY_SVG));
+    //     // //     warhorse.packSVG({});
+    //     // //     expect(warhorse.file.content).toMatchSnapshot();
+    //     // // });
+    //
+    //
+    // });
 
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
