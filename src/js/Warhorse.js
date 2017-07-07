@@ -61,148 +61,20 @@ class Warhorse {
      * @param {boolean} [options.debug=false] - Flag to initiate verbose tool operation (including source map generation).
      */
     constructor(moduleDirectory, workingDirectory, options = {}) {
-        this.defaults = {
 
-            debug: false,
-            language: "es51", //"es51", "es2015", "es2015+JSX"
+        this.debug = options.debug;
 
-            bundle: {
-                debug: false,
-                useOutput: "stdout",
-                useEqualsSign: false,
-                src: "src/index.js",
-                dst: "dist/index.js"
-            },
-            clean: {},
-            compress: {
-                css: {
-                    src: "dist/css/index.min.css",
-                    dst: "dist/css/index.min.css.tar.gz"
-                },
-                js: {
-                    src: "dist/js/index.min.js",
-                    dst: "dist/js/index.min.js.tar.gz"
-                },
-                gif: {
-                    src: "./test/data/client_src/img/gif/*.gif",
-                    dst: "./dist/img/gif"
-                },
-                jpg: {
-                    src: "./test/data/client_src/img/jpg/*.jpg",
-                    dst: "./dist/img/jpg"
-                },
-                png: {
-                    src: "./test/data/client_src/img/png/*.png",
-                    dst: "./dist/img/png"
-                },
-                svg: {
-                    src: "./test/data/client_src/img/svg/*.svg",
-                    dst: "./dist/img/svg"
-                },
-                txt: {
-                    src: "dist/js/index.min.js",
-                    dst: "dist/js/index.js.tar.gz"
-                }
-            },
-            create: {},
-            document: {
-                js: {
-                    src: "./src/index.js",
-                    dst: "./docs/api",
-                    useOutput: "stdout"
-                }
-            },
-            lint: {
-                js: {
-                    style: {},
-                    quality: {}
-                }
-            },
-            load: {
-                encoding: "utf8"
-            },
-            minify: {
-                css: {
-                    debug: false,
-                    useOutput: "stdout",
-                    useEqualsSign: false,
-                    src: "src/css/index.css",
-                    dst: "dist/css/index.min.css"
-                },
-                js: {
-                    debug: false,
-                    useOutput: "stdout",
-                    useEqualsSign: false,
-                    src: "src/js/index.js",
-                    dst: "dist/js/index.js"
-                }
-            },
-            pack: {
-                gif: {},
-                jpg: {},
-                png: {},
-                svg: {}
-            },
-            preprocess: {
-                less: {
-                    src: "src/less/index.less",
-                    dst: "dist/css/index.css"
-                },
-                sass: {
-                    src: "src/sass/index.sass",
-                    dst: "dist/css/index.css"
-                }
-            },
-            postprocess: {
-                css: {
-                    src: "src/css/index.css"
-                }
-            },
-            process: {
-                includePaths: ["./src/sass"]
-            },
-            rename: {},
-            save: {
-                compress: false,
-                encoding: "utf8"
-            },
-            test: {
-                js: {
-                    bayeux: {
-                        src: "test/js/*.test.js"
-                    },
-                    jest: {}
-                }
-            }
-        };
-        this.settings = Object.assign(this.defaults, options);
+        this.language = "es51" || options.language; // Options: "es51", "es2015"
 
         this.commands = ["build", "clean", "create", "deploy", "distribute", "document", "lint", "pack", "process", "publish", "test", "watch"]; //FIXME - replace with Object.keys(warhorse.tasks);
         this.conventions = ["client", "library", "module", "server"]; //TODO "fullstack" convention,
         this.deployments = ["browser", "cordova", "node"]; //TODO "electron" deployment,
         this.types = ["css", "gif", "html", "ico", "jpg", "js", "less", "png", "sass", "svg"];
-        this.cmds = {}; // Lookup for built-in commands.
 
         this.moduleDirectory = moduleDirectory;     // i.e. Warhorse's own directory
         this.conventionsDirectory = moduleDirectory + "src/conventions/";
         this.workingDirectory = workingDirectory;   // Current working directory... i.e. project directory
-
-        // this.file = null; // Main arg passed from function to function - requires sync operation of course!
-        //
-        // // Finally add user-defined tasks...
-        // try {
-        //     // ...from a user-defined file
-        //     this.cmds = require(this.workingDirectory + "/_warhorse.js")(this);
-        // } catch(ex) {
-        //     // ...or otherwise, fall-back on default
-        //     this.cmds = require(this.moduleDirectory + "/_warhorse.js")(this);
-        //     // console.debug("Warning: This directory is missing a '_warhorse.js' file and is uninitialised.");
-        // }
-        // // Finally, finally, slip built-in 'create' into cmds
-        // this.cmds.create = this._cmdCreate;
-        // this.cmds.watch = this._cmdWatch;
     }
-
 
     ///////////////////////////////////////////////////////////////////////////
     // COMMANDS
@@ -354,9 +226,11 @@ class Warhorse {
 
     /**
      * Clean/ delete file(s) task.
-     * @param {Array} paths - Array of paths or files to empty and delete.
-     * @param {Object} options - Options to further configure this action.
+     * @param {string} type - Type of source file.
+     * @param {string} config - The tool configuration.
+     * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @returns {Object} - Returns self for chaining.
+     * @private
      */
     // clean(paths, options = {}) {
     //     // Log task execution
@@ -372,10 +246,12 @@ class Warhorse {
     /**
      * Copy file(s) task.
      * @param {string} type - Type of source file.
+     * @param {string} config - The tool configuration.
      * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
+     * @private
      */
     copy(type, config, options = {}) {
 
@@ -389,6 +265,7 @@ class Warhorse {
     /**
      * Task for bundling and module resolution.
      * @param {string} type - Type of source file.
+     * @param {string} config - The tool configuration.
      * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
@@ -396,6 +273,7 @@ class Warhorse {
      * @param {string} options.exclude - Exclude file(s) from the task.
      * @param {string} options.include - Include file(s) for the task.
      * @returns {Object} - Returns self for chaining.
+     * @private
      */
     bundle(type, config, options={}) {
 
@@ -405,15 +283,15 @@ class Warhorse {
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
             let toolArgs = [config.src];
             let toolOptions = {
-                debug: this.settings.debug || config.debug,   // i.e. debug/source map options
+                debug: this.debug || config.debug,   // i.e. debug/source map options
                 config: config.conf,
                 outfile: config.dst,
                 exclude: config.exclude,
                 external: config.include,
                 recurse: true
             };
-            if(this.settings.language !== "es51") {
-                toolOptions.transform = `[babelify --presets [${this.settings.language}]]`;
+            if(this.language !== "es51") {
+                toolOptions.transform = `[babelify --presets [${this.language}]]`;
             }
 
             // Ensure that the destination directory actually exists... or if not, create it.
@@ -436,11 +314,13 @@ class Warhorse {
     /**
      * Task for compressing files of any type. e.g. JS, CSS, TXT. [NOTE: CURRENTLY OUTPUTS .tar.gz ONLY.]
      * @param {string} type - Type of source file.
+     * @param {string} config - The tool configuration.
      * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
+     * @private
      */
     compress(type, config, options={}) {
 
@@ -478,7 +358,7 @@ class Warhorse {
                 // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
                 let toolArgs = [config.src];
                 let toolOptions = {
-                    map: this.settings.debug || config.debug,   // i.e. debug/source map options
+                    map: this.debug || config.debug,   // i.e. debug/source map options
                     "out-dir": config.dst,
                     plugin: plugin
                 };
@@ -500,11 +380,13 @@ class Warhorse {
     /**
      * Task for automatically documenting project source code.
      * @param {string} type - Type of source file.
+     * @param {string} config - The tool configuration.
      * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
+     * @private
      */
     document(type, config, options={}) {
 
@@ -518,7 +400,7 @@ class Warhorse {
             let configPath = path.resolve(this.moduleDirectory, "./conf/jsdoc.json");
             let toolArgs = [config.src];
             let toolOptions = {
-                verbose: this.settings.debug || config.debug,   // i.e. debug/source map options
+                verbose: this.debug || config.debug,   // i.e. debug/source map options
                 configure: configPath,
                 destination: config.dst,
                 recurse: true
@@ -541,6 +423,7 @@ class Warhorse {
     /**
      * Task for linting source and template code. e.g. JS, LESS, SASS.
      * @param {string} type - Type of source file.
+     * @param {string} config - The tool configuration.
      * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
@@ -548,6 +431,7 @@ class Warhorse {
      * @param {string} options.exclude - Exclude file(s) from the task.
      * @param {string} options.include - Include file(s) for the task.
      * @returns {Object} - Returns self for chaining.
+     * @private
      */
     lint(type, config, options={}) {
 
@@ -597,6 +481,7 @@ class Warhorse {
     /**
      * Task for minifying distributed code. e.g. JS, CSS.
      * @param {string} type - Type of source file.
+     * @param {string} config - The tool configuration.
      * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
@@ -604,6 +489,7 @@ class Warhorse {
      * @param {string} options.exclude - Exclude a file from the output bundle. Can be globs.
      * @param {string} options.include - Include a file from another bundle. Can be globs.
      * @returns {Object} - Returns self for chaining.
+     * @private
      */
     minify(type, config, options={}) {
 
@@ -613,7 +499,7 @@ class Warhorse {
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
             let toolArgs = [config.src];
             let toolOptions = {
-                verbose: this.settings.debug || config.debug,   // i.e. debug/source map options
+                verbose: this.debug || config.debug,   // i.e. debug/source map options
                 "config-file": config.conf,
                 output: config.dst,
                 compress: true,
@@ -631,8 +517,8 @@ class Warhorse {
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
             let toolArgs = [];
             let toolOptions = {
-                debug: this.settings.debug || config.debug,   // i.e. debug/source map options
-                map: this.settings.debug || config.debug,   // i.e. debug/source map options
+                debug: this.debug || config.debug,   // i.e. debug/source map options
+                map: this.debug || config.debug,   // i.e. debug/source map options
                 input: config.src,
                 output: config.dst
             };
@@ -654,6 +540,7 @@ class Warhorse {
     /**
      * Task for preprocessing template code. e.g. Handlebars, LESS, SASS.
      * @param {string} type - Type of source file.
+     * @param {string} config - The tool configuration.
      * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
@@ -661,6 +548,7 @@ class Warhorse {
      * @param {string} options.exclude - Exclude file(s) from the task.
      * @param {string} options.include - Include file(s) for the task.
      * @returns {Object} - Returns self for chaining.
+     * @private
      */
     preprocess(type, config, options={}) {
 
@@ -670,7 +558,7 @@ class Warhorse {
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
             let toolArgs = [config.src, config.dst];
             let toolOptions = {
-                "source-map": this.settings.debug || config.debug,   // i.e. debug/source map options
+                "source-map": this.debug || config.debug,   // i.e. debug/source map options
                 "include-path": config.include,
                 "relative-urls": true
             };
@@ -686,7 +574,7 @@ class Warhorse {
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
             let toolArgs = [config.src, config.dst];
             let toolOptions = {
-                "source-map": this.settings.debug || config.debug,   // i.e. debug/source map options
+                "source-map": this.debug || config.debug,   // i.e. debug/source map options
                 "include-path": config.include,
                 "relative-urls": true
             };
@@ -708,11 +596,13 @@ class Warhorse {
     /**
      * Task for post-processing source code. e.g. CSS.
      * @param {string} type - Type of source file.
+     * @param {string} config - The tool configuration.
      * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
+     * @private
      */
     postprocess(type, config, options={}) {
 
@@ -721,7 +611,7 @@ class Warhorse {
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
             let toolArgs = [config.src];
             let toolOptions = {
-                map: this.settings.debug || config.debug,   // i.e. debug/source map options
+                map: this.debug || config.debug,   // i.e. debug/source map options
                 output: config.dst,
                 replace: true
             };
@@ -748,11 +638,13 @@ class Warhorse {
     /**
      * TODO: IMPLEMENT Task for publishing the distribution to cloud services. e.g. NPM.
      * @param {string} type - Type of source file.
+     * @param {string} config - The tool configuration.
      * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.dst - The destination/target path for this task.
      * @returns {Object} - Returns self for chaining.
+     * @private
      */
     publish(type, config, options={}) {
         if(type === "npm") {
@@ -766,12 +658,14 @@ class Warhorse {
     /**
      * Task for testing code. e.g. JS.
      * @param {string} type - Type of source file.
+     * @param {string} config - The tool configuration.
      * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.src - The source path for this task.
      * @param {string} options.coverage - Report on unit coverage.
      * @param {string} options.update - Update any test snapshots.
      * @returns {Object} - Returns self for chaining.
+     * @private
      */
     test(type, config, options={}) {
 
@@ -788,7 +682,7 @@ class Warhorse {
             //let configPath = path.resolve(this.moduleDirectory, "./conf/jest.json");
             let toolArgs = [src];
             let toolOptions = {
-                verbose: this.settings.debug || config.debug   // i.e. debug/source map options
+                verbose: this.debug || config.debug   // i.e. debug/source map options
                 //config: configPath
                 //coverage: true
             };
@@ -807,10 +701,12 @@ class Warhorse {
     /**
      * Task for controlling VCSs. e.g. GIT
      * @param {string} type - Type of source file.
+     * @param {string} config - The tool configuration.
      * @param {Object} [options] - Options to override or extend this task's default configuration.
      * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
      * @param {string} options.action - The versioning action to execute.
      * @returns {Object} - Returns self for chaining.
+     * @private
      */
     version(type, config, options={}) {
         if(type === "git") {
