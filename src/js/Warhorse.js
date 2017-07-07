@@ -26,8 +26,8 @@ const Cli = require("./helpers/CliHelper");
 const File = require("./helpers/FileHelper");
 
 // Default values and templates
-// const defaults = require("./conf/defaults");
-const defaults = require("./conf/temporary_local");
+const defaults = require("./conf/defaults");
+// const defaults = require("./conf/defaults_testing");
 const packageBase = require("../conventions/package_base.json");
 const packageSnippets = require("../conventions/package_snippets.json");
 
@@ -366,13 +366,7 @@ class Warhorse {
     //     console.h4(`Done.`);
     // }
     clean(type, config, options = {}) {
-        // Log task beginning
-        if(options.silent !== true) {console.h2(`TASK: Cleaning project...`);}
-
         shell.rm("-rf", path.resolve(this.workingDirectory, "./dist/*"));
-
-        // Log task ending
-        if(options.silent !== true) {console.h4(`Done.`);}
     }
 
     /**
@@ -385,17 +379,11 @@ class Warhorse {
      */
     copy(type, config, options = {}) {
 
-        // Log task beginning
-        if(options.silent !== true) {console.h2(`TASK: Copying ${type.toUpperCase()}...`);}
-
         if(options.recurse === true) {
             shell.cp("-R", config.src, config.dst);
         } else {
             shell.cp(config.src, config.dst);
         }
-
-        // Log task ending
-        if(options.silent !== true) {console.h4(`Done.`);}
     }
 
     /**
@@ -410,9 +398,6 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     bundle(type, config, options={}) {
-
-        // Log task execution
-        if(options.silent !== true) {console.h2(`TASK: Bundling ${type.toUpperCase()}...`);}
 
         // Select sub-task based on data type
         if(type === "js") {
@@ -444,9 +429,6 @@ class Warhorse {
             throw new Error(`Unrecognised type '${type}'.`);
         }
 
-        // Log task ending
-        if(options.silent !== true) {console.h4(`Done.`);}
-
         // Return self for chaining.
         return this;
     }
@@ -461,11 +443,6 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     compress(type, config, options={}) {
-
-        // "js" ->
-
-        // Log task execution
-        if(options.silent !== true) {console.h2(`TASK: Compressing ${type.toUpperCase()}...`);}
 
         // Select sub-task based on data type
         if(["css", "js", "txt"].includes(type)) {
@@ -516,9 +493,6 @@ class Warhorse {
             throw new Error(`Unrecognised type '${type}'.`);
         }
 
-        // Log task ending
-        if(options.silent !== true) {console.h4(`Done.`);}
-
         // Return self for chaining.
         return this;
     }
@@ -533,8 +507,6 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     document(type, config, options={}) {
-        // Log task execution
-        if(options.silent !== true) {console.h2(`TASK: Documenting ${type.toUpperCase()}...`);}
 
         // Select sub-task based on data type
         if(type === "js") {
@@ -562,9 +534,6 @@ class Warhorse {
             throw new Error(`Unrecognised type '${type}'.`);
         }
 
-        // Log task ending
-        if(options.silent !== true) {console.h4(`Done.`);}
-
         // Return self for chaining.
         return this;
     }
@@ -581,9 +550,6 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     lint(type, config, options={}) {
-
-        // Log task execution
-        if(options.silent !== true) {console.h2(`TASK: Linting ${type.toUpperCase()}...`);}
 
         // Select sub-task based on data type
         if(type === "js:style") {
@@ -624,14 +590,9 @@ class Warhorse {
             throw new Error(`Unrecognised type '${type}'.`);
         }
 
-        // Log task ending
-        if(options.silent !== true) {console.h4(`Done.`);}
-
         // Return self for chaining.
         return this;
     }
-
-
 
     /**
      * Task for minifying distributed code. e.g. JS, CSS.
@@ -645,9 +606,6 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     minify(type, config, options={}) {
-
-        // Log task execution
-        if(options.silent !== true) {console.h2(`TASK: Minifying ${type.toUpperCase()}...`);}
 
         // Select sub-task based on data type
         if(type === "js") {
@@ -689,9 +647,6 @@ class Warhorse {
             throw new Error(`Unrecognised type '${type}'.`);
         }
 
-        // Log task ending
-        if(options.silent !== true) {console.h4(`Done.`);}
-
         // Return self for chaining.
         return this;
     }
@@ -708,9 +663,6 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     preprocess(type, config, options={}) {
-
-        // Log task execution
-        if(options.silent !== true) {console.h2(`TASK: Precompiling ${type.toUpperCase()}...`);}
 
         // Select sub-task based on data type
         if(type === "less") {
@@ -749,9 +701,6 @@ class Warhorse {
             throw new Error(`Unrecognised type '${type}'.`);
         }
 
-        // Log task ending
-        if(options.silent !== true) {console.h4(`Done.`);}
-
         // Return self for chaining.
         return this;
     }
@@ -766,9 +715,6 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      */
     postprocess(type, config, options={}) {
-
-        // Log task execution
-        if(options.silent !== true) {console.h2(`TASK: Postprocessing ${type.toUpperCase()}...`);}
 
         if(type === "css") {
 
@@ -794,9 +740,6 @@ class Warhorse {
         } else {
             throw new Error(`Unrecognised type '${type}'.`);
         }
-
-        // Log task ending
-        if(options.silent !== true) {console.h4(`Done.`);}
 
         // Return self for chaining.
         return this;
@@ -832,9 +775,6 @@ class Warhorse {
      */
     test(type, config, options={}) {
 
-        // Log task execution
-        if(options.silent !== true) {console.h2(`TASK: Testing ${type.toUpperCase()}...`);}
-
         // Select sub-task based on data type
         if(type === "js") {
 
@@ -859,9 +799,6 @@ class Warhorse {
         } else {
             throw new Error(`Unrecognised type '${type}'.`);
         }
-
-        // Log task ending
-        if(options.silent !== true) {console.h4(`Done.`);}
 
         // Return self for chaining.
         return this;
@@ -890,9 +827,6 @@ class Warhorse {
         } else {
             throw new Error(`Unrecognised type '${type}'.`);
         }
-
-        // Log task ending
-        if(options.silent !== true) {console.h4(`Done.`);}
 
         // Return self for chaining.
         return this;
@@ -1132,105 +1066,6 @@ class Warhorse {
         console.log("");
     }
 
-
-    // /**
-    //  * Load action.  Loads files being used for processing by the action that follows.
-    //  * @param {Object} options - Options to further configure this action.
-    //  * @returns {Object} - Returns self for chaining.
-    //  */
-    // load(options = {}) {
-    //
-    //     let config = Object.assign(this.settings.load, options);
-    //
-    //     // Accepts a single filepath only.
-    //     let srcPath = this.file.path + this.file.name;
-    //     console.h3(`Loading file: ${this.file.path + this.file.name}`);
-    //
-    //     this.file.content = fs.readFileSync(srcPath, config.encoding);
-    //
-    //     // Return self for chaining.
-    //     return this;
-    // }
-    
-    // /**
-    //  * Rename task.  Allows modification/replacement/injection of file details into the sequence of actions.
-    //  * @param {Object} options - Options to further configure this action.
-    //  * @returns {Object} - Returns self for chaining.
-    //  */
-    // rename(options = {}) {
-    //
-    //     console.h3(`Renaming file: ${this.file.path}`);
-    //
-    //     let config = Object.assign(this.settings.save, options);
-    //
-    //     // Rename (i.e. overwrite) any values in the file object with the user-defined options object
-    //     this.file = Object.assign(this.file, config);
-    //
-    //     // Return self for chaining.
-    //     return this;
-    // }
-
-    // /**
-    //  * Splits a file path into its component parts.
-    //  * @param {string} filePath - A standard system file or path name.
-    //  * @returns {Object} - An object containing a destructured hash of the path's parts.
-    //  * @private
-    //  */
-    // _splitPath(filePath) {
-    //
-    //     // Sanity check
-    //     if(!filePath) {return null;}
-    //
-    //     //console.h4(`Splitting file path: ${filePath}`); // e.g. /docs/index.html  // DEBUG ONLY
-    //
-    //     let name = path.posix.basename(filePath);           // e.g. index.html
-    //     let directory = path.dirname(filePath) + "/";       // e.g. /docs/
-    //     let stem = name.slice(0, name.lastIndexOf("."));    // e.g. index
-    //     let extension = path.extname(filePath);             // e.g. .html
-    //
-    //     // console.log(`name: ${name}`);
-    //     // console.log(`directory: ${directory}`);
-    //     // console.log(`stem: ${stem}`);
-    //     // console.log(`extension: ${extension}`);
-    //
-    //     // Is it a config file e.g. .jshintrc
-    //     let config = false;
-    //     if(extension === "" && name.length > 0 && name[0] === "." && name.slice(-2) === "rc") {
-    //         config = true;
-    //     }
-    //     return {
-    //         original: filePath,
-    //         path: directory, // Note: We use 'directory' to avoid nameclash with the module of the same name.
-    //         name: name,
-    //         stem: stem,
-    //         extension: extension,
-    //         config: config
-    //     };
-    // }
-
-    // /**
-    //  * Save action.
-    //  * @param {string} dstPath - The file path that this file will be saved to.
-    //  * @param {Object} options - Options to further configure this action.
-    //  * @returns {Object} - Returns self for chaining.
-    //  */
-    // save(dstPath, options = {}) {
-    //
-    //     let config = Object.assign(this.settings.save, options);
-    //
-    //     console.h3(`Saving file to: ${dstPath}`);
-    //
-    //     if(config.compress === true) {
-    //         fs.writeFileSync(dstPath, this.file.content, config.encoding);
-    //         child.execSync(`tar -zcvf ${dstPath + ".tar.gz"} ${dstPath}`);
-    //     } else {
-    //         fs.writeFileSync(dstPath, this.file.content, config.encoding);
-    //     }
-    //
-    //     // Return self for chaining.
-    //     return this;
-    // }
-
     /**
      *
      * @param {string} warhorseDirectory
@@ -1255,7 +1090,7 @@ class Warhorse {
         let executablePath = path.resolve(this.moduleDirectory, relativeExecutablePath);
         let cmdLine = Cli._compileCmdLine(executablePath, args, argOptions, options);
         //if(options.debug) {console.log("Executing: " + cmdLine);}
-        console.log("Executing: " + cmdLine);
+        // console.log("Executing: " + cmdLine);
 
         let stdout = null; let stderr = null;
         try {
@@ -1319,142 +1154,45 @@ class Warhorse {
         return this;
     }
 
-    //
-    // /**
-    //  * Private helper for load().
-    //  * @param {string} globPath - A filename, filepath or globpath.
-    //  * @param {Function} task - The task to be executed.
-    //  * @param {Object} options - Options to further configure the task actions.
-    //  * @returns {void}
-    //  * @private
-    //  */
-    // _use(globPath, task, options) {
-    //     //console.h3(`Parsing: ${globPath}`);
-    //
-    //     // Sync filesystem check
-    //     let filePaths = glob.sync(globPath);
-    //     if(filePaths.constructor === Array && filePaths.length > 0) {
-    //         for(let filePath of filePaths) {
-    //             this.file = this._splitPath(filePath);
-    //             task(options);
-    //         }
-    //     } else {
-    //         console.warn("No files matched.");
-    //     }
-    // }
-
-    // /**
-    //  * Executes the named command or task.
-    //  * @param {string} name - Name of the command or task to execute.
-    //  * @returns {Object} - Returns self for chaining.
-    //  */
-    // execute(name) {
-    //     if(this.commands.includes(name)) {
-    //         let cmd = this.cmds[name];
-    //         if(cmd !== null) {cmd();}
-    //     } else {
-    //         throw new Error(`Unrecognised command '${name}'.`);
-    //     }
-    //
-    //     // Return self for chaining.
-    //     return this;
-    // }
-
-    // /**
-    //  * Execute command from the CLI.
-    //  * @param {string} args - Arguments passed from the command line interface.
-    //  * @returns {Object} - Returns self for chaining.
-    //  * @private
-    //  */
-    // cli(args) {
-    //     console.h0(`WARHORSE active...`);
-    //
-    //     // Determine command and any arguments
-    //     let cmdName = args[0];
-    //     let arg1 = args[1];
-    //     let arg2 = args[2];
-    //
-    //     // If an invalid command is given - don't error - just exit gracefully.
-    //     if(!this.commands.includes(cmdName)) {
-    //         console.h0(`WARHORSE done.`);
-    //         console.error(`Error: Unrecognised command: '${cmdName}'.`);
-    //         return this;
-    //     }
-    //
-    //     console.h1(`COMMAND ${cmdName}`);
-    //
-    //     // Handle built-in commands separately
-    //     switch(cmdName) {
-    //         case "create":
-    //             if(this.conventions.includes(arg1)) {
-    //                 this._cmdCreate(arg1);
-    //             } else {
-    //                 // If an invalid convention is given - don't error - just exit gracefully.
-    //                 console.h0(`WARHORSE done.`);
-    //                 console.error(`Error: Unrecognised project convention: '${arg1}'.`);
-    //                 return this;
-    //             }
-    //             break;
-    //         case "deploy":
-    //             if(this.deployments.includes(arg1)) {
-    //                 this._cmdDeploy(arg1);
-    //             } else {
-    //                 // If an invalid deployment is given - don't error - just exit gracefully.
-    //                 console.h0(`WARHORSE done.`);
-    //                 console.error(`Error: Unrecognised project deployment: '${arg1}'.`);
-    //                 return this;
-    //             }
-    //             break;
-    //         case "watch":
-    //             this._cmdWatch(this.workingDirectory);
-    //             break;
-    //         default:
-    //             // Handle standard built-ins
-    //             let cmd = this.cmds[cmdName];
-    //             if(cmd !== null) {
-    //                 //console.log("Executing command type: " + typeof cmd);
-    //                 cmd();
-    //             } else {
-    //                 console.h0(`WARHORSE done.`);
-    //                 console.error(`Error: Command recognized but unable to complete: '${cmdName}'.`);
-    //                 return this;
-    //             }
-    //     }
-    //
-    //     console.h0(`WARHORSE done.`);
-    //
-    //     // Return self for chaining.
-    //     return this;
-    // }
-
-
+    /**
+     *
+     * @param srcRoot
+     * @param srcPath
+     * @param dstRoot
+     * @param dstExt
+     * @private
+     */
     _resolveDst(srcRoot, srcPath, dstRoot, dstExt) {
         let srcRootAbsolute = path.resolve(srcRoot);                        // e.g. /home/kas/project/engine/src
-        console.log("srcRootAbsolute: " + srcRootAbsolute);
+        //console.log("srcRootAbsolute: " + srcRootAbsolute);
         let srcPathAbsolute = path.resolve(srcPath);                        // e.g. /home/kas/project/engine/src/js/Engine.js
-        console.log("srcPathAbsolute: " + srcPathAbsolute);
+        //console.log("srcPathAbsolute: " + srcPathAbsolute);
 
         // srcPath MUST be a subset of srcRoot thus...
         let relativeFilePath = "." + srcPathAbsolute.slice(srcRootAbsolute.length);   // e.g. /js/Engine.js
-        console.log("relativeFilePath: " + relativeFilePath);
+        //console.log("relativeFilePath: " + relativeFilePath);
         let relativePath = path.dirname(relativeFilePath);                  // e.g. /js
-        console.log("relativePath: " + relativePath);
+        //console.log("relativePath: " + relativePath);
         let srcFileStem = path.basename(srcPath, path.extname(srcPath));
-        console.log("srcFileStem: " + srcFileStem);
+        //console.log("srcFileStem: " + srcFileStem);
         let dstFileName = srcFileStem + dstExt;
-        console.log("dstFileName: " + dstFileName);
+        //console.log("dstFileName: " + dstFileName);
         let dstRootAbsolute = path.resolve(dstRoot);                        // e.g. /home/kas/project/engine/dist
-        console.log("dstRootAbsolute: " + dstRootAbsolute);
+        //console.log("dstRootAbsolute: " + dstRootAbsolute);
         let dstPathAbsolute = path.resolve(dstRootAbsolute, relativePath, dstFileName);                       // e.g. /home/kas/project/engine/dist/js/Engine.js
-        console.log("dstPathAbsolute: " + dstPathAbsolute);
+        //console.log("dstPathAbsolute: " + dstPathAbsolute);
         return dstPathAbsolute;
     }
 
 
     _executeTask(toolConfig, task) {
-        console.log(`Executing task: ${task.idn}`);
-        console.log("with details: " + JSON.stringify(task));
-        console.log("and config: " + JSON.stringify(toolConfig));
+
+        // Log task execution
+        if(toolConfig.silent !== true) {console.h2(`TASK: ${toolConfig.desc}...`);}
+
+        // console.log(`Executing task: ${task.idn}`); // DEBUG ONLY
+        // console.log("with details: " + JSON.stringify(task)); // DEBUG ONLY
+        // console.log("and config: " + JSON.stringify(toolConfig)); // DEBUG ONLY
 
         let [taskMethod, taskType, taskSubtype] = task.idn.split(":");
         if(taskSubtype !== undefined) {
@@ -1462,7 +1200,7 @@ class Warhorse {
         }
         if(toolConfig.expandGlobs === true) {
             let srcPaths = glob.sync(path.resolve(task.src[0], task.src[1]));
-            console.log("GLOBBED: " + JSON.stringify(srcPaths));
+            // console.log(`and a src glob that has resolved into ${srcPaths.length} paths.`); // DEBUG ONLY
             if(srcPaths.constructor === Array && srcPaths.length > 0) {
                 for(let src of srcPaths) {
                     let expandedTask = JSON.parse(JSON.stringify(task)); // Cheap, tacky - but effective - clone!
@@ -1479,13 +1217,14 @@ class Warhorse {
             this[taskMethod](taskType, task, toolConfig);
         }
 
+        // Log task ending
+        if(toolConfig.silent !== true) {console.h4(`Done.`);}
     }
 
     _executePipeline(buildType, pipeline) {
-        console.log(`Executing pipeline for: ${buildType}`);
+        //console.log(`Executing pipeline for: ${buildType}`);
         let toolConfigs = defaults.tools[buildType];
-        // console.log("Have configs: " + JSON.stringify(Object.keys(toolConfigs)));
-        console.log("Pipeline: " + JSON.stringify(pipeline));
+        // console.log("Pipeline: " + JSON.stringify(pipeline));
 
         for(let task of pipeline) {
             let toolConfig = toolConfigs[task.idn];
@@ -1508,7 +1247,7 @@ class Warhorse {
         let cmdName = args[0];
         let arg1 = args[1];
         let arg2 = args[2];
-        console.log("ARGS: " + JSON.stringify(args));
+        // console.log("ARGS: " + JSON.stringify(args));
 
         // If an invalid command is given - don't error - just exit gracefully.
         if(!this.commands.includes(cmdName)) {

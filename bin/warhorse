@@ -34,19 +34,7 @@ const help = `
   WARHORSE HELP
   
 	Usage
-	  $ warhorse <flags> <command> <options>
-
-	Commands
-	  build,        Builds the project in the current directory.
-	  create,       Initialises and creates a new project interactively in a named sub-directory.
-	  distribute,   Makes a final distribution build of the project in the ./dist directory.
-	  document,     Documents the project in the current directory.
-	  lint,         Lints source files - checking code style and quality.
-	  pack,         Packs and places image assets.
-	  process,      Pre-process, post-process and pack all stylesheets and templates assets.
-	  publish,      [TO BE IMPLEMENTED] Publishes final distribution to NPM or other configured services.
-	  test          Executes unit and integration tests.
-	  watch         Watch source files and rebuild/retest automatically.
+	  $ warhorse <flags> <command> <args>
 
 	Flags
 	  --conf,       -c  Use a specific configuration file.
@@ -54,10 +42,18 @@ const help = `
 	  --help,       -h  Shows this information.
 	  --version,    -v  Shows Warhorse CLI version.
 
+	Commands
+	  build,        Builds the project in the current directory.
+	  create,       Initialises and creates a new project interactively in a named sub-directory.
+	  distribute,   Makes a final distribution build of the project in the ./dist directory.
+	  publish,      [TO BE IMPLEMENTED] Publishes final distribution to NPM or other configured services.
+	  test          Executes unit and integration tests.
+	  watch         Watch source files and rebuild/retest automatically.
+
 	Examples
 	  $ warhorse create module
 	  $ warhorse test
-	  $ warhorse test -- specific.test.js
+	  $ warhorse build sass
 	  $ warhorse distribute 
 	     🌈 ...CRUSHING YOUR ENEMIES!!! 🌈
 

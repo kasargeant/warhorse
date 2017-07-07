@@ -4,63 +4,63 @@ module.exports = {
     pipelines: {
         build: {
             "js": [
-                {idn: "bundle:js", src: ["./src", "**/index.js"], dst: ["./dist", ".js"]},
+                {idn: "bundle:js", src: ["./test/data/client_src", "**/index.js"], dst: ["./test/data/client_dist", ".js"]},
             ],
             "css": [
-                {idn: "copy:css", src: ["./src/css", "*.css"], dst: ["./dist/css", ".css"]},
-                {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
+                {idn: "copy:css", src: ["./test/data/client_src/css", "*.css"], dst: ["./test/data/client_dist/css", ".css"]},
+                {idn: "postprocess:css", src: ["./test/data/client_dist/css", "**/*.css"], dst: ["./test/data/client_dist/css", ".css"]},
             ],
             "html": [
-                {idn: "copy:html", src: ["./src", "*.html"], dst: ["./dist", ".html"]}
+                {idn: "copy:html", src: ["./test/data/client_src", "*.html"], dst: ["./test/data/client_dist", ".html"]}
             ],
             "less": [
-                {idn: "preprocess:less", src: ["./src/less", "**/index.less"], dst: ["./dist/css", ".css"]},
-                {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
+                {idn: "preprocess:less", src: ["./test/data/client_src/less", "**/index.less"], dst: ["./test/data/client_dist/css", ".css"]},
+                {idn: "postprocess:css", src: ["./test/data/client_dist/css", "**/*.css"], dst: ["./test/data/client_dist/css", ".css"]},
             ],
             "sass": [
-                {idn: "preprocess:sass", src: ["./src/sass", "index.scss"], dst: ["./dist/css", ".css"]},
-                {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
+                {idn: "preprocess:sass", src: ["./test/data/client_src/sass", "index.scss"], dst: ["./test/data/client_dist/css", ".css"]},
+                {idn: "postprocess:css", src: ["./test/data/client_dist/css", "**/*.css"], dst: ["./test/data/client_dist/css", ".css"]},
             ],
             // "hbs": [
             //     {
             //         task: "preprocess:hbs",
-            //         src: ["./src/js/templates",
-            //         dst: "./dist/js/templates",
+            //         src: ["./test/data/client_src/js/templates",
+            //         dst: "./test/data/client_dist/js/templates",
             //         sxt: ".hbs",
             //         dxt: ".hbs.js"
             //     },
             // ],
             "gif": [
-                {idn: "copy:gif", src: ["./src/img", "**/*.gif"], dst: ["./dist/img", ".gif"]},
+                {idn: "copy:gif", src: ["./test/data/client_src/img", "**/*.gif"], dst: ["./test/data/client_dist/img", ".gif"]},
             ],
             "jpg": [
-                {idn: "copy:jpg", src: ["./src/img", "**/*.jpg"], dst: ["./dist/img", ".jpg"]},
+                {idn: "copy:jpg", src: ["./test/data/client_src/img", "**/*.jpg"], dst: ["./test/data/client_dist/img", ".jpg"]},
             ],
             "png": [
-                {idn: "copy:png", src: ["./src/img", "**/*.png"], dst: ["./dist/img", ".png"]},
+                {idn: "copy:png", src: ["./test/data/client_src/img", "**/*.png"], dst: ["./test/data/client_dist/img", ".png"]},
             ],
             "svg": [
-                {idn: "copy:svg", src: ["./src/img", "**/*.svg"], dst: ["./dist/img", ".svg"]},
+                {idn: "copy:svg", src: ["./test/data/client_src/img", "**/*.svg"], dst: ["./test/data/client_dist/img", ".svg"]},
             ],
             "ico": [
-                {idn: "copy:ico", src: ["./src/img", "**/*.ico"], dst: ["./dist/img", ".ico"]},
+                {idn: "copy:ico", src: ["./test/data/client_src/img", "**/*.ico"], dst: ["./test/data/client_dist/img", ".ico"]},
             ]
         },
 
         test: {
             "js": [
-                {idn: "lint:js:quality", src: ["./src/js", ""], dst: null},
-                {idn: "lint:js:style", src: ["./src/js", ""], dst: null},
+                {idn: "lint:js:quality", src: ["./test/data/client_src/js", ""], dst: null},
+                {idn: "lint:js:style", src: ["./test/data/client_src/js", ""], dst: null},
                 {idn: "test:js", src: ["./test/js", ""], dst: null}
             ],
             // TODO - ADD CSS Linter
             "css": [],
             "html": [],
             "less": [
-                // {idn: "lint:less", src: ["./src/less", ""], dst: null, sxt: ".less", dxt: null}
+                // {idn: "lint:less", src: ["./test/data/client_src/less", ""], dst: null, sxt: ".less", dxt: null}
             ],
             "sass": [
-                // {idn: "lint:sass", src: ["./src/sass", ""], dst: null, sxt: ".scss", dxt: null}
+                // {idn: "lint:sass", src: ["./test/data/client_src/sass", ""], dst: null, sxt: ".scss", dxt: null}
             ],
             // TODO - IS THERE A TEMPLATE Linter?
             "hbs": [],
@@ -73,53 +73,53 @@ module.exports = {
 
         distribute: {
             "js": [
-                {idn: "lint:js:quality", src: ["./src/js", ""], dst: null},
-                {idn: "lint:js:style", src: ["./src/js", ""], dst: null},
+                {idn: "lint:js:quality", src: ["./test/data/client_src/js", ""], dst: null},
+                {idn: "lint:js:style", src: ["./test/data/client_src/js", ""], dst: null},
                 {idn: "test:js", src: ["./test/js", ""], dst: null},
-                {idn: "bundle:js", src: ["./src", "**/index.js"], dst: ["./dist", ".js"]},
-                {idn: "minify:js", src: ["./dist", "**/*.js"], dst: ["./dist", ".min.js"]},
-                {idn: "compress:js", src: ["./dist", "**/*.min.js"], dst: ["./dist", ".min.js.tar.gz"]},
-                // {idn: "document:js", src: ["./src/js"], dst: ["./docs/api"]},
+                {idn: "bundle:js", src: ["./test/data/client_src", "**/index.js"], dst: ["./test/data/client_dist", ".js"]},
+                {idn: "minify:js", src: ["./test/data/client_dist", "**/*.js"], dst: ["./test/data/client_dist", ".min.js"]},
+                {idn: "compress:js", src: ["./test/data/client_dist", "**/*.min.js"], dst: ["./test/data/client_dist", ".min.js.tar.gz"]},
+                // {idn: "document:js", src: ["./test/data/client_src/js"], dst: ["./docs/api"]},
             ],
             "css": [
-                {idn: "copy:css", src: ["./src/css", "**/*.css"], dst: ["./dist/css", ".css"]},
-                {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
-                {idn: "minify:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".min.css"]},
-                {idn: "compress:css", src: ["./dist/css", "**/*.min.css"], dst: ["./dist/css", ".min.css.tar.gz"]},
+                {idn: "copy:css", src: ["./test/data/client_src/css", "**/*.css"], dst: ["./test/data/client_dist/css", ".css"]},
+                {idn: "postprocess:css", src: ["./test/data/client_dist/css", "**/*.css"], dst: ["./test/data/client_dist/css", ".css"]},
+                {idn: "minify:css", src: ["./test/data/client_dist/css", "**/*.css"], dst: ["./test/data/client_dist/css", ".min.css"]},
+                {idn: "compress:css", src: ["./test/data/client_dist/css", "**/*.min.css"], dst: ["./test/data/client_dist/css", ".min.css.tar.gz"]},
             ],
             "html": [
-                {idn: "minify:html", src: ["./src"], dst: ["./dist", ".html"]},
-                {idn: "compress:html", src: ["./dist"], dst: ["./dist", ".html.tar.gz"]}
+                {idn: "minify:html", src: ["./test/data/client_src"], dst: ["./test/data/client_dist", ".html"]},
+                {idn: "compress:html", src: ["./test/data/client_dist"], dst: ["./test/data/client_dist", ".html.tar.gz"]}
             ],
             "less": [
-                {idn: "preprocess:less", src: ["./src/less", "**/index.less"], dst: ["./dist/css", ".css"]},
-                {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
-                {idn: "minify:css", src: ["./dist/css"], dst: ["./dist/css", ".min.css"]},
-                {idn: "compress:css", src: ["./dist/css", "**/*.min.css"], dst: ["./dist/css", ".min.css.tar.gz"]},
+                {idn: "preprocess:less", src: ["./test/data/client_src/less", "**/index.less"], dst: ["./test/data/client_dist/css", ".css"]},
+                {idn: "postprocess:css", src: ["./test/data/client_dist/css", "**/*.css"], dst: ["./test/data/client_dist/css", ".css"]},
+                {idn: "minify:css", src: ["./test/data/client_dist/css"], dst: ["./test/data/client_dist/css", ".min.css"]},
+                {idn: "compress:css", src: ["./test/data/client_dist/css", "**/*.min.css"], dst: ["./test/data/client_dist/css", ".min.css.tar.gz"]},
             ],
             "sass": [
-                {idn: "preprocess:sass", src: ["./src/sass", "**/index.scss"], dst: ["./dist/css", ".css"]},
-                {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
-                {idn: "minify:css", src: ["./dist/css"], dst: ["./dist/css", ".min.css"]},
-                {idn: "compress:css", src: ["./dist/css", "**/*.min.css"], dst: ["./dist/css", ".min.css.tar.gz"]},
+                {idn: "preprocess:sass", src: ["./test/data/client_src/sass", "**/index.scss"], dst: ["./test/data/client_dist/css", ".css"]},
+                {idn: "postprocess:css", src: ["./test/data/client_dist/css", "**/*.css"], dst: ["./test/data/client_dist/css", ".css"]},
+                {idn: "minify:css", src: ["./test/data/client_dist/css"], dst: ["./test/data/client_dist/css", ".min.css"]},
+                {idn: "compress:css", src: ["./test/data/client_dist/css", "**/*.min.css"], dst: ["./test/data/client_dist/css", ".min.css.tar.gz"]},
             ],
             "hbs": [
-                {idn: "preprocess:hbs", src: ["./src/js/templates"], dst: ["./dist/js/templates", ".hbs.js"]},
+                {idn: "preprocess:hbs", src: ["./test/data/client_src/js/templates"], dst: ["./test/data/client_dist/js/templates", ".hbs.js"]},
             ],
             "gif": [
-                {idn: "compress:gif", src: ["./src/img", "**/*.gif"], dst: ["./dist/img", ".gif"]},
+                {idn: "compress:gif", src: ["./test/data/client_src/img", "**/*.gif"], dst: ["./test/data/client_dist/img", ".gif"]},
             ],
             "jpg": [
-                {idn: "compress:jpg", src: ["./src/img", "**/*.jpg"], dst: ["./dist/img", ".jpg"]},
+                {idn: "compress:jpg", src: ["./test/data/client_src/img", "**/*.jpg"], dst: ["./test/data/client_dist/img", ".jpg"]},
             ],
             "png": [
-                {idn: "compress:png", src: ["./src/img", "**/*.png"], dst: ["./dist/img", ".png"]},
+                {idn: "compress:png", src: ["./test/data/client_src/img", "**/*.png"], dst: ["./test/data/client_dist/img", ".png"]},
             ],
             "svg": [
-                {idn: "compress:svg", src: ["./src/img", "**/*.svg"], dst: ["./dist/img", ".svg"]},
+                {idn: "compress:svg", src: ["./test/data/client_src/img", "**/*.svg"], dst: ["./test/data/client_dist/img", ".svg"]},
             ],
             "ico": [
-                {idn: "copy:ico", src: ["./src/img", "**/*.ico"], dst: ["./dist/img", ".svg"]},
+                {idn: "copy:ico", src: ["./test/data/client_src/img", "**/*.ico"], dst: ["./test/data/client_dist/img", ".svg"]},
             ]
         },
     },
