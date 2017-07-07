@@ -11,7 +11,7 @@ module.exports = {
                 {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
             ],
             "html": [
-                {idn: "copy:html", src: ["./src", "*.html"], dst: ["./dist", ".html"]}
+                {idn: "copy:html", src: ["./src", "**/*.html"], dst: ["./dist", ".html"]}
             ],
             "less": [
                 {idn: "preprocess:less", src: ["./src/less", "**/index.less"], dst: ["./dist/css", ".css"]},
@@ -88,8 +88,8 @@ module.exports = {
                 {idn: "compress:css", src: ["./dist/css", "**/*.min.css"], dst: ["./dist/css", ".min.css.tar.gz"]},
             ],
             "html": [
-                {idn: "minify:html", src: ["./src"], dst: ["./dist", ".html"]},
-                {idn: "compress:html", src: ["./dist"], dst: ["./dist", ".html.tar.gz"]}
+                {idn: "minify:html", src: ["./src", "**/*.html"], dst: ["./dist", ".html"]},
+                {idn: "compress:html", src: ["./dist", "**/*.html"], dst: ["./dist", ".html.tar.gz"]}
             ],
             "less": [
                 {idn: "preprocess:less", src: ["./src/less", "**/index.less"], dst: ["./dist/css", ".css"]},
@@ -148,7 +148,7 @@ module.exports = {
             "lint:js:quality": {desc: "Linting JS(quality)", silent: false, debug: false, expandGlobs: false, useOutput: "jshint", useEqualsSign: true, stdio: "pipe"},
             "minify:js": {desc: "Minifying JS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "minify:css": {desc: "Minifying CSS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
-            "minify:html": {desc: "Minifying HTML", silent: false, debug: false, expandGlobs: false, useOutput: "stdout", useEqualsSign: false},
+            "minify:html": {desc: "Minifying HTML", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "preprocess:hbs": {desc: "Preprocessing HBS", silent: false, debug: false, expandGlobs: false, useOutput: "stdout", useEqualsSign: false},
             "preprocess:less": {desc: "Preprocessing LESS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "preprocess:sass": {desc: "Preprocessing SASS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
@@ -178,7 +178,7 @@ module.exports = {
             "lint:js:quality": {desc: "Linting JS(quality)", silent: false, debug: false, expandGlobs: false, useOutput: "jshint", useEqualsSign: true, stdio: "pipe"},
             "minify:js": {desc: "Minifying JS", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "minify:css": {desc: "Minifying CSS", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
-            "minify:html": {desc: "Minifying HTML", silent: true, debug: false, expandGlobs: false, useOutput: "stdout", useEqualsSign: false},
+            "minify:html": {desc: "Minifying HTML", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "preprocess:hbs": {desc: "Preprocessing HBS", silent: true, debug: false, expandGlobs: false, useOutput: "stdout", useEqualsSign: false},
             "preprocess:less": {desc: "Preprocessing LESS", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "preprocess:sass": {desc: "Preprocessing SASS", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
@@ -208,7 +208,7 @@ module.exports = {
             "lint:js:quality": {desc: "Linting JS(quality)", silent: false, debug: false, expandGlobs: false, useOutput: "jshint", useEqualsSign: true, stdio: "pipe"},
             "minify:js": {desc: "Minifying JS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "minify:css": {desc: "Minifying CSS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
-            "minify:html": {desc: "Minifying HTML", silent: false, debug: false, expandGlobs: false, useOutput: "stdout", useEqualsSign: false},
+            "minify:html": {desc: "Minifying HTML", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "preprocess:hbs": {desc: "Preprocessing HBS", silent: false, debug: false, expandGlobs: false, useOutput: "stdout", useEqualsSign: false},
             "preprocess:less": {desc: "Preprocessing LESS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: true},
             "preprocess:sass": {desc: "Preprocessing SASS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: true},

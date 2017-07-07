@@ -325,7 +325,7 @@ class Warhorse {
     compress(type, config, options={}) {
 
         // Select sub-task based on data type
-        if(["css", "js", "txt"].includes(type)) {
+        if(["css", "html", "js", "md", "txt"].includes(type)) {
 
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
             let toolArgs = [config.src];
@@ -528,6 +528,22 @@ class Warhorse {
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/csso", this.workingDirectory, toolArgs, toolOptions, options);
+
+        } else if(type === "html") {
+
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            let toolArgs = [config.src];
+            let toolOptions = {
+                debug: this.debug || config.debug,   // i.e. debug/source map options
+                "config-file": path.resolve(this.moduleDirectory, "./conf/html_minifier.json"),
+                output: config.dst
+            };
+
+            // Ensure that the destination directory actually exists... or if not, create it.
+            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+
+            // Finally map configuration to tool args and options
+            this._execute(this.moduleDirectory, "./node_modules/.bin/html-minifier", this.workingDirectory, toolArgs, toolOptions, options);
 
         } else {
             throw new Error(`Unrecognised type '${type}'.`);
