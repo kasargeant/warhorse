@@ -1,6 +1,14 @@
 module.exports = {
     language: "es51",
 
+    watch: {
+        "css": ["./css"],
+        "js": ["./src"],
+        "less": ["./src/less"],
+        "scss": ["./src/sass"],
+        "html": ["./src"]
+    },
+
     pipelines: {
         build: {
             "js": [

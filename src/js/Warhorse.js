@@ -66,10 +66,11 @@ class Warhorse {
 
         this.language = "es51" || options.language; // Options: "es51", "es2015"
 
-        this.commands = ["build", "clean", "create", "deploy", "distribute", "document", "lint", "pack", "process", "publish", "test", "watch"]; //FIXME - replace with Object.keys(warhorse.tasks);
+        this.commands = ["build", "create", "deploy", "distribute", "publish", "test", "watch"]; //FIXME - replace with Object.keys(warhorse.tasks);
         this.conventions = ["client", "library", "module", "server"]; //TODO "fullstack" convention,
         this.deployments = ["browser", "cordova", "node"]; //TODO "electron" deployment,
         this.types = ["css", "gif", "html", "ico", "jpg", "js", "less", "png", "sass", "svg"];
+        this.pipelineTypes = ["build", "distribute", "test"];
 
         this.moduleDirectory = moduleDirectory;     // i.e. Warhorse's own directory
         this.conventionsDirectory = moduleDirectory + "src/conventions/";
@@ -215,8 +216,12 @@ class Warhorse {
      * @returns {Object} - Returns self for chaining.
      * @private
      */
-    _cmdWatch(workingDirectory, options={}) {
-        File.watch(path.resolve(workingDirectory, "./src"));
+    _cmdWatch(workingDirectory, pipelineType, options) {
+        if(this.pipelineTypes.includes(pipelineType)) {
+            File.watch(path.resolve(workingDirectory), pipelineType, options);
+        } else {
+            console.error(`Error: Unrecognised pipeline type '${pipelineType}'.`);
+        }
     }
 
 
@@ -1002,7 +1007,7 @@ class Warhorse {
         let executablePath = path.resolve(this.moduleDirectory, relativeExecutablePath);
         let cmdLine = Cli._compileCmdLine(executablePath, args, argOptions, options);
         //if(options.debug) {console.log("Executing: " + cmdLine);}
-        // console.log("Executing: " + cmdLine);
+        console.log("Executing: " + cmdLine);
 
         let stdout = null; let stderr = null;
         try {
@@ -1166,6 +1171,8 @@ class Warhorse {
             console.h0(`WARHORSE done.`);
             console.error(`Error: Unrecognised command: '${cmdName}'.`);
             return this;
+        } else {
+            console.log("FOUND COMMAND " + cmdName);
         }
 
         console.h1(`COMMAND ${cmdName}`);
@@ -1193,7 +1200,7 @@ class Warhorse {
                 }
                 break;
             case "watch":
-                this._cmdWatch(this.workingDirectory);
+                this._cmdWatch(this.workingDirectory, arg1, defaults);
                 break;
             case "build":
             case "test":
