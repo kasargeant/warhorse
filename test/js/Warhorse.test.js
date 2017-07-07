@@ -205,34 +205,34 @@ describe("Class: Warhorse", function() {
         afterEach(() => {
             warhorse._execute.restore(); // Hardly necessary... but just for the symmetrical hell-of-it.
         });
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TASK: BUNDLE
-        it("should be able to resolve configurations for bundling: JS", function() {
-
-            // Setup
-            let options = defaults.tools.build["bundle:js"];
-            let config = defaults.pipelines.build["js"][0];
-            let src = path.resolve(config.src[0], config.src[1]);
-            let dst = warhorse._resolveDst(config.src[0], src, config.dst[0], config.dst[1]);
-            config.src = src;
-            config.dst = dst;
-
-            // Execute
-            warhorse.bundle("js", config, options);
-
-            // Evaluate
-            expect(warhorse._execute.callCount).toBe(1);
-            expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/browserify");
-            expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
-            expect(warhorse._execute.getCall(0).args[3]).toEqual(["/Users/kasargeant/dev/projects/warhorse/test/data/client_src/**/index.js"]);
-            expect(warhorse._execute.getCall(0).args[4]).toEqual({"config": undefined, "debug": undefined, "exclude": undefined, "external": undefined, "outfile": "/Users/kasargeant/dev/projects/warhorse/test/data/client_dist/**/index.js", "recurse": true});
-            expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "desc": "Bundling JS", "expandGlobs": true, "silent": false, "useEqualsSign": false, "useOutput": "stdout"});
-
-            // Cleanup
-            shell.rm(config.dst); // Clean-up
-        });
+        //
+        // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // // TASK: BUNDLE
+        // it("should be able to resolve configurations for bundling: JS", function() {
+        //
+        //     // Setup
+        //     let options = defaults.tools.build["bundle:js"];
+        //     let config = defaults.pipelines.build["js"][0];
+        //     let src = path.resolve(config.src[0], config.src[1]);
+        //     let dst = warhorse._resolveDst(config.src[0], src, config.dst[0], config.dst[1]);
+        //     config.src = src;
+        //     config.dst = dst;
+        //
+        //     // Execute
+        //     warhorse.bundle("js", config, options);
+        //
+        //     // Evaluate
+        //     expect(warhorse._execute.callCount).toBe(1);
+        //     expect(warhorse._execute.getCall(0).args[0]).toBe(process.cwd());
+        //     expect(warhorse._execute.getCall(0).args[1]).toBe("./node_modules/.bin/browserify");
+        //     expect(warhorse._execute.getCall(0).args[2]).toBe(process.cwd());
+        //     expect(warhorse._execute.getCall(0).args[3]).toEqual(["/Users/kasargeant/dev/projects/warhorse/test/data/client_src/**/index.js"]);
+        //     expect(warhorse._execute.getCall(0).args[4]).toEqual({"config": undefined, "debug": undefined, "exclude": undefined, "external": undefined, "outfile": "/Users/kasargeant/dev/projects/warhorse/test/data/client_dist/**/index.js", "recurse": true});
+        //     expect(warhorse._execute.getCall(0).args[5]).toEqual({"debug": false, "desc": "Bundling JS", "expandGlobs": true, "silent": false, "useEqualsSign": false, "useOutput": "stdout"});
+        //
+        //     // Cleanup
+        //     shell.rm(config.dst); // Clean-up
+        // });
 
         //
         // //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
