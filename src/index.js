@@ -16,9 +16,10 @@ function run(moduleDirectory, workingDirectory, args, useDebug) {
 
     let userConfig = {};
     try {
-        userConfig = require(workingDirectory + "/conf/warhorse.json");
+        let userConfigPath = workingDirectory + "/conf/warhorse.json";
+        userConfig = require(userConfigPath);
+        console.log(`Using configuration from: ${userConfigPath}`);
     } catch(ex) {
-        console.warn("No user configuration defined.");
     }
 
     const warhorse = new Warhorse(moduleDirectory, workingDirectory, userConfig, useDebug);
@@ -70,7 +71,7 @@ let banner =
 
     // console.log("Warhorse CLI location: " + warhorse.moduleDirectory);
     console.log();
-    warhorse.cli(args);
+    warhorse.command(args);
     console.log();
     console.log();
 }

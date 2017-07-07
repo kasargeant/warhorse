@@ -16,7 +16,7 @@ const path = (os.platform() === "win32") ? require("path").win32 : require("path
 
 let argv = require("minimist")(process.argv.slice(2), {
     string: "task",
-    alias: {c: "conf", d: "debug", h: "help", s: "specialise", v: "version"},
+    alias: {c: "conf", d: "debug", h: "help", v: "version"},
     default: {task: "build"},
     "--": true
 });
@@ -34,31 +34,26 @@ const help = `
   WARHORSE HELP
   
 	Usage
-	  $ warhorse <flags> <command> <options>
-
-	Commands
-	  build,        Builds the project in the current directory.
-	  create,       Initialises and creates a new project interactively in a named sub-directory.
-	  distribute,   Makes a final distribution build of the project in the ./dist directory.
-	  document,     Documents the project in the current directory.
-	  lint,         Lints source files - checking code style and quality.
-	  pack,         Packs and places image assets.
-	  process,      Pre-process, post-process and pack all stylesheets and templates assets.
-	  publish,      [TO BE IMPLEMENTED] Publishes final distribution to NPM or other configured services.
-	  test          Executes unit and integration tests.
-	  watch         Watch source files and rebuild/retest automatically.
+	  $ warhorse <flags> <command> <args>
 
 	Flags
 	  --conf,       -c  Use a specific configuration file.
 	  --debug,      -d  Operate in verbose debug mode.
 	  --help,       -h  Shows this information.
-	  --specialise, -s  Specialise the command (if option is available for that command).
 	  --version,    -v  Shows Warhorse CLI version.
+
+	Commands
+	  build,        Builds the project in the current directory.
+	  create,       Initialises and creates a new project interactively in a named sub-directory.
+	  distribute,   Makes a final distribution build of the project in the ./dist directory.
+	  publish,      [TO BE IMPLEMENTED] Publishes final distribution to NPM or other configured services.
+	  test          Executes unit and integration tests.
+	  watch         Watch source files and rebuild/retest automatically.
 
 	Examples
 	  $ warhorse create module
 	  $ warhorse test
-	  $ warhorse test -- specific.test.js
+	  $ warhorse build sass
 	  $ warhorse distribute 
 	     🌈 ...CRUSHING YOUR ENEMIES!!! 🌈
 
@@ -74,20 +69,14 @@ function showHelp() {
 }
 
 // Respond to user input
-if(argv.help === true) {
+if(argv.help === true || argv._[0] === "help") {
     showHelp();
 } else if(argv.version === true) {
     let warhorsePackage = require(moduleDirectory + "/" + "package.json");
     console.log(`Warhorse version: ${warhorsePackage.version}`);
 } else if(argv._.length > 0) {
-
-    // Determine command
-    if(commands.includes(argv._[0])) {
-        run(moduleDirectory, workingDirectory, argv._, argv.debug); // Passes command and rest args
-    } else {
-        console.error(`Error: Unrecognised command '${argv._[0]}'.`);
-        showHelp();
-    }
+    // Call Warhorse's index with the given arguments.
+    run(moduleDirectory, workingDirectory, argv._, argv.debug); // Passes command and rest args
 } else {
     console.error(`Error: Missing any command.`);
     showHelp();

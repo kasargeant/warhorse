@@ -15,8 +15,30 @@ const nsfw = require("nsfw");
 
 const ACTIONS_LOOKUP = ["CREATED", "DELETED", "MODIFIED", "RENAMED"];
 
+const options = {
+    "./src/less": [".less", "process"],
+    "./src/sass": [".scss", "process"],
+    "./src/css": [".css", "process"],
+    "./src/js": [".js", "build"],
+    "./test/js": [".test.js", "test"]
+};
+const options2 = {
+    "less": ["./src/less", "process", "less"],
+    "sass": ["./src/sass", "process", "sass"],
+    "css": ["./src/css", "process", "css"],
+    "js": ["./src/js", "build", "js"],
+    "test.js": ["./test/js", "test", "js"]
+};
+
 const FileHelper = {
-    watch: function(workingDirectory) {
+    watch: function(workingDirectory, options) {
+
+        let config = {};
+        for(let key in options) {
+            let fullPath = path.resolve(workingDirectory, key);
+            config[fullPath] = options[key];
+        }
+        console.log(JSON.stringify(config));
 
         let watcher;
 
@@ -26,10 +48,14 @@ const FileHelper = {
                 // handles other events
                 for(let i = 0; i < events.length; i++) {
                     let event = events[i];
-                    let fileExt = path.extname(event.file);
-                    //console.log("EXT: ", fileExt);
 
-                    if([".css", ".js", ".jsx", ".sass", ".scss", ".txt"].includes(fileExt)) {
+                    let fileExt = path.extname(event.file);
+                    console.log("EXT: ", fileExt);
+                    let filePathAbsolute = path.dirname(path.resolve(event.file));
+                    console.log("PATH: ", filePathAbsolute);
+
+
+                    if([".css", ".js", ".jsx", ".sass", ".scss", ".html"].includes(fileExt)) {
                         console.log(`${ACTIONS_LOOKUP[event.action]}: ${path.resolve(event.directory, event.file)}`);
                     }
 
@@ -84,3 +110,6 @@ const FileHelper = {
 
 // Exports
 module.exports = FileHelper;
+
+
+// FileHelper.watch("/Users/kasargeant/dev/projects/warhorse", options);
