@@ -185,22 +185,22 @@ class Warhorse {
 
         this.moduleDirectory = moduleDirectory;     // i.e. Warhorse's own directory
         this.conventionsDirectory = moduleDirectory + "src/conventions/";
-        this.workingDirectory = workingDirectory;   // Current working directory... i.e. a project directory and location of _warhorse.js
+        this.workingDirectory = workingDirectory;   // Current working directory... i.e. project directory
 
-        this.file = null; // Main arg passed from function to function - requires sync operation of course!
-
-        // Finally add user-defined tasks...
-        try {
-            // ...from a user-defined file
-            this.cmds = require(this.workingDirectory + "/_warhorse.js")(this);
-        } catch(ex) {
-            // ...or otherwise, fall-back on default
-            this.cmds = require(this.moduleDirectory + "/_warhorse.js")(this);
-            // console.debug("Warning: This directory is missing a '_warhorse.js' file and is uninitialised.");
-        }
-        // Finally, finally, slip built-in 'create' into cmds
-        this.cmds.create = this._cmdCreate;
-        this.cmds.watch = this._cmdWatch;
+        // this.file = null; // Main arg passed from function to function - requires sync operation of course!
+        //
+        // // Finally add user-defined tasks...
+        // try {
+        //     // ...from a user-defined file
+        //     this.cmds = require(this.workingDirectory + "/_warhorse.js")(this);
+        // } catch(ex) {
+        //     // ...or otherwise, fall-back on default
+        //     this.cmds = require(this.moduleDirectory + "/_warhorse.js")(this);
+        //     // console.debug("Warning: This directory is missing a '_warhorse.js' file and is uninitialised.");
+        // }
+        // // Finally, finally, slip built-in 'create' into cmds
+        // this.cmds.create = this._cmdCreate;
+        // this.cmds.watch = this._cmdWatch;
     }
 
 
@@ -358,12 +358,21 @@ class Warhorse {
      * @param {Object} options - Options to further configure this action.
      * @returns {Object} - Returns self for chaining.
      */
-    clean(paths, options = {}) {
-        // Log task execution
+    // clean(paths, options = {}) {
+    //     // Log task execution
+    //     if(options.silent !== true) {console.h2(`TASK: Cleaning project...`);}
+    //
+    //     shell.rm("-rf", ...paths);
+    //     console.h4(`Done.`);
+    // }
+    clean(type, config, options = {}) {
+        // Log task beginning
         if(options.silent !== true) {console.h2(`TASK: Cleaning project...`);}
 
-        shell.rm("-rf", ...paths);
-        console.h4(`Done.`);
+        shell.rm("-rf", path.resolve(this.workingDirectory, "./dist/*"));
+
+        // Log task ending
+        if(options.silent !== true) {console.h4(`Done.`);}
     }
 
     /**
@@ -435,6 +444,9 @@ class Warhorse {
             throw new Error(`Unrecognised type '${type}'.`);
         }
 
+        // Log task ending
+        if(options.silent !== true) {console.h4(`Done.`);}
+
         // Return self for chaining.
         return this;
     }
@@ -504,6 +516,9 @@ class Warhorse {
             throw new Error(`Unrecognised type '${type}'.`);
         }
 
+        // Log task ending
+        if(options.silent !== true) {console.h4(`Done.`);}
+
         // Return self for chaining.
         return this;
     }
@@ -546,6 +561,9 @@ class Warhorse {
         } else {
             throw new Error(`Unrecognised type '${type}'.`);
         }
+
+        // Log task ending
+        if(options.silent !== true) {console.h4(`Done.`);}
 
         // Return self for chaining.
         return this;
@@ -605,6 +623,9 @@ class Warhorse {
         } else {
             throw new Error(`Unrecognised type '${type}'.`);
         }
+
+        // Log task ending
+        if(options.silent !== true) {console.h4(`Done.`);}
 
         // Return self for chaining.
         return this;
@@ -668,9 +689,11 @@ class Warhorse {
             throw new Error(`Unrecognised type '${type}'.`);
         }
 
+        // Log task ending
+        if(options.silent !== true) {console.h4(`Done.`);}
+
         // Return self for chaining.
         return this;
-
     }
 
     /**
@@ -726,6 +749,9 @@ class Warhorse {
             throw new Error(`Unrecognised type '${type}'.`);
         }
 
+        // Log task ending
+        if(options.silent !== true) {console.h4(`Done.`);}
+
         // Return self for chaining.
         return this;
     }
@@ -769,6 +795,9 @@ class Warhorse {
             throw new Error(`Unrecognised type '${type}'.`);
         }
 
+        // Log task ending
+        if(options.silent !== true) {console.h4(`Done.`);}
+
         // Return self for chaining.
         return this;
     }
@@ -788,6 +817,85 @@ class Warhorse {
         } else {
             throw new Error(`Unrecognised type '${type}'.`);
         }
+    }
+
+
+    /**
+     * Task for testing code. e.g. JS.
+     * @param {string} type - Type of source file.
+     * @param {Object} [options] - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.src - The source path for this task.
+     * @param {string} options.coverage - Report on unit coverage.
+     * @param {string} options.update - Update any test snapshots.
+     * @returns {Object} - Returns self for chaining.
+     */
+    test(type, config, options={}) {
+
+        // Log task execution
+        if(options.silent !== true) {console.h2(`TASK: Testing ${type.toUpperCase()}...`);}
+
+        // Select sub-task based on data type
+        if(type === "js") {
+
+            // Create a user-level config from defaults/options
+            // Create a user-level config from defaults/options
+            config.useInherit = true;
+
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            // NOTE: We always use Warhorse conf file.
+            let src = path.resolve(this.workingDirectory, config.src[0], config.src[1]);
+            //let configPath = path.resolve(this.moduleDirectory, "./conf/jest.json");
+            let toolArgs = [src];
+            let toolOptions = {
+                verbose: this.settings.debug || config.debug   // i.e. debug/source map options
+                //config: configPath
+                //coverage: true
+            };
+
+            // Finally map configuration to tool args and options
+            this._execute(this.moduleDirectory, "./node_modules/.bin/jest", this.workingDirectory, toolArgs, toolOptions, options);
+
+        } else {
+            throw new Error(`Unrecognised type '${type}'.`);
+        }
+
+        // Log task ending
+        if(options.silent !== true) {console.h4(`Done.`);}
+
+        // Return self for chaining.
+        return this;
+    }
+
+    /**
+     * Task for controlling VCSs. e.g. GIT
+     * @param {string} type - Type of source file.
+     * @param {Object} [options] - Options to override or extend this task's default configuration.
+     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
+     * @param {string} options.action - The versioning action to execute.
+     * @returns {Object} - Returns self for chaining.
+     */
+    version(type, config, options={}) {
+        if(type === "git") {
+            switch(options.action) {
+                case "get-branch-name":
+                    console.h3("On branch: " + Git.getCurrentBranchName());
+                    break;
+                case "update-master":
+                    Git.updateMaster(options.release, options.comment);
+                    break;
+                default:
+                    throw new Error(`Unrecognised versioning action '${type}'.`);
+            }
+        } else {
+            throw new Error(`Unrecognised type '${type}'.`);
+        }
+
+        // Log task ending
+        if(options.silent !== true) {console.h4(`Done.`);}
+
+        // Return self for chaining.
+        return this;
     }
 
     /**
@@ -1024,74 +1132,6 @@ class Warhorse {
         console.log("");
     }
 
-    /**
-     * Task for testing code. e.g. JS.
-     * @param {string} type - Type of source file.
-     * @param {Object} [options] - Options to override or extend this task's default configuration.
-     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
-     * @param {string} options.src - The source path for this task.
-     * @param {string} options.coverage - Report on unit coverage.
-     * @param {string} options.update - Update any test snapshots.
-     * @returns {Object} - Returns self for chaining.
-     */
-    test(type, config, options={}) {
-
-        // Log task execution
-        if(options.silent !== true) {console.h2(`TASK: Testing ${type.toUpperCase()}...`);}
-
-        // Select sub-task based on data type
-        if(type === "js") {
-
-            // Create a user-level config from defaults/options
-            // Create a user-level config from defaults/options
-            config.useInherit = true;
-
-            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-            // NOTE: We always use Warhorse conf file.
-            let src = path.resolve(this.workingDirectory, config.src[0], config.src[1]);
-            //let configPath = path.resolve(this.moduleDirectory, "./conf/jest.json");
-            let toolArgs = [src];
-            let toolOptions = {
-                verbose: this.settings.debug || config.debug   // i.e. debug/source map options
-                //config: configPath
-                //coverage: true
-            };
-
-            // Finally map configuration to tool args and options
-            this._execute(this.moduleDirectory, "./node_modules/.bin/jest", this.workingDirectory, toolArgs, toolOptions, options);
-
-        } else {
-            throw new Error(`Unrecognised type '${type}'.`);
-        }
-
-        // Return self for chaining.
-        return this;
-    }
-
-    /**
-     * Task for controlling VCSs. e.g. GIT
-     * @param {string} type - Type of source file.
-     * @param {Object} [options] - Options to override or extend this task's default configuration.
-     * @param {string} options.debug - Enable debug reporting and/or (if available) source-maps.
-     * @param {string} options.action - The versioning action to execute.
-     * @returns {Object} - Returns self for chaining.
-     */
-    version(type, config, options={}) {
-        if(type === "git") {
-            switch(options.action) {
-                case "get-branch-name":
-                    console.h3("On branch: " + Git.getCurrentBranchName());
-                    break;
-                case "update-master":
-                    Git.updateMaster(options.release, options.comment);
-                    break;
-                default:
-                    throw new Error(`Unrecognised versioning action '${type}'.`);
-            }
-        } else {
-            throw new Error(`Unrecognised type '${type}'.`);
-        }
-    }
 
     // /**
     //  * Load action.  Loads files being used for processing by the action that follows.
@@ -1130,43 +1170,43 @@ class Warhorse {
     //     return this;
     // }
 
-    /**
-     * Splits a file path into its component parts.
-     * @param {string} filePath - A standard system file or path name.
-     * @returns {Object} - An object containing a destructured hash of the path's parts.
-     * @private
-     */
-    _splitPath(filePath) {
-
-        // Sanity check
-        if(!filePath) {return null;}
-
-        //console.h4(`Splitting file path: ${filePath}`); // e.g. /docs/index.html  // DEBUG ONLY
-
-        let name = path.posix.basename(filePath);           // e.g. index.html
-        let directory = path.dirname(filePath) + "/";       // e.g. /docs/
-        let stem = name.slice(0, name.lastIndexOf("."));    // e.g. index
-        let extension = path.extname(filePath);             // e.g. .html
-
-        // console.log(`name: ${name}`);
-        // console.log(`directory: ${directory}`);
-        // console.log(`stem: ${stem}`);
-        // console.log(`extension: ${extension}`);
-
-        // Is it a config file e.g. .jshintrc
-        let config = false;
-        if(extension === "" && name.length > 0 && name[0] === "." && name.slice(-2) === "rc") {
-            config = true;
-        }
-        return {
-            original: filePath,
-            path: directory, // Note: We use 'directory' to avoid nameclash with the module of the same name.
-            name: name,
-            stem: stem,
-            extension: extension,
-            config: config
-        };
-    }
+    // /**
+    //  * Splits a file path into its component parts.
+    //  * @param {string} filePath - A standard system file or path name.
+    //  * @returns {Object} - An object containing a destructured hash of the path's parts.
+    //  * @private
+    //  */
+    // _splitPath(filePath) {
+    //
+    //     // Sanity check
+    //     if(!filePath) {return null;}
+    //
+    //     //console.h4(`Splitting file path: ${filePath}`); // e.g. /docs/index.html  // DEBUG ONLY
+    //
+    //     let name = path.posix.basename(filePath);           // e.g. index.html
+    //     let directory = path.dirname(filePath) + "/";       // e.g. /docs/
+    //     let stem = name.slice(0, name.lastIndexOf("."));    // e.g. index
+    //     let extension = path.extname(filePath);             // e.g. .html
+    //
+    //     // console.log(`name: ${name}`);
+    //     // console.log(`directory: ${directory}`);
+    //     // console.log(`stem: ${stem}`);
+    //     // console.log(`extension: ${extension}`);
+    //
+    //     // Is it a config file e.g. .jshintrc
+    //     let config = false;
+    //     if(extension === "" && name.length > 0 && name[0] === "." && name.slice(-2) === "rc") {
+    //         config = true;
+    //     }
+    //     return {
+    //         original: filePath,
+    //         path: directory, // Note: We use 'directory' to avoid nameclash with the module of the same name.
+    //         name: name,
+    //         stem: stem,
+    //         extension: extension,
+    //         config: config
+    //     };
+    // }
 
     // /**
     //  * Save action.
@@ -1303,89 +1343,89 @@ class Warhorse {
     //     }
     // }
 
-    /**
-     * Executes the named command or task.
-     * @param {string} name - Name of the command or task to execute.
-     * @returns {Object} - Returns self for chaining.
-     */
-    execute(name) {
-        if(this.commands.includes(name)) {
-            let cmd = this.cmds[name];
-            if(cmd !== null) {cmd();}
-        } else {
-            throw new Error(`Unrecognised command '${name}'.`);
-        }
+    // /**
+    //  * Executes the named command or task.
+    //  * @param {string} name - Name of the command or task to execute.
+    //  * @returns {Object} - Returns self for chaining.
+    //  */
+    // execute(name) {
+    //     if(this.commands.includes(name)) {
+    //         let cmd = this.cmds[name];
+    //         if(cmd !== null) {cmd();}
+    //     } else {
+    //         throw new Error(`Unrecognised command '${name}'.`);
+    //     }
+    //
+    //     // Return self for chaining.
+    //     return this;
+    // }
 
-        // Return self for chaining.
-        return this;
-    }
-
-    /**
-     * Execute command from the CLI.
-     * @param {string} args - Arguments passed from the command line interface.
-     * @returns {Object} - Returns self for chaining.
-     * @private
-     */
-    cli(args) {
-        console.h0(`WARHORSE active...`);
-
-        // Determine command and any arguments
-        let cmdName = args[0];
-        let arg1 = args[1];
-        let arg2 = args[2];
-
-        // If an invalid command is given - don't error - just exit gracefully.
-        if(!this.commands.includes(cmdName)) {
-            console.h0(`WARHORSE done.`);
-            console.error(`Error: Unrecognised command: '${cmdName}'.`);
-            return this;
-        }
-
-        console.h1(`COMMAND ${cmdName}`);
-
-        // Handle built-in commands separately
-        switch(cmdName) {
-            case "create":
-                if(this.conventions.includes(arg1)) {
-                    this._cmdCreate(arg1);
-                } else {
-                    // If an invalid convention is given - don't error - just exit gracefully.
-                    console.h0(`WARHORSE done.`);
-                    console.error(`Error: Unrecognised project convention: '${arg1}'.`);
-                    return this;
-                }
-                break;
-            case "deploy":
-                if(this.deployments.includes(arg1)) {
-                    this._cmdDeploy(arg1);
-                } else {
-                    // If an invalid deployment is given - don't error - just exit gracefully.
-                    console.h0(`WARHORSE done.`);
-                    console.error(`Error: Unrecognised project deployment: '${arg1}'.`);
-                    return this;
-                }
-                break;
-            case "watch":
-                this._cmdWatch(this.workingDirectory);
-                break;
-            default:
-                // Handle standard built-ins
-                let cmd = this.cmds[cmdName];
-                if(cmd !== null) {
-                    //console.log("Executing command type: " + typeof cmd);
-                    cmd();
-                } else {
-                    console.h0(`WARHORSE done.`);
-                    console.error(`Error: Command recognized but unable to complete: '${cmdName}'.`);
-                    return this;
-                }
-        }
-
-        console.h0(`WARHORSE done.`);
-
-        // Return self for chaining.
-        return this;
-    }
+    // /**
+    //  * Execute command from the CLI.
+    //  * @param {string} args - Arguments passed from the command line interface.
+    //  * @returns {Object} - Returns self for chaining.
+    //  * @private
+    //  */
+    // cli(args) {
+    //     console.h0(`WARHORSE active...`);
+    //
+    //     // Determine command and any arguments
+    //     let cmdName = args[0];
+    //     let arg1 = args[1];
+    //     let arg2 = args[2];
+    //
+    //     // If an invalid command is given - don't error - just exit gracefully.
+    //     if(!this.commands.includes(cmdName)) {
+    //         console.h0(`WARHORSE done.`);
+    //         console.error(`Error: Unrecognised command: '${cmdName}'.`);
+    //         return this;
+    //     }
+    //
+    //     console.h1(`COMMAND ${cmdName}`);
+    //
+    //     // Handle built-in commands separately
+    //     switch(cmdName) {
+    //         case "create":
+    //             if(this.conventions.includes(arg1)) {
+    //                 this._cmdCreate(arg1);
+    //             } else {
+    //                 // If an invalid convention is given - don't error - just exit gracefully.
+    //                 console.h0(`WARHORSE done.`);
+    //                 console.error(`Error: Unrecognised project convention: '${arg1}'.`);
+    //                 return this;
+    //             }
+    //             break;
+    //         case "deploy":
+    //             if(this.deployments.includes(arg1)) {
+    //                 this._cmdDeploy(arg1);
+    //             } else {
+    //                 // If an invalid deployment is given - don't error - just exit gracefully.
+    //                 console.h0(`WARHORSE done.`);
+    //                 console.error(`Error: Unrecognised project deployment: '${arg1}'.`);
+    //                 return this;
+    //             }
+    //             break;
+    //         case "watch":
+    //             this._cmdWatch(this.workingDirectory);
+    //             break;
+    //         default:
+    //             // Handle standard built-ins
+    //             let cmd = this.cmds[cmdName];
+    //             if(cmd !== null) {
+    //                 //console.log("Executing command type: " + typeof cmd);
+    //                 cmd();
+    //             } else {
+    //                 console.h0(`WARHORSE done.`);
+    //                 console.error(`Error: Command recognized but unable to complete: '${cmdName}'.`);
+    //                 return this;
+    //             }
+    //     }
+    //
+    //     console.h0(`WARHORSE done.`);
+    //
+    //     // Return self for chaining.
+    //     return this;
+    // }
 
 
     _resolveDst(srcRoot, srcPath, dstRoot, dstExt) {
@@ -1445,6 +1485,7 @@ class Warhorse {
         console.log(`Executing pipeline for: ${buildType}`);
         let toolConfigs = defaults.tools[buildType];
         // console.log("Have configs: " + JSON.stringify(Object.keys(toolConfigs)));
+        console.log("Pipeline: " + JSON.stringify(pipeline));
 
         for(let task of pipeline) {
             let toolConfig = toolConfigs[task.idn];
@@ -1513,12 +1554,17 @@ class Warhorse {
                 if(arg1 === undefined) {
                     // Execute the entire pipeline for all types
                     for(let type in pipelines) {
+                        //console.log("TYPE: " + type);
                         pipeline = pipelines[type];
-                        this._executePipeline(cmdName, pipeline);
+                        if(pipeline.length > 0) {
+                            this._executePipeline(cmdName, pipeline);
+                        }
                     }
                 } else if(this.types.includes(arg1)) {
                     pipeline = pipelines[arg1];
-                    this._executePipeline(cmdName, pipeline);
+                    if(pipeline.length > 0) {
+                        this._executePipeline(cmdName, pipeline);
+                    }
                 } else {
                     console.error(`Error: Unrecognised source type: '${arg1}'.`);
                     return this;

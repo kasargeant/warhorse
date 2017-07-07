@@ -84,12 +84,6 @@ describe("Class: Warhorse", function() {
             expect(warhorse).toBeDefined();
         });
 
-        it("should be able to parse a filepath", function() {
-            let path = warhorse._splitPath("./test/data/client_src/index.js");
-            expect(path.name).toBe("index.js"); // Sanity test - don't rely just on snapshots!!!
-            expect(path).toMatchSnapshot();
-        });
-
         it("should know it's (home) directory location", function() {
             expect(warhorse.moduleDirectory).toBe(process.cwd());
         });
@@ -677,7 +671,7 @@ describe("Class: Warhorse", function() {
             let cmdStub = sinon.stub(warhorse, "_cmdCreate").returns(null);
 
             // Test
-            warhorse.cli(["create", "module"]);
+            warhorse.command(["create", "module"]);
 
             // Evaluation
             expect(cmdStub.callCount).toBe(1);
@@ -692,7 +686,7 @@ describe("Class: Warhorse", function() {
             let cmdStub = sinon.stub(warhorse, "_cmdCreate").returns(null);
 
             // Test
-            warhorse.cli(["create", "something"]);
+            warhorse.command(["create", "something"]);
 
             // Evaluation
             expect(cmdStub.callCount).toBe(0);
@@ -709,7 +703,7 @@ describe("Class: Warhorse", function() {
             let cmdStub = sinon.stub(warhorse, "_cmdDeploy").returns(null);
 
             // Test
-            warhorse.cli(["deploy", "cordova"]);
+            warhorse.command(["deploy", "cordova"]);
 
             // Evaluation
             expect(cmdStub.callCount).toBe(1);
@@ -724,7 +718,7 @@ describe("Class: Warhorse", function() {
             let cmdStub = sinon.stub(warhorse, "_cmdDeploy").returns(null);
 
             // Test
-            warhorse.cli(["deploy", "rubbish"]);
+            warhorse.command(["deploy", "rubbish"]);
 
             // Evaluation
             expect(cmdStub.callCount).toBe(0);
@@ -742,7 +736,7 @@ describe("Class: Warhorse", function() {
             let cmdStub = sinon.stub(warhorse, "_cmdWatch").returns(null);
 
             // Test
-            warhorse.cli(["watch"]);
+            warhorse.command(["watch"]);
 
             // Evaluation
             expect(cmdStub.callCount).toBe(1);
@@ -757,7 +751,7 @@ describe("Class: Warhorse", function() {
         //     let cmdStub = sinon.stub(warhorse, "_cmdDeploy").returns(null);
         //
         //     // Test
-        //     warhorse.cli(["deploy", "rubbish"]);
+        //     warhorse.command(["deploy", "rubbish"]);
         //
         //     // Evaluation
         //     expect(cmdStub.callCount).toBe(0);
