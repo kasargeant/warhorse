@@ -26,7 +26,7 @@ const Cli = require("./helpers/CliHelper");
 const File = require("./helpers/FileHelper");
 
 // Default values and templates
-const defaults = require("./conf/defaults");
+let defaults = require("./conf/defaults");
 // const defaults = require("./conf/defaults_testing");
 const packageBase = require("../conventions/package_base.json");
 const packageSnippets = require("../conventions/package_snippets.json");
@@ -1149,8 +1149,10 @@ class Warhorse {
         }
     }
 
-    command(args) {
+    command(args, userConfig) {
         console.h0(`WARHORSE active...`);
+
+        defaults = Object.assign(defaults, userConfig);
 
         // Determine command and any arguments
         // warhorse <cmdName> <type>
