@@ -1142,7 +1142,12 @@ class Warhorse {
         return dstPathAbsolute;
     }
 
-
+    /**
+     *
+     * @param toolConfig
+     * @param task
+     * @private
+     */
     _executeTask(toolConfig, task) {
 
         // Log task execution
@@ -1179,6 +1184,12 @@ class Warhorse {
         if(toolConfig.silent !== true) {console.h4(`Done.`);}
     }
 
+    /**
+     *
+     * @param buildType
+     * @param pipeline
+     * @private
+     */
     _executePipeline(buildType, pipeline) {
         //console.log(`Executing pipeline for: ${buildType}`);
         let toolConfigs = defaults.tools[buildType];
@@ -1190,8 +1201,14 @@ class Warhorse {
         }
     }
 
-    command(args, userConfig) {
-        console.h0(`WARHORSE active...`);
+    /**
+     *
+     * @param args
+     * @param userConfig
+     * @returns {Warhorse}
+     * @private
+     */
+    command(args, userConfig={}) {
 
         defaults = Object.assign(defaults, userConfig);
 
@@ -1209,70 +1226,73 @@ class Warhorse {
         // console.log("ARGS: " + JSON.stringify(args));
 
         // If an invalid command is given - don't error - just exit gracefully.
-        if(!this.commands.includes(cmdName)) {
-            console.h0(`WARHORSE done.`);
-            console.error(`Error: Unrecognised command: '${cmdName}'.`);
-            return this;
-        }
+        if(this.commands.includes(cmdName)) {
 
-        console.h1(`COMMAND ${cmdName}`);
+            console.h0(`WARHORSE active...`);
 
-        // Handle built-in commands separately
-        switch(cmdName) {
-            case "create":
-                if(this.conventions.includes(arg1)) {
-                    this._cmdCreate(arg1);
-                } else {
-                    // If an invalid convention is given - don't error - just exit gracefully.
-                    console.h0(`WARHORSE done.`);
-                    console.error(`Error: Unrecognised project convention: '${arg1}'.`);
-                    return this;
-                }
-                break;
-            case "deploy":
-                if(this.deployments.includes(arg1)) {
-                    this._cmdDeploy(arg1);
-                } else {
-                    // If an invalid deployment is given - don't error - just exit gracefully.
-                    console.h0(`WARHORSE done.`);
-                    console.error(`Error: Unrecognised project deployment: '${arg1}'.`);
-                    return this;
-                }
-                break;
-            case "watch":
-                this._cmdWatch(this.workingDirectory, arg1, defaults);
-                break;
-            case "build":
-            case "test":
-            case "distribute":
-                // Handle standard built-ins
-                let pipelines = defaults.pipelines[cmdName];
-                let pipeline = null;
+            console.h1(`COMMAND ${cmdName}`);
 
-                if(arg1 === undefined) {
-                    // Execute the entire pipeline for all types
-                    for(let type in pipelines) {
-                        //console.log("TYPE: " + type);
-                        pipeline = pipelines[type];
+            // Handle built-in commands separately
+            switch(cmdName) {
+                case "create":
+                    if(this.conventions.includes(arg1)) {
+                        this._cmdCreate(arg1);
+                    } else {
+                        // If an invalid convention is given - don't error - just exit gracefully.
+                        console.h0(`WARHORSE done.`);
+                        console.error(`Error: Unrecognised project convention: '${arg1}'.`);
+                        return this;
+                    }
+                    break;
+                case "deploy":
+                    if(this.deployments.includes(arg1)) {
+                        this._cmdDeploy(arg1);
+                    } else {
+                        // If an invalid deployment is given - don't error - just exit gracefully.
+                        console.h0(`WARHORSE done.`);
+                        console.error(`Error: Unrecognised project deployment: '${arg1}'.`);
+                        return this;
+                    }
+                    break;
+                case "watch":
+                    this._cmdWatch(this.workingDirectory, arg1, defaults);
+                    break;
+                case "build":
+                case "test":
+                case "distribute":
+                    // Handle standard built-ins
+                    let pipelines = defaults.pipelines[cmdName];
+                    let pipeline = null;
+
+                    // If it's not specifying a type then...
+                    if(arg1 === undefined) {
+                        // ...execute the entire pipeline for all types
+                        for(let type in pipelines) {
+                            //console.log("TYPE: " + type);
+                            pipeline = pipelines[type];
+                            if(pipeline.length > 0) {
+                                this._executePipeline(cmdName, pipeline);
+                            }
+                        }
+                    } else if(this.types.includes(arg1)) {
+                        // Otherwise check the type exists - then process just that type
+                        pipeline = pipelines[arg1];
                         if(pipeline.length > 0) {
                             this._executePipeline(cmdName, pipeline);
                         }
+                    } else {
+                        console.error(`Error: Unrecognised source type: '${arg1}'.`);
+                        return this;
                     }
-                } else if(this.types.includes(arg1)) {
-                    pipeline = pipelines[arg1];
-                    if(pipeline.length > 0) {
-                        this._executePipeline(cmdName, pipeline);
-                    }
-                } else {
-                    console.error(`Error: Unrecognised source type: '${arg1}'.`);
-                    return this;
-                }
-                break;
-            default:
-                console.h0(`WARHORSE done.`);
-                console.error(`Error: Command recognized but unable to complete: '${cmdName}'.`);
+                    break;
+                default:
+                    console.error(`Error: Command recognized but unable to complete: '${cmdName}'.`);
+            }
+            console.h0(`WARHORSE done.`);
+        } else {
+            console.error(`Error: Unrecognised command: '${cmdName}'.`);
+            return this;
         }
-        console.h0(`WARHORSE done.`);
 
         // Return self for chaining.
         return this;
