@@ -16,9 +16,10 @@ function run(moduleDirectory, workingDirectory, args, useDebug) {
 
     let userConfig = {};
     try {
-        let userConfigPath = workingDirectory + "/conf/warhorse.json";
+        let userConfigPath = workingDirectory + "/.warhorse";
         userConfig = require(userConfigPath);
         console.log(`Using configuration from: ${userConfigPath}`);
+        // console.log("LANG: " + userConfig.language);
     } catch(ex) {
     }
 
@@ -71,7 +72,7 @@ let banner =
 
     // console.log("Warhorse CLI location: " + warhorse.moduleDirectory);
     console.log();
-    warhorse.command(args);
+    warhorse.command(args, userConfig);
     console.log();
     console.log();
 }
