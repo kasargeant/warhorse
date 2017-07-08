@@ -67,7 +67,7 @@ class Warhorse {
         this.language = "es51" || options.language; // Options: "es51", "es2015"
 
         this.commands = ["build", "create", "deploy", "distribute", "publish", "test", "watch"]; //FIXME - replace with Object.keys(warhorse.tasks);
-        this.conventions = ["client", "library", "module", "server"]; //TODO "fullstack" convention,
+        this.conventions = ["client", "fullstack", "library", "module", "server"];
         this.deployments = ["browser", "cordova", "node"]; //TODO "electron" deployment,
         this.types = ["css", "gif", "html", "ico", "jpg", "js", "less", "png", "sass", "svg"];
         this.pipelineTypes = ["build", "distribute", "test"];
@@ -139,6 +139,7 @@ class Warhorse {
             fs.writeFileSync(projectPath + "/LICENSE", fs.readFileSync(licensePath));
 
             // Move into the new project directory
+            let originalDirectory = this.workingDirectory;
             this.workingDirectory = projectPath;
             process.chdir(this.workingDirectory);
 
@@ -147,6 +148,10 @@ class Warhorse {
             if(stdout) {
                 console.log(stdout.toString());
             }
+
+            // Restore working directory.
+            this.workingDirectory = originalDirectory;
+            process.chdir(this.workingDirectory);
 
         } else {
             console.warn("Warning: No Convention selected.  Exiting.");
@@ -164,7 +169,43 @@ class Warhorse {
         const questions = require(`./interactions/questions_${convention}`);
 
         let answers = questions();
-        this._cmdCreateInner(convention, answers);
+
+        // let exampleAnswers = {
+        //     "warhorse":{},
+        //     "name":"myproject",
+        //     "description":"Somthing or other",
+        //     "author":"Kyle S",
+        //     "email":"kas@kas.com",
+        //     "version":"0.0.0",
+        //     "license":"AGPL-3.0"
+        // };
+
+        if(convention === "fullstack") {
+
+            // Create new directory and make it the working directory.
+            shell.mkdir(answers.name);
+            let originalDirectory = this.workingDirectory;
+            let projectDirectory = path.resolve(this.workingDirectory, answers.name);
+            this.workingDirectory = projectDirectory;
+            shell.cd(this.workingDirectory);
+
+            let serverAnswers = JSON.parse(JSON.stringify(answers));
+            serverAnswers.name = "server";
+            serverAnswers.description = "Server: " + serverAnswers.description;
+            //console.log("SERVER: " + JSON.stringify(serverAnswers));
+            this._cmdCreateInner("server", serverAnswers);
+
+            let clientAnswers = JSON.parse(JSON.stringify(answers));
+            clientAnswers.name = "client";
+            clientAnswers.description = "Client: " + clientAnswers.description;
+            this._cmdCreateInner("client", clientAnswers);
+
+            // Restore working directory.
+            this.workingDirectory = originalDirectory;
+            shell.cd(this.workingDirectory);
+        } else {
+            this._cmdCreateInner(convention, answers);
+        }
 
         // Return self for chaining.
         return this;
@@ -1007,7 +1048,7 @@ class Warhorse {
         let executablePath = path.resolve(this.moduleDirectory, relativeExecutablePath);
         let cmdLine = Cli._compileCmdLine(executablePath, args, argOptions, options);
         //if(options.debug) {console.log("Executing: " + cmdLine);}
-        console.log("Executing: " + cmdLine);
+        // console.log("Executing: " + cmdLine);
 
         let stdout = null; let stderr = null;
         try {
@@ -1165,7 +1206,6 @@ class Warhorse {
         // warhorse watch
         let cmdName = args[0];
         let arg1 = args[1];
-        let arg2 = args[2];
         // console.log("ARGS: " + JSON.stringify(args));
 
         // If an invalid command is given - don't error - just exit gracefully.
@@ -1173,8 +1213,6 @@ class Warhorse {
             console.h0(`WARHORSE done.`);
             console.error(`Error: Unrecognised command: '${cmdName}'.`);
             return this;
-        } else {
-            console.log("FOUND COMMAND " + cmdName);
         }
 
         console.h1(`COMMAND ${cmdName}`);
