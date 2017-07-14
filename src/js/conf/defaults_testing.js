@@ -102,13 +102,13 @@ module.exports = {
             "less": [
                 {idn: "preprocess:less", src: ["./test/data/client_src/less", "**/index.less"], dst: ["./test/data/client_dist/css", ".css"]},
                 {idn: "postprocess:css", src: ["./test/data/client_dist/css", "**/*.css"], dst: ["./test/data/client_dist/css", ".css"]},
-                {idn: "minify:css", src: ["./test/data/client_dist/css"], dst: ["./test/data/client_dist/css", ".min.css"]},
+                {idn: "minify:css", src: ["./test/data/client_dist/css", "**/*.css"], dst: ["./test/data/client_dist/css", ".min.css"]},
                 {idn: "compress:css", src: ["./test/data/client_dist/css", "**/*.min.css"], dst: ["./test/data/client_dist/css", ".min.css.tar.gz"]},
             ],
             "sass": [
                 {idn: "preprocess:sass", src: ["./test/data/client_src/sass", "**/index.scss"], dst: ["./test/data/client_dist/css", ".css"]},
                 {idn: "postprocess:css", src: ["./test/data/client_dist/css", "**/*.css"], dst: ["./test/data/client_dist/css", ".css"]},
-                {idn: "minify:css", src: ["./test/data/client_dist/css"], dst: ["./test/data/client_dist/css", ".min.css"]},
+                {idn: "minify:css", src: ["./test/data/client_dist/css", "**/*.css"], dst: ["./test/data/client_dist/css", ".min.css"]},
                 {idn: "compress:css", src: ["./test/data/client_dist/css", "**/*.min.css"], dst: ["./test/data/client_dist/css", ".min.css.tar.gz"]},
             ],
             "hbs": [

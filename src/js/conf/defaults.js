@@ -102,13 +102,13 @@ module.exports = {
             "less": [
                 {idn: "preprocess:less", src: ["./src/less", "**/index.less"], dst: ["./dist/css", ".css"]},
                 {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
-                {idn: "minify:css", src: ["./dist/css"], dst: ["./dist/css", ".min.css"]},
+                {idn: "minify:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".min.css"]},
                 {idn: "compress:css", src: ["./dist/css", "**/*.min.css"], dst: ["./dist/css", ".min.css.tar.gz"]},
             ],
             "sass": [
                 {idn: "preprocess:sass", src: ["./src/sass", "**/index.scss"], dst: ["./dist/css", ".css"]},
                 {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
-                {idn: "minify:css", src: ["./dist/css"], dst: ["./dist/css", ".min.css"]},
+                {idn: "minify:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".min.css"]},
                 {idn: "compress:css", src: ["./dist/css", "**/*.min.css"], dst: ["./dist/css", ".min.css.tar.gz"]},
             ],
             "hbs": [
