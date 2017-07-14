@@ -14,30 +14,23 @@ module.exports = {
             "js": [
                 {idn: "bundle:js", src: ["./src", "**/index.js"], dst: ["./dist", ".js"]},
             ],
-            "css": [
-                {idn: "copy:css", src: ["./src/css", "*.css"], dst: ["./dist/css", ".css"]},
-                {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
-            ],
             "html": [
                 {idn: "copy:html", src: ["./src", "**/*.html"], dst: ["./dist", ".html"]}
             ],
             "less": [
                 {idn: "preprocess:less", src: ["./src/less", "**/index.less"], dst: ["./dist/css", ".css"]},
-                {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
             ],
             "sass": [
                 {idn: "preprocess:sass", src: ["./src/sass", "index.scss"], dst: ["./dist/css", ".css"]},
+            ],
+            // Note: CSS must follow any other stylesheet work.
+            "css": [
+                {idn: "copy:css", src: ["./src/css", "*.css"], dst: ["./dist/css", ".css"]},
                 {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
             ],
-            // "hbs": [
-            //     {
-            //         task: "preprocess:hbs",
-            //         src: ["./src/js/templates",
-            //         dst: "./dist/js/templates",
-            //         sxt: ".hbs",
-            //         dxt: ".hbs.js"
-            //     },
-            // ],
+            "hbs": [
+                {idn: "preprocess:hbs", src: ["./src/js/templates", "**/*.hbs"], dst: ["./dist/js/templates", ".hbs.js"]},
+            ],
             "gif": [
                 {idn: "copy:gif", src: ["./src/img", "**/*.gif"], dst: ["./dist/img", ".gif"]},
             ],
@@ -62,7 +55,6 @@ module.exports = {
                 {idn: "test:js", src: ["./test/js", ""], dst: null}
             ],
             // TODO - ADD CSS Linter
-            "css": [],
             "html": [],
             "less": [
                 // {idn: "lint:less", src: ["./src/less", ""], dst: null, sxt: ".less", dxt: null}
@@ -70,6 +62,8 @@ module.exports = {
             "sass": [
                 // {idn: "lint:sass", src: ["./src/sass", ""], dst: null, sxt: ".scss", dxt: null}
             ],
+            // Note: CSS must follow any other stylesheet work.
+            "css": [],
             // TODO - IS THERE A TEMPLATE Linter?
             "hbs": [],
             "gif": [],
@@ -89,30 +83,25 @@ module.exports = {
                 {idn: "compress:js", src: ["./dist", "**/*.min.js"], dst: ["./dist", ".min.js.tar.gz"]},
                 // {idn: "document:js", src: ["./src/js"], dst: ["./docs/api"]},
             ],
-            "css": [
-                {idn: "copy:css", src: ["./src/css", "**/*.css"], dst: ["./dist/css", ".css"]},
-                {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
-                {idn: "minify:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".min.css"]},
-                {idn: "compress:css", src: ["./dist/css", "**/*.min.css"], dst: ["./dist/css", ".min.css.tar.gz"]},
-            ],
             "html": [
                 {idn: "minify:html", src: ["./src", "**/*.html"], dst: ["./dist", ".html"]},
                 {idn: "compress:html", src: ["./dist", "**/*.html"], dst: ["./dist", ".html.tar.gz"]}
             ],
             "less": [
                 {idn: "preprocess:less", src: ["./src/less", "**/index.less"], dst: ["./dist/css", ".css"]},
-                {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
-                {idn: "minify:css", src: ["./dist/css"], dst: ["./dist/css", ".min.css"]},
-                {idn: "compress:css", src: ["./dist/css", "**/*.min.css"], dst: ["./dist/css", ".min.css.tar.gz"]},
             ],
             "sass": [
                 {idn: "preprocess:sass", src: ["./src/sass", "**/index.scss"], dst: ["./dist/css", ".css"]},
+            ],
+            // Note: CSS must follow any other stylesheet work.
+            "css": [
+                {idn: "copy:css", src: ["./src/css", "**/*.css"], dst: ["./dist/css", ".css"]},
                 {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
-                {idn: "minify:css", src: ["./dist/css"], dst: ["./dist/css", ".min.css"]},
+                {idn: "minify:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".min.css"]},
                 {idn: "compress:css", src: ["./dist/css", "**/*.min.css"], dst: ["./dist/css", ".min.css.tar.gz"]},
             ],
             "hbs": [
-                {idn: "preprocess:hbs", src: ["./src/js/templates"], dst: ["./dist/js/templates", ".hbs.js"]},
+                {idn: "preprocess:hbs", src: ["./src/js/templates", "**/*.hbs"], dst: ["./dist/js/templates", ".hbs.js"]},
             ],
             "gif": [
                 {idn: "compress:gif", src: ["./src/img", "**/*.gif"], dst: ["./dist/img", ".gif"]},
@@ -157,7 +146,7 @@ module.exports = {
             "minify:js": {desc: "Minifying JS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "minify:css": {desc: "Minifying CSS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "minify:html": {desc: "Minifying HTML", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
-            "preprocess:hbs": {desc: "Preprocessing HBS", silent: false, debug: false, expandGlobs: false, useOutput: "stdout", useEqualsSign: false},
+            "preprocess:hbs": {desc: "Preprocessing HBS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "preprocess:less": {desc: "Preprocessing LESS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "preprocess:sass": {desc: "Preprocessing SASS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "postprocess:css": {desc: "Postprocessing CSS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
@@ -187,7 +176,7 @@ module.exports = {
             "minify:js": {desc: "Minifying JS", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "minify:css": {desc: "Minifying CSS", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "minify:html": {desc: "Minifying HTML", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
-            "preprocess:hbs": {desc: "Preprocessing HBS", silent: true, debug: false, expandGlobs: false, useOutput: "stdout", useEqualsSign: false},
+            "preprocess:hbs": {desc: "Preprocessing HBS", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "preprocess:less": {desc: "Preprocessing LESS", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "preprocess:sass": {desc: "Preprocessing SASS", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "postprocess:css": {desc: "Postprocessing CSS", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
@@ -217,7 +206,7 @@ module.exports = {
             "minify:js": {desc: "Minifying JS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "minify:css": {desc: "Minifying CSS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "minify:html": {desc: "Minifying HTML", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
-            "preprocess:hbs": {desc: "Preprocessing HBS", silent: false, debug: false, expandGlobs: false, useOutput: "stdout", useEqualsSign: false},
+            "preprocess:hbs": {desc: "Preprocessing HBS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "preprocess:less": {desc: "Preprocessing LESS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: true},
             "preprocess:sass": {desc: "Preprocessing SASS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: true},
             "postprocess:css": {desc: "Postprocessing CSS", silent: false, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},

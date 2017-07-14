@@ -6,6 +6,10 @@
  * @license See LICENSE file included in this distribution.
  */
 
+// TOP TO-DOs!!!
+// =============
+// TODO - NODE_ENV=production support.
+
 "use strict";
 
 // Imports
@@ -36,14 +40,6 @@ const Pageant = require("pageant");
 const console = new Pageant();
 const color = require("tinter");
 
-// Helpers (internal)
-function ensureTargetDirectory(workingDirectory, relativePathDst) {
-    let dst = path.resolve(workingDirectory, relativePathDst);
-    let dstPath = path.dirname(dst);
-    shell.mkdir("-p", dstPath);
-}
-
-
 /**
  * @class
  * @classdesc The main Warhorse class, containing all actions available to automate tasks and builds.
@@ -69,7 +65,7 @@ class Warhorse {
         this.commands = ["build", "create", "deploy", "distribute", "publish", "test", "watch"]; //FIXME - replace with Object.keys(warhorse.tasks);
         this.conventions = ["client", "fullstack", "library", "module", "server"];
         this.deployments = ["browser", "cordova", "node"]; //TODO "electron" deployment,
-        this.types = ["css", "gif", "html", "ico", "jpg", "js", "less", "png", "sass", "svg"];
+        this.types = ["css", "gif", "hbs", "html", "ico", "jpg", "js", "less", "png", "sass", "svg"];
         this.pipelineTypes = ["build", "distribute", "test"];
 
         this.moduleDirectory = moduleDirectory;     // i.e. Warhorse's own directory
@@ -301,6 +297,9 @@ class Warhorse {
      */
     copy(type, config, options = {}) {
 
+        // Ensure that the destination directory actually exists... or if not, create it.
+        shell.mkdir("-p", path.dirname(config.dst));
+
         if(options.recurse === true) {
             shell.cp("-R", config.src, config.dst);
         } else {
@@ -341,10 +340,7 @@ class Warhorse {
             }
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
-            // let dst = path.resolve(this.workingDirectory, config.dst);
-            // let dstPath = path.dirname(dst);
-            // shell.mkdir("-p", dstPath);
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/browserify", this.workingDirectory, toolArgs, toolOptions, options);
@@ -383,7 +379,7 @@ class Warhorse {
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // NOTE: There is no user->tool mapping necessary here.
             // Directly execute the task.
@@ -410,7 +406,7 @@ class Warhorse {
                 };
 
                 // Ensure that the destination directory actually exists... or if not, create it.
-                ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+                shell.mkdir("-p", path.dirname(config.dst));
 
                 // Finally map configuration to tool args and options
                 this._execute(this.moduleDirectory, "./node_modules/.bin/imagemin", this.workingDirectory, toolArgs, toolOptions, options);
@@ -444,16 +440,16 @@ class Warhorse {
             let src = path.resolve(this.workingDirectory, config.src);
             let dst = path.resolve(this.workingDirectory, config.dst);
             let configPath = path.resolve(this.moduleDirectory, "./conf/jsdoc.json");
-            let toolArgs = [config.src];
+            let toolArgs = [src];
             let toolOptions = {
                 verbose: this.debug || config.debug,   // i.e. debug/source map options
                 configure: configPath,
-                destination: config.dst,
+                destination: dst,
                 recurse: true
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, dst);
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/jsdoc", this.moduleDirectory, toolArgs, toolOptions, options);
@@ -553,7 +549,7 @@ class Warhorse {
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/uglifyjs", this.workingDirectory, toolArgs, toolOptions, options);
@@ -570,7 +566,7 @@ class Warhorse {
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/csso", this.workingDirectory, toolArgs, toolOptions, options);
@@ -581,12 +577,12 @@ class Warhorse {
             let toolArgs = [config.src];
             let toolOptions = {
                 debug: this.debug || config.debug,   // i.e. debug/source map options
-                "config-file": path.resolve(this.moduleDirectory, "./conf/html_minifier.json"),
+                //"config-file": path.resolve(this.moduleDirectory, "./conf/html_minifier.json"),
                 output: config.dst
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/html-minifier", this.workingDirectory, toolArgs, toolOptions, options);
@@ -626,7 +622,7 @@ class Warhorse {
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/lessc", this.workingDirectory, toolArgs, toolOptions, options);
@@ -642,10 +638,30 @@ class Warhorse {
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/node-sass", this.workingDirectory, toolArgs, toolOptions, options);
+
+        } else if(type === "hbs") {
+
+            // handlebars --commonjs handlebars/runtime -m ./src/js/view/templates/* -f ./src/js/view/compiled/templates.compiled.js -k each -k if -k unless
+            // handlebars ./src/js/view/templates/* --output ./src/js/view/compiled/templates.compiled.js --commonjs handlebars/runtime --min --known each --known if --known unless
+
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            let toolArgs = [config.src];
+            let toolOptions = {
+                "map": this.debug || config.debug,   // i.e. debug/source map options
+                "output": config.dst,
+                "commonjs": "handlebars/runtime",
+                "min": true
+            };
+
+            // Ensure that the destination directory actually exists... or if not, create it.
+            shell.mkdir("-p", path.dirname(config.dst));
+
+            // Finally map configuration to tool args and options
+            this._execute(this.moduleDirectory, "./node_modules/.bin/handlebars", this.workingDirectory, toolArgs, toolOptions, options);
 
         } else {
             throw new Error(`Unrecognised type '${type}'.`);
@@ -684,7 +700,7 @@ class Warhorse {
             // }
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/postcss", this.workingDirectory, toolArgs, toolOptions, options);
@@ -1131,7 +1147,16 @@ class Warhorse {
         //console.log("relativeFilePath: " + relativeFilePath);
         let relativePath = path.dirname(relativeFilePath);                  // e.g. /js
         //console.log("relativePath: " + relativePath);
-        let srcFileStem = path.basename(srcPath, path.extname(srcPath));
+
+        // We have to determine the extension ourselves... due to the likes of ".min.js" - which is unsupported by node/path
+        let srcBasename = path.basename(srcPath);
+        let extBegin = srcBasename.indexOf(".");
+        let srcExt = "";    // default value
+        let srcFileStem = srcBasename; // default value
+        if(extBegin !== -1) {
+            srcFileStem = srcBasename.slice(0, extBegin);
+            srcExt = srcBasename.slice(extBegin);
+        }
         //console.log("srcFileStem: " + srcFileStem);
         let dstFileName = srcFileStem + dstExt;
         //console.log("dstFileName: " + dstFileName);
@@ -1166,9 +1191,13 @@ class Warhorse {
             // console.log(`and a src glob that has resolved into ${srcPaths.length} paths.`); // DEBUG ONLY
             if(srcPaths.constructor === Array && srcPaths.length > 0) {
                 for(let src of srcPaths) {
+                    // As we're using glob expansion - we deal with individual files... and relative paths!
+                    // ...we need to ensure that ./src/something/file.js -> ./dist/something/file.js
                     let expandedTask = JSON.parse(JSON.stringify(task)); // Cheap, tacky - but effective - clone!
                     expandedTask.src = src;
                     expandedTask.dst = this._resolveDst(task.src[0], src, task.dst[0], task.dst[1]);//src.replace("src", "dist");
+
+                    // Now call the task
                     // e.g. this.bundle("js", {src: ..., dst: ...});
                     this[taskMethod](taskType, expandedTask, toolConfig);
                 }
@@ -1176,6 +1205,15 @@ class Warhorse {
                 console.warn("No files matched.");
             }
         } else {
+            // If we're not using glob expansion - we can only output (possibly mulitple files) to a directory.
+            // ... so dump the file extension - and the array wrapper too.
+            if(task.dst) {
+                task.dst = task.dst[0];
+            } else {
+                console.debug("Have null tool destination path.");
+            }
+
+            // Now call the task
             // e.g. this.bundle("js", {src: ..., dst: ...});
             this[taskMethod](taskType, task, toolConfig);
         }
@@ -1258,8 +1296,10 @@ class Warhorse {
                     this._cmdWatch(this.workingDirectory, arg1, defaults);
                     break;
                 case "build":
-                case "test":
                 case "distribute":
+                    // For 'build' and 'distribute' - we flush ./dist automatically first.
+                    shell.rm("-rf", "./dist/*");
+                case "test":
                     // Handle standard built-ins
                     let pipelines = defaults.pipelines[cmdName];
                     let pipeline = null;
