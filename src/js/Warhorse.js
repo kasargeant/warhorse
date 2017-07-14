@@ -1182,9 +1182,13 @@ class Warhorse {
             // console.log(`and a src glob that has resolved into ${srcPaths.length} paths.`); // DEBUG ONLY
             if(srcPaths.constructor === Array && srcPaths.length > 0) {
                 for(let src of srcPaths) {
+                    // As we're using glob expansion - we deal with individual files... and relative paths!
+                    // ...we need to ensure that ./src/something/file.js -> ./dist/something/file.js
                     let expandedTask = JSON.parse(JSON.stringify(task)); // Cheap, tacky - but effective - clone!
                     expandedTask.src = src;
                     expandedTask.dst = this._resolveDst(task.src[0], src, task.dst[0], task.dst[1]);//src.replace("src", "dist");
+
+                    // Now call the task
                     // e.g. this.bundle("js", {src: ..., dst: ...});
                     this[taskMethod](taskType, expandedTask, toolConfig);
                 }
@@ -1192,6 +1196,15 @@ class Warhorse {
                 console.warn("No files matched.");
             }
         } else {
+            // If we're not using glob expansion - we can only output (possibly mulitple files) to a directory.
+            // ... so dump the file extension - and the array wrapper too.
+            if(task.dst) {
+                task.dst = task.dst[0];
+            } else {
+                console.debug("Have null tool destination path.");
+            }
+
+            // Now call the task
             // e.g. this.bundle("js", {src: ..., dst: ...});
             this[taskMethod](taskType, task, toolConfig);
         }
