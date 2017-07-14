@@ -6,6 +6,10 @@
  * @license See LICENSE file included in this distribution.
  */
 
+// TOP TO-DOs!!!
+// =============
+// TODO - NODE_ENV=production support.
+
 "use strict";
 
 // Imports
@@ -35,14 +39,6 @@ const packageSnippets = require("../conventions/package_snippets.json");
 const Pageant = require("pageant");
 const console = new Pageant();
 const color = require("tinter");
-
-// Helpers (internal)
-function ensureTargetDirectory(workingDirectory, relativePathDst) {
-    let dst = path.resolve(workingDirectory, relativePathDst);
-    let dstPath = path.dirname(dst);
-    shell.mkdir("-p", dstPath);
-}
-
 
 /**
  * @class
@@ -301,6 +297,9 @@ class Warhorse {
      */
     copy(type, config, options = {}) {
 
+        // Ensure that the destination directory actually exists... or if not, create it.
+        shell.mkdir("-p", path.dirname(config.dst));
+
         if(options.recurse === true) {
             shell.cp("-R", config.src, config.dst);
         } else {
@@ -341,10 +340,7 @@ class Warhorse {
             }
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
-            // let dst = path.resolve(this.workingDirectory, config.dst);
-            // let dstPath = path.dirname(dst);
-            // shell.mkdir("-p", dstPath);
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/browserify", this.workingDirectory, toolArgs, toolOptions, options);
@@ -383,7 +379,7 @@ class Warhorse {
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // NOTE: There is no user->tool mapping necessary here.
             // Directly execute the task.
@@ -410,7 +406,7 @@ class Warhorse {
                 };
 
                 // Ensure that the destination directory actually exists... or if not, create it.
-                ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+                shell.mkdir("-p", path.dirname(config.dst));
 
                 // Finally map configuration to tool args and options
                 this._execute(this.moduleDirectory, "./node_modules/.bin/imagemin", this.workingDirectory, toolArgs, toolOptions, options);
@@ -444,16 +440,16 @@ class Warhorse {
             let src = path.resolve(this.workingDirectory, config.src);
             let dst = path.resolve(this.workingDirectory, config.dst);
             let configPath = path.resolve(this.moduleDirectory, "./conf/jsdoc.json");
-            let toolArgs = [config.src];
+            let toolArgs = [src];
             let toolOptions = {
                 verbose: this.debug || config.debug,   // i.e. debug/source map options
                 configure: configPath,
-                destination: config.dst,
+                destination: dst,
                 recurse: true
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, dst);
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/jsdoc", this.moduleDirectory, toolArgs, toolOptions, options);
@@ -553,7 +549,7 @@ class Warhorse {
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/uglifyjs", this.workingDirectory, toolArgs, toolOptions, options);
@@ -570,7 +566,7 @@ class Warhorse {
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/csso", this.workingDirectory, toolArgs, toolOptions, options);
@@ -586,7 +582,7 @@ class Warhorse {
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/html-minifier", this.workingDirectory, toolArgs, toolOptions, options);
@@ -626,7 +622,7 @@ class Warhorse {
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/lessc", this.workingDirectory, toolArgs, toolOptions, options);
@@ -642,7 +638,7 @@ class Warhorse {
             };
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/node-sass", this.workingDirectory, toolArgs, toolOptions, options);
@@ -684,7 +680,7 @@ class Warhorse {
             // }
 
             // Ensure that the destination directory actually exists... or if not, create it.
-            ensureTargetDirectory(this.workingDirectory, path.dirname(config.dst));
+            shell.mkdir("-p", path.dirname(config.dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/postcss", this.workingDirectory, toolArgs, toolOptions, options);
