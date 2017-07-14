@@ -29,15 +29,9 @@ module.exports = {
                 {idn: "preprocess:sass", src: ["./test/data/client_src/sass", "index.scss"], dst: ["./test/data/client_dist/css", ".css"]},
                 {idn: "postprocess:css", src: ["./test/data/client_dist/css", "**/*.css"], dst: ["./test/data/client_dist/css", ".css"]},
             ],
-            // "hbs": [
-            //     {
-            //         task: "preprocess:hbs",
-            //         src: ["./test/data/client_src/js/templates",
-            //         dst: "./test/data/client_dist/js/templates",
-            //         sxt: ".hbs",
-            //         dxt: ".hbs.js"
-            //     },
-            // ],
+            "hbs": [
+                {idn: "preprocess:hbs", src: ["./test/data/client_src/js/templates", "**/*.hbs"], dst: ["./test/data/client_dist/js/templates", ".hbs.js"]},
+            ],
             "gif": [
                 {idn: "copy:gif", src: ["./test/data/client_src/img", "**/*.gif"], dst: ["./test/data/client_dist/img", ".gif"]},
             ],
@@ -112,7 +106,7 @@ module.exports = {
                 {idn: "compress:css", src: ["./test/data/client_dist/css", "**/*.min.css"], dst: ["./test/data/client_dist/css", ".min.css.tar.gz"]},
             ],
             "hbs": [
-                {idn: "preprocess:hbs", src: ["./test/data/client_src/js/templates"], dst: ["./test/data/client_dist/js/templates", ".hbs.js"]},
+                {idn: "preprocess:hbs", src: ["./test/data/client_src/js/templates", "**/*.hbs"], dst: ["./test/data/client_dist/js/templates", ".hbs.js"]},
             ],
             "gif": [
                 {idn: "compress:gif", src: ["./test/data/client_src/img", "**/*.gif"], dst: ["./test/data/client_dist/img", ".gif"]},

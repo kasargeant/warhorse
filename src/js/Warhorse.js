@@ -65,7 +65,7 @@ class Warhorse {
         this.commands = ["build", "create", "deploy", "distribute", "publish", "test", "watch"]; //FIXME - replace with Object.keys(warhorse.tasks);
         this.conventions = ["client", "fullstack", "library", "module", "server"];
         this.deployments = ["browser", "cordova", "node"]; //TODO "electron" deployment,
-        this.types = ["css", "gif", "html", "ico", "jpg", "js", "less", "png", "sass", "svg"];
+        this.types = ["css", "gif", "hbs", "html", "ico", "jpg", "js", "less", "png", "sass", "svg"];
         this.pipelineTypes = ["build", "distribute", "test"];
 
         this.moduleDirectory = moduleDirectory;     // i.e. Warhorse's own directory
@@ -642,6 +642,26 @@ class Warhorse {
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/node-sass", this.workingDirectory, toolArgs, toolOptions, options);
+
+        } else if(type === "hbs") {
+
+            // handlebars --commonjs handlebars/runtime -m ./src/js/view/templates/* -f ./src/js/view/compiled/templates.compiled.js -k each -k if -k unless
+            // handlebars ./src/js/view/templates/* --output ./src/js/view/compiled/templates.compiled.js --commonjs handlebars/runtime --min --known each --known if --known unless
+
+            // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
+            let toolArgs = [config.src];
+            let toolOptions = {
+                "map": this.debug || config.debug,   // i.e. debug/source map options
+                "output": config.dst,
+                "commonjs": "handlebars/runtime",
+                "min": true
+            };
+
+            // Ensure that the destination directory actually exists... or if not, create it.
+            shell.mkdir("-p", path.dirname(config.dst));
+
+            // Finally map configuration to tool args and options
+            this._execute(this.moduleDirectory, "./node_modules/.bin/handlebars", this.workingDirectory, toolArgs, toolOptions, options);
 
         } else {
             throw new Error(`Unrecognised type '${type}'.`);
