@@ -213,7 +213,7 @@ describe("Class: Warhorse", function() {
             expect(warhorse._cmdCreate.callCount).toBe(0);
             expect(warhorse._cmdDeploy.callCount).toBe(0);
             expect(warhorse._cmdWatch.callCount).toBe(0);
-            expect(warhorse._executePipeline.callCount).toBe(10);
+            expect(warhorse._executePipeline.callCount).toBe(11);
 
             // Evaluate args
             expect(warhorse._executePipeline.getCall(0).args[0]).toBe("build");

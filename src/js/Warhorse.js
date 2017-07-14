@@ -577,7 +577,7 @@ class Warhorse {
             let toolArgs = [config.src];
             let toolOptions = {
                 debug: this.debug || config.debug,   // i.e. debug/source map options
-                "config-file": path.resolve(this.moduleDirectory, "./conf/html_minifier.json"),
+                //"config-file": path.resolve(this.moduleDirectory, "./conf/html_minifier.json"),
                 output: config.dst
             };
 
@@ -1147,7 +1147,16 @@ class Warhorse {
         //console.log("relativeFilePath: " + relativeFilePath);
         let relativePath = path.dirname(relativeFilePath);                  // e.g. /js
         //console.log("relativePath: " + relativePath);
-        let srcFileStem = path.basename(srcPath, path.extname(srcPath));
+
+        // We have to determine the extension ourselves... due to the likes of ".min.js" - which is unsupported by node/path
+        let srcBasename = path.basename(srcPath);
+        let extBegin = srcBasename.indexOf(".");
+        let srcExt = "";    // default value
+        let srcFileStem = srcBasename; // default value
+        if(extBegin !== -1) {
+            srcFileStem = srcBasename.slice(0, extBegin);
+            srcExt = srcBasename.slice(extBegin);
+        }
         //console.log("srcFileStem: " + srcFileStem);
         let dstFileName = srcFileStem + dstExt;
         //console.log("dstFileName: " + dstFileName);
@@ -1287,8 +1296,10 @@ class Warhorse {
                     this._cmdWatch(this.workingDirectory, arg1, defaults);
                     break;
                 case "build":
-                case "test":
                 case "distribute":
+                    // For 'build' and 'distribute' - we flush ./dist automatically first.
+                    shell.rm("-rf", "./dist/*");
+                case "test":
                     // Handle standard built-ins
                     let pipelines = defaults.pipelines[cmdName];
                     let pipeline = null;
