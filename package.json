@@ -1,6 +1,6 @@
 {
   "name": "warhorse",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "The zero-configuration JavaScript Task Runner.",
   "keywords": [
     "javascript",
