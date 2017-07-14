@@ -14,19 +14,18 @@ module.exports = {
             "js": [
                 {idn: "bundle:js", src: ["./src", "**/index.js"], dst: ["./dist", ".js"]},
             ],
-            "css": [
-                {idn: "copy:css", src: ["./src/css", "*.css"], dst: ["./dist/css", ".css"]},
-                {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
-            ],
             "html": [
                 {idn: "copy:html", src: ["./src", "**/*.html"], dst: ["./dist", ".html"]}
             ],
             "less": [
                 {idn: "preprocess:less", src: ["./src/less", "**/index.less"], dst: ["./dist/css", ".css"]},
-                {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
             ],
             "sass": [
                 {idn: "preprocess:sass", src: ["./src/sass", "index.scss"], dst: ["./dist/css", ".css"]},
+            ],
+            // Note: CSS must follow any other stylesheet work.
+            "css": [
+                {idn: "copy:css", src: ["./src/css", "*.css"], dst: ["./dist/css", ".css"]},
                 {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
             ],
             "hbs": [
@@ -56,7 +55,6 @@ module.exports = {
                 {idn: "test:js", src: ["./test/js", ""], dst: null}
             ],
             // TODO - ADD CSS Linter
-            "css": [],
             "html": [],
             "less": [
                 // {idn: "lint:less", src: ["./src/less", ""], dst: null, sxt: ".less", dxt: null}
@@ -64,6 +62,8 @@ module.exports = {
             "sass": [
                 // {idn: "lint:sass", src: ["./src/sass", ""], dst: null, sxt: ".scss", dxt: null}
             ],
+            // Note: CSS must follow any other stylesheet work.
+            "css": [],
             // TODO - IS THERE A TEMPLATE Linter?
             "hbs": [],
             "gif": [],
@@ -83,24 +83,19 @@ module.exports = {
                 {idn: "compress:js", src: ["./dist", "**/*.min.js"], dst: ["./dist", ".min.js.tar.gz"]},
                 // {idn: "document:js", src: ["./src/js"], dst: ["./docs/api"]},
             ],
-            "css": [
-                {idn: "copy:css", src: ["./src/css", "**/*.css"], dst: ["./dist/css", ".css"]},
-                {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
-                {idn: "minify:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".min.css"]},
-                {idn: "compress:css", src: ["./dist/css", "**/*.min.css"], dst: ["./dist/css", ".min.css.tar.gz"]},
-            ],
             "html": [
                 {idn: "minify:html", src: ["./src", "**/*.html"], dst: ["./dist", ".html"]},
                 {idn: "compress:html", src: ["./dist", "**/*.html"], dst: ["./dist", ".html.tar.gz"]}
             ],
             "less": [
                 {idn: "preprocess:less", src: ["./src/less", "**/index.less"], dst: ["./dist/css", ".css"]},
-                {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
-                {idn: "minify:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".min.css"]},
-                {idn: "compress:css", src: ["./dist/css", "**/*.min.css"], dst: ["./dist/css", ".min.css.tar.gz"]},
             ],
             "sass": [
                 {idn: "preprocess:sass", src: ["./src/sass", "**/index.scss"], dst: ["./dist/css", ".css"]},
+            ],
+            // Note: CSS must follow any other stylesheet work.
+            "css": [
+                {idn: "copy:css", src: ["./src/css", "**/*.css"], dst: ["./dist/css", ".css"]},
                 {idn: "postprocess:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".css"]},
                 {idn: "minify:css", src: ["./dist/css", "**/*.css"], dst: ["./dist/css", ".min.css"]},
                 {idn: "compress:css", src: ["./dist/css", "**/*.min.css"], dst: ["./dist/css", ".min.css.tar.gz"]},
