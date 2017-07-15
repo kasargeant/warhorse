@@ -172,7 +172,7 @@ module.exports = {
             "copy:jpg": {desc: "Copying JPG", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "copy:png": {desc: "Copying PNG", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "copy:svg": {desc: "Copying SVG", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
-            "document:js": {desc: "Documenting JS", silent: true, debug: false, expandGlobs: false, useOutput: "stdout", useEqualsSign: false},
+            "document:js": {desc: "Documenting JS", silent: false, debug: false, expandGlobs: false, useOutput: "stdout", useEqualsSign: false},
             "lint:js:style": {desc: "Linting JS(style)", silent: false, debug: false, expandGlobs: false, useOutput: "jscs", useEqualsSign: true, stdio: "pipe"},
             "lint:js:quality": {desc: "Linting JS(quality)", silent: false, debug: false, expandGlobs: false, useOutput: "jshint", useEqualsSign: true, stdio: "pipe"},
             "minify:js": {desc: "Minifying JS", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
