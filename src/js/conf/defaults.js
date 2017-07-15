@@ -52,7 +52,8 @@ module.exports = {
             "js": [
                 {idn: "lint:js:quality", src: ["./src/js", ""], dst: null},
                 {idn: "lint:js:style", src: ["./src/js", ""], dst: null},
-                {idn: "test:js", src: ["./test/js", ""], dst: null}
+                {idn: "test:js", src: ["./test/js", ""], dst: null},
+                {idn: "document:js", src: ["./src", ""], dst: ["./docs/api", ""]}
             ],
             // TODO - ADD CSS Linter
             "html": [],
@@ -81,10 +82,11 @@ module.exports = {
                 {idn: "bundle:js", src: ["./src", "**/index.js"], dst: ["./dist", ".js"]},
                 {idn: "minify:js", src: ["./dist", "**/*.js"], dst: ["./dist", ".min.js"]},
                 {idn: "compress:js", src: ["./dist", "**/*.min.js"], dst: ["./dist", ".min.js.tar.gz"]},
-                // {idn: "document:js", src: ["./src/js"], dst: ["./docs/api"]},
+                {idn: "document:js", src: ["./src", ""], dst: ["./docs/api", ""]}
             ],
             "html": [
-                {idn: "minify:html", src: ["./src", "**/*.html"], dst: ["./dist", ".html"]},
+                {idn: "copy:html", src: ["./src", "**/*.html"], dst: ["./dist", ".html"]},
+                // {idn: "minify:html", src: ["./src", "**/*.html"], dst: ["./dist", ".html"]},
                 {idn: "compress:html", src: ["./dist", "**/*.html"], dst: ["./dist", ".html.tar.gz"]}
             ],
             "less": [
@@ -170,7 +172,7 @@ module.exports = {
             "copy:jpg": {desc: "Copying JPG", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "copy:png": {desc: "Copying PNG", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
             "copy:svg": {desc: "Copying SVG", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},
-            "document:js": {desc: "Documenting JS", silent: true, debug: false, expandGlobs: false, useOutput: "stdout", useEqualsSign: false},
+            "document:js": {desc: "Documenting JS", silent: false, debug: false, expandGlobs: false, useOutput: "stdout", useEqualsSign: false},
             "lint:js:style": {desc: "Linting JS(style)", silent: false, debug: false, expandGlobs: false, useOutput: "jscs", useEqualsSign: true, stdio: "pipe"},
             "lint:js:quality": {desc: "Linting JS(quality)", silent: false, debug: false, expandGlobs: false, useOutput: "jshint", useEqualsSign: true, stdio: "pipe"},
             "minify:js": {desc: "Minifying JS", silent: true, debug: false, expandGlobs: true, useOutput: "stdout", useEqualsSign: false},

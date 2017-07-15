@@ -398,15 +398,17 @@ class Warhorse {
             if(plugin !== undefined) {
 
                 // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
-                let toolArgs = [config.src];
+                let src = path.resolve(this.workingDirectory, config.src[0], config.src[1]);
+                let dst = path.resolve(this.workingDirectory, config.dst[0], config.dst[1]);
+                let toolArgs = [src];
                 let toolOptions = {
                     map: this.debug || config.debug,   // i.e. debug/source map options
-                    "out-dir": config.dst,
+                    "out-dir": path.dirname(dst),
                     plugin: plugin
                 };
 
                 // Ensure that the destination directory actually exists... or if not, create it.
-                shell.mkdir("-p", path.dirname(config.dst));
+                shell.mkdir("-p", path.dirname(dst));
 
                 // Finally map configuration to tool args and options
                 this._execute(this.moduleDirectory, "./node_modules/.bin/imagemin", this.workingDirectory, toolArgs, toolOptions, options);
@@ -437,9 +439,10 @@ class Warhorse {
 
             // Resolve tool-level cmd-line toolArguments and toolOptions - with that user-level config
             // NOTE: We always use Warhorse conf file.
-            let src = path.resolve(this.workingDirectory, config.src);
-            let dst = path.resolve(this.workingDirectory, config.dst);
+            let src = path.resolve(this.workingDirectory, config.src[0], config.src[1]);
+            let dst = path.resolve(this.workingDirectory, config.dst[0], config.dst[1]);
             let configPath = path.resolve(this.moduleDirectory, "./conf/jsdoc.json");
+            let readmePath = path.resolve(this.workingDirectory, "./src/README.md");
             let toolArgs = [src];
             let toolOptions = {
                 verbose: this.debug || config.debug,   // i.e. debug/source map options
@@ -448,8 +451,13 @@ class Warhorse {
                 recurse: true
             };
 
+            // Deal with JSDoc's troublesome markdown handling.
+            if (fs.existsSync(readmePath)) {
+                toolOptions.readme = readmePath;
+            }
+
             // Ensure that the destination directory actually exists... or if not, create it.
-            shell.mkdir("-p", path.dirname(config.dst));
+            shell.mkdir("-p", path.dirname(dst));
 
             // Finally map configuration to tool args and options
             this._execute(this.moduleDirectory, "./node_modules/.bin/jsdoc", this.moduleDirectory, toolArgs, toolOptions, options);
@@ -1207,11 +1215,11 @@ class Warhorse {
         } else {
             // If we're not using glob expansion - we can only output (possibly mulitple files) to a directory.
             // ... so dump the file extension - and the array wrapper too.
-            if(task.dst) {
-                task.dst = task.dst[0];
-            } else {
-                console.debug("Have null tool destination path.");
-            }
+            // if(task.dst) {
+            //     task.dst = task.dst[0];
+            // } else {
+            //     console.debug("Have null tool destination path.");
+            // }
 
             // Now call the task
             // e.g. this.bundle("js", {src: ..., dst: ...});
