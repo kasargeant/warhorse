@@ -52,7 +52,8 @@ module.exports = {
             "js": [
                 {idn: "lint:js:quality", src: ["./src/js", ""], dst: null},
                 {idn: "lint:js:style", src: ["./src/js", ""], dst: null},
-                {idn: "test:js", src: ["./test/js", ""], dst: null}
+                {idn: "test:js", src: ["./test/js", ""], dst: null},
+                {idn: "document:js", src: ["./src", ""], dst: ["./docs/api", ""]}
             ],
             // TODO - ADD CSS Linter
             "html": [],
@@ -81,7 +82,7 @@ module.exports = {
                 {idn: "bundle:js", src: ["./src", "**/index.js"], dst: ["./dist", ".js"]},
                 {idn: "minify:js", src: ["./dist", "**/*.js"], dst: ["./dist", ".min.js"]},
                 {idn: "compress:js", src: ["./dist", "**/*.min.js"], dst: ["./dist", ".min.js.tar.gz"]},
-                {idn: "document:js", src: ["./src/js", ""], dst: ["./docs/api", ""]}
+                {idn: "document:js", src: ["./src", ""], dst: ["./docs/api", ""]}
             ],
             "html": [
                 {idn: "copy:html", src: ["./src", "**/*.html"], dst: ["./dist", ".html"]},

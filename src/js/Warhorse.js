@@ -442,6 +442,7 @@ class Warhorse {
             let src = path.resolve(this.workingDirectory, config.src[0], config.src[1]);
             let dst = path.resolve(this.workingDirectory, config.dst[0], config.dst[1]);
             let configPath = path.resolve(this.moduleDirectory, "./conf/jsdoc.json");
+            let readmePath = path.resolve(this.workingDirectory, "./src/README.md");
             let toolArgs = [src];
             let toolOptions = {
                 verbose: this.debug || config.debug,   // i.e. debug/source map options
@@ -449,6 +450,11 @@ class Warhorse {
                 destination: dst,
                 recurse: true
             };
+
+            // Deal with JSDoc's troublesome markdown handling.
+            if (fs.existsSync(readmePath)) {
+                toolOptions.readme = readmePath;
+            }
 
             // Ensure that the destination directory actually exists... or if not, create it.
             shell.mkdir("-p", path.dirname(dst));
