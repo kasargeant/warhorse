@@ -81,10 +81,11 @@ module.exports = {
                 {idn: "bundle:js", src: ["./src", "**/index.js"], dst: ["./dist", ".js"]},
                 {idn: "minify:js", src: ["./dist", "**/*.js"], dst: ["./dist", ".min.js"]},
                 {idn: "compress:js", src: ["./dist", "**/*.min.js"], dst: ["./dist", ".min.js.tar.gz"]},
-                // {idn: "document:js", src: ["./src/js"], dst: ["./docs/api"]},
+                {idn: "document:js", src: ["./src/js", ""], dst: ["./docs/api", ""]}
             ],
             "html": [
-                {idn: "minify:html", src: ["./src", "**/*.html"], dst: ["./dist", ".html"]},
+                {idn: "copy:html", src: ["./src", "**/*.html"], dst: ["./dist", ".html"]},
+                // {idn: "minify:html", src: ["./src", "**/*.html"], dst: ["./dist", ".html"]},
                 {idn: "compress:html", src: ["./dist", "**/*.html"], dst: ["./dist", ".html.tar.gz"]}
             ],
             "less": [
