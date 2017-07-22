@@ -1303,10 +1303,10 @@ class Warhorse {
                 case "watch":
                     this._cmdWatch(this.workingDirectory, arg1, defaults);
                     break;
-                case "build":
                 case "distribute":
-                    // For 'build' and 'distribute' - we flush ./dist automatically first.
+                    // For 'distribute' ONLY - we flush ./dist automatically first.
                     shell.rm("-rf", "./dist/*");
+                case "build":
                 case "test":
                     // Handle standard built-ins
                     let pipelines = defaults.pipelines[cmdName];
