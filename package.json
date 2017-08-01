@@ -65,7 +65,7 @@
     "eslint": "^4.3.0",
     "glob": "^7.1.1",
     "handlebars": "^4.0.10",
-    "html-minifier": "^3.5.2",
+    "html-minifier": "^3.5.3",
     "imagemin-cli": "^3.0.0",
     "imagemin-gifsicle": "^5.2.0",
     "imagemin-jpegtran": "^5.0.2",
@@ -91,11 +91,11 @@
     "postcss-cssnext": "^3.0.2",
     "readline-sync": "^1.4.7",
     "shelljs": "^0.7.8",
-    "sinon": "^2.3.8",
+    "sinon": "^2.4.1",
     "taffydb": "^2.7.3",
-    "tar": "^3.1.5",
+    "tar": "^3.1.7",
     "tinter": "^0.4.5",
-    "uglify-es": "^3.0.25",
+    "uglify-es": "^3.0.27",
     "zip-local": "^0.3.4"
   },
   "devDependencies": {
